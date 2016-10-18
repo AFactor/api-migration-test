@@ -1,0 +1,21 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Shipping V2 (REST)
+  x-ibm-name: shipping-v2-rest
+host: $(catalog.host)
+basePath: /
+paths: {}
+securityDefinitions:
+  clientID:
+    description: ''
+    in: header
+    name: X-IBM-Client-Id
+    type: apiKey
+security:
+  - clientID: []
+x-ibm-configuration:
+  assembly:
+    execute:
+      - invoke:
+          target-url: $(target-url)$(request.path)
