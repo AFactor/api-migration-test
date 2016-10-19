@@ -1,0 +1,114 @@
+Org,Api,Status,Count
+Clicky,Tracking API LIVE (REST),500,15796
+Suggero360 UK Ltd,Tracking API LIVE (SOAP),500 Internal Server Error,2150
+sinotrans,Tracking API LIVE (SOAP),200 OK,909
+winit,Tracking API LIVE (SOAP),200 OK,203
+Eretail Distribution Ltd,Tracking API LIVE (SOAP),500 Internal Server Error,1891
+Monitoring,Tracking API LIVE (SOAP),500 Internal Server Error,8
+winit,Tracking API LIVE (SOAP),500 Internal Server Error,451
+Pitney Bowes,Tracking API LIVE (SOAP),200 OK,1808
+Clicky,Tracking API LIVE (REST),200,3117
+Eretail Distribution Ltd,Tracking API LIVE (SOAP),200 OK,353
+Suggero360 UK Ltd,Tracking API LIVE (SOAP),200 OK,2599
+Monitoring,Tracking API LIVE (SOAP),200 OK,12
+Test,Local Collect API (REST),200,32
+Monitoring,Echo,200,37
+sinotrans,Tracking API LIVE (SOAP),500 Internal Server Error,27
+Monitoring,Local Collect API LIVE (REST),401,5
+Monitoring,Local Collect API LIVE (REST),201,5
+DTDC Courier & Cargo UK Ltd,Tracking API LIVE (SOAP),500 Internal Server Error,61
+DTDC Courier & Cargo UK Ltd,Tracking API LIVE (SOAP),200 OK,8
+Monitoring,Local Collect API LIVE (REST),200,10
+SMART MEN'S CLUB SA,Shipping API V2 Live (SOAP),200 OK,124
+Pitney Bowes,Tracking API LIVE (SOAP),500 Internal Server Error,64
+Monitoring,Shipping API V2 Live (SOAP),401,2
+Monitoring,Shipping API V2 Live (SOAP),200 OK,18
+Monarch Software,Shipping API V2 Live (SOAP),200 OK,76
+SMART MEN'S CLUB SA,Tracking API LIVE (SOAP),500 Internal Server Error,8
+Monitoring,Delivery Office Finder API (REST),401,2
+Monitoring,Delivery Office Finder API (REST),200 OK,2
+SMART MEN'S CLUB SA,Tracking API LIVE (SOAP),200 OK,7
+Monitoring,Shipping API V1 Live (SOAP),401,2
+Monitoring,Shipping API V1 Live (SOAP),200 OK,12
+Monitoring,Local Collect API Live (SOAP),401,3
+Monitoring,Local Collect API Live (SOAP),200 OK,6
+Neopost,Local Collect API (SOAP),200 OK,2
+Monitoring,PFW Tracking API (SOAP) LIVE,401,2
+Monitoring,PFW Tracking API (SOAP) LIVE,200 OK,4
+Monitoring,Tracking API LIVE (REST),401,4
+Monitoring,Tracking API LIVE (REST),200,6
+Monitoring,Tracking API LIVE (REST),500,6
+Monitoring,Online Postage API LIVE (SOAP),401,4
+Monitoring,Online Postage API LIVE (SOAP),500 Internal Server Error,4
+Monitoring,Tracking API LIVE (SOAP),401,4
+europe,Shipping API V2 Live (SOAP),200 OK,3
+Monitoring,Online Postage API V1 (SOAP),401,2
+Monitoring,Shipping API V2 (SOAP),401,2
+Monitoring,Online Postage API V1 (SOAP),500 Internal Server Error,2
+Monitoring,Shipping API V2 (SOAP),200 OK,18
+Monitoring,Tracking API (REST),401,2
+Monitoring,Tracking API (REST),500,6
+Cornerstone,Tracking API LIVE (REST),500,1
+First Class Watches Limited,Tracking API LIVE (SOAP),200 OK,23
+First Class Watches Limited,Tracking API LIVE (SOAP),500 Internal Server Error,2
+Cornerstone,Tracking API LIVE (REST),200,1
+Group International Ltd,Tracking API LIVE (SOAP),200 OK,82
+Group International Ltd,Tracking API LIVE (SOAP),500 Internal Server Error,11
+Monarch Software,Shipping API V2 Live (SOAP),500 Internal Server Error,1
+Org,Api,Status,Count
+Clicky,Tracking API LIVE (REST),500,15796
+Suggero360 UK Ltd,Tracking API LIVE (SOAP),500 Internal Server Error,2150
+sinotrans,Tracking API LIVE (SOAP),200 OK,909
+winit,Tracking API LIVE (SOAP),200 OK,203
+Eretail Distribution Ltd,Tracking API LIVE (SOAP),500 Internal Server Error,1891
+Monitoring,Tracking API LIVE (SOAP),500 Internal Server Error,8
+winit,Tracking API LIVE (SOAP),500 Internal Server Error,451
+Pitney Bowes,Tracking API LIVE (SOAP),200 OK,1808
+Clicky,Tracking API LIVE (REST),200,3117
+Eretail Distribution Ltd,Tracking API LIVE (SOAP),200 OK,353
+Suggero360 UK Ltd,Tracking API LIVE (SOAP),200 OK,2599
+Monitoring,Tracking API LIVE (SOAP),200 OK,12
+Test,Local Collect API (REST),200,32
+Monitoring,Echo,200,37
+sinotrans,Tracking API LIVE (SOAP),500 Internal Server Error,27
+Monitoring,Local Collect API LIVE (REST),401,5
+Monitoring,Local Collect API LIVE (REST),201,5
+DTDC Courier & Cargo UK Ltd,Tracking API LIVE (SOAP),500 Internal Server Error,61
+DTDC Courier & Cargo UK Ltd,Tracking API LIVE (SOAP),200 OK,8
+Monitoring,Local Collect API LIVE (REST),200,10
+SMART MEN'S CLUB SA,Shipping API V2 Live (SOAP),200 OK,124
+Pitney Bowes,Tracking API LIVE (SOAP),500 Internal Server Error,64
+Monitoring,Shipping API V2 Live (SOAP),401,2
+Monitoring,Shipping API V2 Live (SOAP),200 OK,18
+Monarch Software,Shipping API V2 Live (SOAP),200 OK,76
+SMART MEN'S CLUB SA,Tracking API LIVE (SOAP),500 Internal Server Error,8
+Monitoring,Delivery Office Finder API (REST),401,2
+Monitoring,Delivery Office Finder API (REST),200 OK,2
+SMART MEN'S CLUB SA,Tracking API LIVE (SOAP),200 OK,7
+Monitoring,Shipping API V1 Live (SOAP),401,2
+Monitoring,Shipping API V1 Live (SOAP),200 OK,12
+Monitoring,Local Collect API Live (SOAP),401,3
+Monitoring,Local Collect API Live (SOAP),200 OK,6
+Neopost,Local Collect API (SOAP),200 OK,2
+Monitoring,PFW Tracking API (SOAP) LIVE,401,2
+Monitoring,PFW Tracking API (SOAP) LIVE,200 OK,4
+Monitoring,Tracking API LIVE (REST),401,4
+Monitoring,Tracking API LIVE (REST),200,6
+Monitoring,Tracking API LIVE (REST),500,6
+Monitoring,Online Postage API LIVE (SOAP),401,4
+Monitoring,Online Postage API LIVE (SOAP),500 Internal Server Error,4
+Monitoring,Tracking API LIVE (SOAP),401,4
+europe,Shipping API V2 Live (SOAP),200 OK,3
+Monitoring,Online Postage API V1 (SOAP),401,2
+Monitoring,Shipping API V2 (SOAP),401,2
+Monitoring,Online Postage API V1 (SOAP),500 Internal Server Error,2
+Monitoring,Shipping API V2 (SOAP),200 OK,18
+Monitoring,Tracking API (REST),401,2
+Monitoring,Tracking API (REST),500,6
+Cornerstone,Tracking API LIVE (REST),500,1
+First Class Watches Limited,Tracking API LIVE (SOAP),200 OK,23
+First Class Watches Limited,Tracking API LIVE (SOAP),500 Internal Server Error,2
+Cornerstone,Tracking API LIVE (REST),200,1
+Group International Ltd,Tracking API LIVE (SOAP),200 OK,82
+Group International Ltd,Tracking API LIVE (SOAP),500 Internal Server Error,11
+Monarch Software,Shipping API V2 Live (SOAP),500 Internal Server Error,1

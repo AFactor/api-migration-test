@@ -1,0 +1,30 @@
+Org,Api,Count,Ok200,Error5X,SuccessPercent
+Clicky,Tracking API LIVE (REST),23050,6032,17018,0
+sinotrans,Tracking API LIVE (SOAP),1341,1319,22,0
+Eretail Distribution Ltd,Tracking API LIVE (SOAP),2214,538,1676,0
+Suggero360 UK Ltd,Tracking API LIVE (SOAP),2822,2566,256,0
+Monitoring,Tracking API LIVE (SOAP),20,13,3,0
+Monitoring,Echo,37,37,0,0
+Test,Local Collect API (REST),34,34,0,0
+Monitoring,Local Collect API LIVE (REST),16,8,0,0
+SMART MEN'S CLUB SA,Shipping API V2 Live (SOAP),120,120,0,0
+Monitoring,Shipping API V2 Live (SOAP),20,18,0,0
+SMART MEN'S CLUB SA,Tracking API LIVE (SOAP),15,12,3,0
+Monarch Software,Shipping API V2 Live (SOAP),18,18,0,0
+Monitoring,Delivery Office Finder API (REST),6,3,0,0
+europe,Shipping API V2 Live (SOAP),17,17,0,0
+Monitoring,Shipping API V1 Live (SOAP),14,12,0,0
+Monitoring,Local Collect API Live (SOAP),9,6,0,0
+Monitoring,PFW Tracking API (SOAP) LIVE,6,4,0,0
+Monitoring,Tracking API LIVE (REST),16,7,5,0
+Monitoring,Online Postage API LIVE (SOAP),8,0,4,0
+DTDC Courier & Cargo UK Ltd,Tracking API LIVE (SOAP),118,27,91,0
+Monitoring,Shipping API V2 (SOAP),20,18,0,0
+Pitney Bowes,Tracking API LIVE (SOAP),4,3,1,0
+Cornerstone,Tracking API LIVE (REST),1,1,0,0
+Zoom FS,Shipping API V2 Live (SOAP),1,1,0,0
+Monitoring,Local Collect API (SOAP),6,4,0,0
+Monitoring,Tracking API (SOAP),10,8,0,0
+Neopost,Local Collect API (SOAP),2,2,0,0
+Monitoring,Shipping API V1 (SOAP),7,6,0,0
+The Alchemists Cupboard Ltd,Shipping API V2 Live (SOAP),1,1,0,0
