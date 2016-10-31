@@ -21,7 +21,8 @@ namespace IBMApiAnaltycs
             var proxy = ConfigurationManager.AppSettings["proxy"];
             var planFilter = ConfigurationManager.AppSettings["plansForDetail"];
             var startTime = DateTime.Now;
-            var limit = 20000;
+            var useProxy = bool.Parse( ConfigurationManager.AppSettings["useProxy"]);
+            var limit = 10000;
             var summary = new List<CallSummary>();
             
             var fileNamePart = string.Format(
@@ -40,7 +41,7 @@ namespace IBMApiAnaltycs
                 {
                     Console.WriteLine("NextRef: " + nextRef);
                 
-                    var data = FromUri(nextRef, args[0], proxy);
+                    var data = FromUri(nextRef, args[0], proxy, useProxy);
                     var log = JsonConvert.DeserializeObject<Log>(data);
                     if (log.nextHref != null)
                     {
@@ -116,7 +117,7 @@ namespace IBMApiAnaltycs
             Console.ReadLine();
         }
 
-        private static string FromUri(string uri, string credential, string proxy)
+        private static string FromUri(string uri, string credential, string proxy, bool useProxy)
         {
             string json;
             var client = new WebClient();
@@ -126,12 +127,12 @@ namespace IBMApiAnaltycs
             client.Headers.Add("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)");
             client.Headers.Add("authorization", auth);
 
-            //if(!string.IsNullOrEmpty(proxy))
-            //{
-            //    client.Proxy = new WebProxy(proxy);
-            //    //client.Proxy =
-            //    client.UseDefaultCredentials = true;
-            //}
+            if (!string.IsNullOrEmpty(proxy) && useProxy)
+            {
+                client.Proxy = new WebProxy(proxy);
+                ////client.Proxy =
+                //client.UseDefaultCredentials = true;
+            }
 
 
             json = client.DownloadString(uri);
