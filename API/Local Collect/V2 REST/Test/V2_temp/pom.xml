@@ -42,7 +42,7 @@
 						</goals>
 <configuration>
 							<!--Required. Specifies the path to the project to execute.-->
-							<projectFile>Local-Collect-V2-soapui-project.xml</projectFile>
+							<projectFile>API/Local Collect/V2 REST/Test/V2_temp/Local-Collect-V2-soapui-project.xml</projectFile>
 							<!--Required for reports. Specifies the format of the report to generate.-->
 							<!--Possible values: PDF, XLS, HTML, RTF, CSV, TXT and XML. Only available in Ready! API Pro. -->
 							<reportFormat>PDF</reportFormat>
