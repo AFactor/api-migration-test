@@ -26,104 +26,110 @@ namespace IBMApiAnaltycs
             var useProxy = bool.Parse( ConfigurationManager.AppSettings["useProxy"]);
             TimeRangeType timeRangeTypes = (TimeRangeType) Enum.Parse(typeof(TimeRangeType),ConfigurationManager.AppSettings["timerange"]);
             var limit = 10000;
-
+            var lastXDays = int.Parse(ConfigurationManager.AppSettings["lastXDays"]);
             if (timeRangeTypes == TimeRangeType.Specific)
             {
-                
-                var summary = new List<CallSummary>();
-
-                var fileNamePart = string.Format(
-                    "{0}_{1}",
-                    DateTime.Parse(startDateTime).ToString("ddMMyyHHmm"),
-                    DateTime.Parse(endDateTime).ToString("ddMMyyHHmm"));
-                Console.WriteLine("Preparing for first call from {0}  to {1}. Each call will process {2} rows", startDateTime, endDateTime, limit);
-                var nextRef = string.Format(uri, org, env, endDateTime, startDateTime, limit);
-
-                var callsProcesssed = 0;
-                var totalCalls = 0;
-                bool first = true;
-                while (!string.IsNullOrEmpty(nextRef) && callsProcesssed <= totalCalls & (groupSummary || detail || count))
+                for (var day = 0; day < lastXDays; day++)
                 {
-                    try
+
+                    var thisStartDateTime = DateTime.Parse(startDateTime).AddDays(-day);
+                    var thisEndDateTime = DateTime.Parse(endDateTime).AddDays(-day);
+
+                    var summary = new List<CallSummary>();
+
+                    var fileNamePart = string.Format(
+                        "{0}_{1}",
+                        thisStartDateTime.ToString("ddMMyyHHmm"),
+                        thisEndDateTime.ToString("ddMMyyHHmm"));
+                    Console.WriteLine("Preparing for first call from {0}  to {1}. Each call will process {2} rows", thisStartDateTime, thisEndDateTime, limit);
+                    var nextRef = string.Format(uri, org, env, thisEndDateTime.ToString("yyyy-MM-ddTHH:mm:ss"), thisStartDateTime.ToString("yyyy-MM-ddTHH:mm:ss"), limit); //2016-11-17T13:00:00
+
+                    var callsProcesssed = 0;
+                    var totalCalls = 0;
+                    bool first = true;
+                    while (!string.IsNullOrEmpty(nextRef) && callsProcesssed <= totalCalls & (groupSummary || detail || count))
                     {
-                        Console.WriteLine("NextRef: " + nextRef);
+                        try
+                        {
+                            Console.WriteLine("NextRef: " + nextRef);
 
-                        var data = FromUri(nextRef, args[0], proxy, useProxy);
-                        var log = JsonConvert.DeserializeObject<Log>(data);
-                        if (log.nextHref != null)
-                        {
-                            nextRef = log.nextHref;
-                        }
-                        if (first)
-                        {
-                            Console.WriteLine(" Total calls from {0}  to {1} = {2}", startDateTime, endDateTime, log.totalCalls.ToString("N0"));
-                            totalCalls = log.totalCalls;
-                            first = false;
-                            count = false;
-                        }
-                        else
-                        {
-                            Console.WriteLine("{0} rows processed. Time passed {1}", callsProcesssed.ToString("N0"), DateTime.Now - startTime);
-                        }
-                        callsProcesssed += limit;
+                            var data = FromUri(nextRef, args[0], proxy, useProxy);
+                            var log = JsonConvert.DeserializeObject<Log>(data);
+                            if (log.nextHref != null)
+                            {
+                                nextRef = log.nextHref;
+                            }
+                            if (first)
+                            {
+                                Console.WriteLine(" Total calls from {0}  to {1} = {2}", thisStartDateTime, thisEndDateTime, log.totalCalls.ToString("N0"));
+                                totalCalls = log.totalCalls;
+                                first = false;
+                                count = false;
+                            }
+                            else
+                            {
+                                Console.WriteLine("{0} rows processed. Time passed {1}", callsProcesssed.ToString("N0"), DateTime.Now - startTime);
+                            }
+                            callsProcesssed += limit;
 
-                        if (groupSummary)
-                        {
-                            summary.AddRange(
-                                log.calls.GroupBy(c => new { c.apiName, c.devOrgName })
-                                    .Select(
-                                        cl =>
-                                        new CallSummary
-                                        {
-                                            Api = cl.First().apiName,
-                                            Org = cl.First().devOrgName,
-                                            Count = cl.Count(),
-                                            Ok200 = cl.Count(x => x.statusCode.StartsWith("200")),
-                                            Error4X = cl.Count( x => x.statusCode.Contains("4")),
-                                            Error5X = cl.Count(x => x.statusCode.Contains("5"))//,
-                                                                                               //Others = cl.Count(x => (!x.statusCode.StartsWith("200") && !x.statusCode.StartsWith("500")))
-                                    })
-                                    .ToList());
-                            Console.WriteLine("{0} grouping rows added. Time passed {1}", summary.Count, DateTime.Now - startTime);
+                            if (groupSummary)
+                            {
+                                summary.AddRange(
+                                    log.calls.GroupBy(c => new { c.apiName, c.devOrgName })
+                                        .Select(
+                                            cl =>
+                                            new CallSummary
+                                            {
+                                                Api = cl.First().apiName,
+                                                Org = cl.First().devOrgName,
+                                                Count = cl.Count(),
+                                                Ok200 = cl.Count(x => x.statusCode.StartsWith("200")),
+                                                Error4X = cl.Count(x => x.statusCode.Contains("4")),
+                                                Error5X = cl.Count(x => x.statusCode.Contains("5"))//,
+                                                                                                   //Others = cl.Count(x => (!x.statusCode.StartsWith("200") && !x.statusCode.StartsWith("500")))
+                                        })
+                                        .ToList());
+                                Console.WriteLine("{0} grouping rows added. Time passed {1}", summary.Count, DateTime.Now - startTime);
 
+                            }
+
+                            if (detail)
+                            {
+                                var selectCalls = log.calls.Where(c => c.apiName.Contains(planFilter) || string.IsNullOrWhiteSpace(planFilter));
+                                WriteToFile(selectCalls, fileNamePart);
+                                Console.WriteLine("{0} rows added. Time passed {1}", selectCalls.Count(), DateTime.Now - startTime);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            nextRef = null;
+                            Console.WriteLine("something went wrong. Continuing to summary. " + e.Message);
                         }
 
-                        if (detail)
-                        {
-                            var selectCalls = log.calls.Where(c => c.apiName.Contains(planFilter) || string.IsNullOrWhiteSpace(planFilter));
-                            WriteToFile(selectCalls, fileNamePart);
-                            Console.WriteLine("{0} rows added. Time passed {1}", selectCalls.Count(), DateTime.Now - startTime);
-                        }
                     }
-                    catch (Exception e)
+
+                    if (groupSummary)
                     {
-                        nextRef = null;
-                        Console.WriteLine("something went wrong. Continuing to summary. " + e.Message);
+                        var finalList =
+                            summary.GroupBy(c => new { c.Api, c.Org })
+                                .Select(
+                                    cl =>
+                                    new CallSummary
+                                    {
+                                        Api = cl.First().Api,
+                                        Org = cl.First().Org,
+                                        Count = cl.Sum(clt => clt.Count),
+                                        Ok200 = cl.Sum(clt => clt.Ok200),
+                                        Error4X = cl.Sum(clt => clt.Error4X),
+                                        Error5X = cl.Sum(clt => clt.Error5X)//,
+                                                                            //SuccessPercent = Math.Round((((decimal)item.Ok200 / (decimal)item.Count) * 100), 2)
+                                }).ToList();
+
+                        finalList.ForEach(f => f.SuccessPercent = Math.Round((((decimal)f.Ok200 / (decimal)f.Count) * 100), 2));
+
+                        WriteToFile(finalList, fileNamePart);
+                        Console.WriteLine("Final group count" + finalList.Count());
                     }
-
-                }
-
-                if (groupSummary)
-                {
-                    var finalList =
-                        summary.GroupBy(c => new { c.Api, c.Org })
-                            .Select(
-                                cl =>
-                                new CallSummary
-                                {
-                                    Api = cl.First().Api,
-                                    Org = cl.First().Org,
-                                    Count = cl.Sum(clt => clt.Count),
-                                    Ok200 = cl.Sum(clt => clt.Ok200),
-                                    Error4X = cl.Sum(clt => clt.Error4X),
-                                    Error5X = cl.Sum(clt => clt.Error5X)//,
-                                                                        //SuccessPercent = Math.Round((((decimal)item.Ok200 / (decimal)item.Count) * 100), 2)
-                            }).ToList();
-
-                    finalList.ForEach(f => f.SuccessPercent = Math.Round((((decimal)f.Ok200 / (decimal)f.Count) * 100), 2));
-
-                    WriteToFile(finalList, fileNamePart);
-                    Console.WriteLine("Final group count" + finalList.Count());
                 }
             }
             Console.WriteLine("press any key to exit.");
@@ -166,7 +172,7 @@ namespace IBMApiAnaltycs
             using (var file = new System.IO.StreamWriter(string.Format("apiDetail_{0}.csv",  fileNamePart), true))
             {
                 
-                var csv = CsvSerializer.SerializeToCsv(data.Select(i => new { i.apiName, i.apiVersion, i.appName, i.datetime, i.devOrgName, i.envName, i.planName, i.planVersion, i.statusCode, i.timeToServeRequest, i.queryString, i.requestBody, i.responseBody }));
+                var csv = CsvSerializer.SerializeToCsv(data.Select(i => new { i.apiName, i.apiVersion, i.appName, i.datetime, i.devOrgName, i.envName, i.planName, i.planVersion, i.statusCode, i.timeToServeRequest }));
                 file.Write(csv);
             }
         }
