@@ -166,7 +166,7 @@ namespace IBMApiAnaltycs
             using (var file = new System.IO.StreamWriter(string.Format("apiDetail_{0}.csv",  fileNamePart), true))
             {
                 
-                var csv = CsvSerializer.SerializeToCsv(data.Select(i => new { i.apiName, i.apiVersion, i.appName, i.datetime, i.devOrgName, i.envName, i.planName, i.planVersion, i.statusCode, i.timeToServeRequest }));
+                var csv = CsvSerializer.SerializeToCsv(data.Select(i => new { i.apiName, i.apiVersion, i.appName, i.datetime, i.devOrgName, i.envName, i.planName, i.planVersion, i.statusCode, i.timeToServeRequest, i.queryString, i.requestBody, i.responseBody }));
                 file.Write(csv);
             }
         }
@@ -181,11 +181,11 @@ namespace IBMApiAnaltycs
     {
         public string datetime { get; set; }
         public string apiName { get; set; }
-        public int apiVersion { get; set; }
+        public string apiVersion { get; set; }
         public string appName { get; set; }
         public string envName { get; set; }
         public string planName { get; set; }
-        public int planVersion { get; set; }
+        public string planVersion { get; set; }
         public string devOrgName { get; set; }
         public string resourceName { get; set; }
         public int timeToServeRequest { get; set; }
