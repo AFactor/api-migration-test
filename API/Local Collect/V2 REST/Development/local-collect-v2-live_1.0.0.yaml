@@ -1,7 +1,7 @@
 product: 1.0.0
 info:
-  name: local-collect-v2-live
-  title: Local Collect V2 LIVE
+  name: local-collect-v2-demo
+  title: Local Collect V2 Demo
   version: 1.0.1
 visibility:
   view:
@@ -14,7 +14,7 @@ plans:
     description: Default Plan
     approval: false
     rate-limit:
-      value: 100/hour
+      value: 50/hour
       hard-limit: false
 apis:
   local-collect-rest-api-specification:
