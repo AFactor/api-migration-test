@@ -2,7 +2,7 @@ product: 1.0.0
 info:
   name: local-collect-v2-live
   title: Local Collect V2 LIVE
-  version: 1.0.0
+  version: 1.0.1
 visibility:
   view:
     type: public
