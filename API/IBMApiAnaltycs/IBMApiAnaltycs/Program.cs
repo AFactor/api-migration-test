@@ -27,7 +27,7 @@ namespace IBMApiAnaltycs
             var useProxy = bool.Parse( ConfigurationManager.AppSettings["useProxy"]);
             var elastic = ConfigurationManager.AppSettings["elastic"];
             TimeRangeType timeRangeTypes = (TimeRangeType) Enum.Parse(typeof(TimeRangeType),ConfigurationManager.AppSettings["timerange"]);
-            var limit = 10;
+            var limit = 20000;
             var lastXDays = int.Parse(ConfigurationManager.AppSettings["lastXDays"]);
             var target = ConfigurationManager.AppSettings["target"];
 
@@ -91,7 +91,7 @@ namespace IBMApiAnaltycs
                                 {
                                     Console.WriteLine(" Total calls from {0}  to {1} = {2}", thisStartDateTime, thisEndDateTime, log.totalCalls.ToString("N0"));
                                     totalCalls = log.totalCalls;
-                                    LoadDataIntoElastic(totalCalls, thisStartDateTime.Date, elastic);
+                                    //LoadDataIntoElastic(totalCalls, thisStartDateTime.Date, elastic);
                                     first = false;
                                     count = false;
                                 }
@@ -119,7 +119,7 @@ namespace IBMApiAnaltycs
                                             })
                                             .ToList());
                                     Console.WriteLine("{0} grouping rows added. Time passed {1}", summary.Count, DateTime.Now - startTime);
-
+                                    WriteToFile(summary, fileNamePart);
                                 }
 
                                 if (detail)
@@ -158,9 +158,10 @@ namespace IBMApiAnaltycs
                             finalList.ForEach(f => f.SuccessPercent = Math.Round((((decimal)f.Ok200 / (decimal)f.Count) * 100), 2));
                             if (finalList.Count > 0)
                             {
-                                LoadDataIntoElastic(finalList, elastic);
+                                //LoadDataIntoElastic(finalList, elastic);
+                                WriteToFile(finalList, fileNamePart);
+
                             }
-                                //WriteToFile(finalList, fileNamePart);
                             Console.WriteLine("Final group count" + finalList.Count());
                         }
                     }
@@ -215,26 +216,26 @@ namespace IBMApiAnaltycs
 
         private static void WriteToFile(IEnumerable<CallSummary> data, string fileNamePart)
         {
-            //using (var file = new System.IO.StreamWriter( string.Format("apiSummary_{0}.csv", fileNamePart)))
-            //{
-            //    var csv = CsvSerializer.SerializeToCsv(data);
-            //    file.Write(csv);
-            //}
-            
+            using (var file = new System.IO.StreamWriter(string.Format("apiSummary_{0}.csv", fileNamePart)))
+            {
+                var csv = CsvSerializer.SerializeToCsv(data);
+                file.Write(csv);
+            }
+
         }
 
         private static void WriteToFile(IEnumerable<Call> data, string fileNamePart, string elastic)
         {
-            //using (var file = new System.IO.StreamWriter(string.Format("apiDetail_{0}.csv",  fileNamePart), true))
-            //{
-
-            //    var csv = CsvSerializer.SerializeToCsv(data.Select(i => new { i.apiName, i.apiVersion, i.appName, i.datetime, i.devOrgName, i.envName, i.planName, i.planVersion, i.statusCode, i.timeToServeRequest }));
-            //    file.Write(csv);
-            //}
-            if (!string.IsNullOrWhiteSpace(elastic))
+            using (var file = new System.IO.StreamWriter(string.Format("apiDetail_{0}.csv", fileNamePart), true))
             {
-                LoadDataIntoElastic(data, elastic);
+
+                var csv = CsvSerializer.SerializeToCsv(data.Select(i => new { i.apiName, i.apiVersion, i.appName, i.datetime, i.devOrgName, i.envName, i.planName, i.planVersion, i.statusCode, i.timeToServeRequest, i.latency }));
+                file.Write(csv);
             }
+            //if (!string.IsNullOrWhiteSpace(elastic))
+            //{
+            //    LoadDataIntoElastic(data, elastic);
+            //}
         }
 
         private static void SpecificDateRangeCall()
