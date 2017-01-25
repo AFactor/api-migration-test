@@ -79,8 +79,9 @@ namespace IBMApiAnaltycs
                         {
                             try
                             {
+#if debug
                                 Console.WriteLine("NextRef: " + nextRef);
-
+#endif
                                 var data = FromUri(nextRef, args[0], proxy, useProxy);
                                 var log = JsonConvert.DeserializeObject<Log>(data);
                                 if (log.nextHref != null)
@@ -89,7 +90,7 @@ namespace IBMApiAnaltycs
                                 }
                                 if (first)
                                 {
-                                    Console.WriteLine(" Total calls from {0}  to {1} = {2}", thisStartDateTime, thisEndDateTime, log.totalCalls.ToString("N0"));
+                                    Console.WriteLine(" Total calls from {0} to {1} = {2}", thisStartDateTime, thisEndDateTime, log.totalCalls.ToString("N0"));
                                     totalCalls = log.totalCalls;
                                     //LoadDataIntoElastic(totalCalls, thisStartDateTime.Date, elastic);
                                     first = false;
@@ -229,7 +230,7 @@ namespace IBMApiAnaltycs
             using (var file = new System.IO.StreamWriter(string.Format("apiDetail_{0}.csv", fileNamePart), true))
             {
 
-                var csv = CsvSerializer.SerializeToCsv(data.Select(i => new { i.apiName, i.apiVersion, i.appName, i.datetime, i.devOrgName, i.envName, i.planName, i.planVersion, i.statusCode, i.timeToServeRequest, i.latency }));
+                var csv = CsvSerializer.SerializeToCsv(data.Select(i => new { i.apiName, i.apiVersion, i.appName, i.datetime, i.devOrgName, i.envName, i.planName, i.planVersion, i.statusCode, i.timeToServeRequest, i.latency, i.requestBody, i.queryString }));
                 file.Write(csv);
             }
             //if (!string.IsNullOrWhiteSpace(elastic))
