@@ -1,0 +1,25 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/API/IBMApiAnalytics/IBMApiAnalytics.Models/bin/Release
+/API/IBMApiAnalytics/IBMApiAnalytics.Models/obj/Release
+/API/IBMApiAnalytics/packages
+/API/IBMApiAnalytics/IBMApiAnalytics.App/bin/Release
+/API/IBMApiAnalytics/IBMApiAnalytics.App/obj/Release
+/API/IBMApiAnalytics/IBMApiAnalytics.Client/bin/Release
+/API/IBMApiAnalytics/IBMApiAnalytics.Client/obj/Release
+/API/IBMApiAnalytics/IBMApiAnalytics.Utils/bin/Release
+/API/IBMApiAnalytics/IBMApiAnalytics.Utils/obj/Release
+/API/IBMApiAnalytics/IBMApiAnalytics.App/bin/Debug/archives
+/API/IBMApiAnalytics/IBMApiAnalytics.App/bin/Debug/logs
+/API/IBMApiAnalytics/IBMApiAnalytics.App/obj/Debug
+/API/IBMApiAnalytics/IBMApiAnalytics.App/bin/Debug
+/API/IBMApiAnalytics/IBMApiAnalytics.Client/obj/Debug
+/API/IBMApiAnalytics/IBMApiAnalytics.Client/bin/Debug
+/API/IBMApiAnalytics/IBMApiAnalytics.Models/obj/Debug
+/API/IBMApiAnalytics/IBMApiAnalytics.Models/bin/Debug
+/API/IBMApiAnalytics/IBMApiAnalytics.Utils/obj/Debug
+/API/IBMApiAnalytics/IBMApiAnalytics.Utils/bin/Debug
+/API/apiSummary_0402172319_0402172359.csv
+/API/apiSummaryForOrg_0402172319_0402172359.csv

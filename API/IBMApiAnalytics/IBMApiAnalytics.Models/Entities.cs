@@ -55,7 +55,6 @@ namespace IBMApiAnalytics.Models
         public string latency { get; set; }
         public int? bytesReceived { get; set; }
         public string productName { get; set; }
-        //X-Global-Transaction-ID
     }
 
     public class CallLit
