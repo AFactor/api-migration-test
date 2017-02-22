@@ -11,6 +11,6 @@ namespace IBMApiAnalytics.App
         public string Credentials { get; set; }
         public DateTime StartDateTime { get; set; }
         public DateTime EndDateTime { get; set; }
-        public int NoOfPreviousDaysToProcess { get; set; }
+        public int NoOfDaysToProcess { get; set; }
     }
 }

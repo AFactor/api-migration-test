@@ -45,14 +45,17 @@ namespace IBMApiAnalytics.App
 
             else
             {
-                if (timeRangeTypes == TimeRangeType.LastXDays)
+                if (timeRangeTypes == TimeRangeType.XDays)
                 {
                     var daysToProcess = new List<DateTime>();
 
-                    for (var day = 0; day < arguments.NoOfPreviousDaysToProcess; day++)
+                    for (var day = 0; day < arguments.NoOfDaysToProcess; day++)
                     {
-                        daysToProcess.Add(arguments.StartDateTime.AddDays(-day));
+                        daysToProcess.Add(arguments.StartDateTime.AddDays(day));
+                        
                     }
+
+                    daysToProcess.ForEach(d => _logger.Debug("Days to process {0}", d));
 
                     Parallel.ForEach(daysToProcess, new ParallelOptions { MaxDegreeOfParallelism = maxThreads }, (currentDay) =>
                     {
@@ -71,8 +74,8 @@ namespace IBMApiAnalytics.App
                         if (count)
                         {
                             var success = false;
-                            var retries = 0;
-                            while (!success && retries < 3)
+                            var retries = 1;
+                            while (!success && retries <= 3)
                             {
                                 try
                                 {
@@ -87,7 +90,7 @@ namespace IBMApiAnalytics.App
                                 }
                                 catch (Exception e)
                                 {
-                                    _logger.Error(e, "Error retrieving API call volumes for {0}", currentDay.ToString("yyyyMMdd.hhmmss"));
+                                    _logger.Error(e, "Error retrieving API call volumes for {0:yyyyMMdd.hhmmss}", currentDay);
                                     _logger.Info("Retry attempt {0} of 3 for {1}", retries, currentDay);
                                 }
                             }
@@ -102,7 +105,7 @@ namespace IBMApiAnalytics.App
                             var totalCalls = 0;
 
                             var summary = new List<CallSummaryForOrg>();
-                            var fileNamePart = $"{thisStartDateTime:ddMMyyHHmm}_{thisEndDateTime:ddMMyyHHmm}";
+                            var fileNamePart = $"{thisStartDateTime:yyyyMMddHHmm}_{thisEndDateTime:yyyyMMddHHmm}";
 
                             int interval;
                             if (!int.TryParse(ConfigurationManager.AppSettings["interval"], out interval))
@@ -120,12 +123,14 @@ namespace IBMApiAnalytics.App
                                     ApiMClient apiClient = new ApiMClient();
                                     var currentLoopEndTime = (thisStartDateTime.AddMinutes(interval) > thisEndDateTime ? thisEndDateTime : thisStartDateTime.AddMinutes(interval));
                                     var calls = apiClient.GetCalls(thisStartDateTime, currentLoopEndTime, arguments.Credentials).ToList();  
+                                    if (calls.Any(c => (c.planName != string.Empty)))
+                                    {
+                                        _logger.Debug("Some calls have a plan name");
+                                    }
                                     if (detail)
                                     {
                                         ProcessDetailCalls(calls, thisStartDateTime, fileNamePart, elastic);
                                         totalCalls += calls.Count;
-
-                                        recordsProcessedUpto = DateTime.Parse(calls.Max(s => s.datetime));
                                     }
 
                                     if (groupSummary)
@@ -137,6 +142,7 @@ namespace IBMApiAnalytics.App
                                     _logger.Info(" Total calls from {0}  to {1} = {2}", thisStartDateTime, thisEndDateTime, totalCalls);
                                     _logger.Info(" Time taken {0} - ", DateTime.Now - processingStartTime);
 
+                                    recordsProcessedUpto = thisStartDateTime;
                                 }
                                 catch (Exception e)
                                 {
@@ -178,6 +184,11 @@ namespace IBMApiAnalytics.App
 
         private static void ProcessDetailCalls(List<Call> calls, DateTime date, string fileNameSuffix, string elastic)
         {
+           if (!calls.Any())
+            {
+                _logger.Debug("No detail records to index");
+                return;
+            }
             calls.ForEach(c => c.Id = GetCallId(c));
             if (bool.Parse(ConfigurationManager.AppSettings["createCSV"]))
             {
@@ -211,6 +222,12 @@ namespace IBMApiAnalytics.App
 
         private static void PersistSummaryData(List<CallSummaryForOrg> orgSummary, DateTime date, string fileNameSuffix, string elastic)
         {
+            if (!orgSummary.Any())
+            {
+                _logger.Debug("No summary records to index");
+                return;
+            }
+
             var finalOrgList =
             orgSummary.GroupBy(c => new { c.Api, c.Org })
                 .Select(

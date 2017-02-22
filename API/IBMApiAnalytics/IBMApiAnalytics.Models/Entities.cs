@@ -65,8 +65,10 @@ namespace IBMApiAnalytics.Models
         public string productName { get; set; }
         public string devOrgName { get; set; }
         public int timeToServeRequest { get; set; }
-        public string payload { get; set; }
+        public string requestBody { get; set; }
         public string statusCode { get; set; }
+        public string responseBody { get; set; }
+        public string planName { get; set; }
     }
 
     public class CallSummaryForOrg
@@ -106,6 +108,6 @@ namespace IBMApiAnalytics.Models
     public enum TimeRangeType
     {
         Specific,
-        LastXDays
+        XDays
     }
 }

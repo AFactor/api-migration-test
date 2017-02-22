@@ -15,6 +15,10 @@ namespace IBMApiAnalytics.Utils
             try
             {
                 var settingValue = appSettings[settingKey];
+                if (settingValue == null)
+                {
+                    throw new MissingMemberException();
+                }
                 returnValue = (T) Convert.ChangeType(settingValue, typeof(T));
             }
             catch

@@ -6,14 +6,11 @@ namespace IBMApiAnalytics.App
     {
         public static ApplicationArguments Parse(string[] args)
         {
-            // create a generic parser for the ApplicationArguments type
             var p = new Fclp.FluentCommandLineParser<ApplicationArguments>();
 
-            // specify which property the value will be assigned too.
             p.Setup(arg => arg.Credentials)
                 .As('c', "credentials") // define the short and long option name
-                .Required(); // using the standard fluent Api to declare this Option as required.
-
+                .Required(); 
             p.Setup(arg => arg.StartDateTime)
                 .As('s', "startDate")
                 .Required();
@@ -22,7 +19,7 @@ namespace IBMApiAnalytics.App
                 .As('e', "endDateTime")
                 .Required(); 
 
-            p.Setup(arg => arg.NoOfPreviousDaysToProcess)
+            p.Setup(arg => arg.NoOfDaysToProcess)
                 .As('d', "noOfDays")
                 .SetDefault(1); // use the standard fluent Api to define a default value if non is specified in the arguments
 
