@@ -3,15 +3,27 @@ var config = require('./config.json');
 var util = require("util");
 var f = module.exports = {};
 
-f.getDataFromIBM = function (req) { // replace params here
+f.getDataFromIBM = function (req, callback) { // replace params here
 	// code goes here
 
 	var uriSegment = req.query.uriSegment;
     var startTime = req.query.startTime;
     var endTime = req.query.endTime;
-    var noOfRequests = req.query.noOfCalls;    
 	var config = require('./config.json');
-
+	var noOfRequests = typeof req.query.noOfCalls != "undefined" ? req.query.noOfCalls : config.tolerance;   
+	if(!uriSegment)
+	{
+		return 'no UriSegment found';
+	}
+	if(!startTime)
+	{
+		return 'no Start Time found';
+	}
+	if(!uriSegment)
+	{
+		return 'no End Time found';
+	}
+	
     var userName = config.userName, 
         password = config.password,
         baseUrl = config.baseUrl,
@@ -22,7 +34,7 @@ f.getDataFromIBM = function (req) { // replace params here
     
     var encodedCredentials = new Buffer(util.format('%s:%s', userName, password)).toString('base64');
 
-    var path = util.format(pathFormat, org, env, endTime, startTime, noOfRequests);
+    var path = util.format(pathFormat, org, env, endTime, startTime, limit);
     var url = baseUrl + path; //;
 
     console.log("url ", url);
@@ -42,13 +54,8 @@ f.getDataFromIBM = function (req) { // replace params here
         headers: getHeaders,
         strictSSL: false
     }, (err, res, body) => {
-        if (err) {
-            console.log(err);
-            return err;
-        } else {
-            console.log(body);
-            return body;;
-        }
+    	return callback(err, body);
+        
     });
 
 	//return

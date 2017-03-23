@@ -50,8 +50,17 @@ app.get("/api/autherrors", function(request, response) {
 });
 
 app.get("/api/autherrors1", function(req, response) {
-    var data = f1.getDataFromIBM(req);
-    response.send(data);
+    f1.getDataFromIBM(req, (err, body) => {
+        if(err) {
+            console.log(err);
+            response.send(err);
+        } else {
+            console.log(body);
+            response.send(body);
+        }
+    });
+    //console.log('datalog: ' + data);
+    //response.send(data);
 });
 
 app.listen(port);
