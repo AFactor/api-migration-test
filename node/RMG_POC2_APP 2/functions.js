@@ -29,7 +29,7 @@ f.generateJWT = function (userid, callback) {
 		url: targetURL,
 		headers: {
 			"Content-Type": "application/json",
-			"X-IBM-Client-Id": "70e0d8f1-3419-4ac7-9cc6-b6d75cbed593"
+			"X-IBM-Client-Id": config.client_id
 		},
 		strictSSL: false
 	}, (err, res, body) => {

@@ -50,14 +50,11 @@ app.get("/api/autherrors", function(request, response) {
 });
 
 app.get("/api/autherrors1", function(req, response) {
-    f1.getDataFromIBM(req, (err, body) => {
-        if(err) {
-            console.log(err);
-            response.send(err);
-        } else {
+    f1.getDataFromIBM(req, (body) => {
+        
             console.log(body);
-            response.send(body);
-        }
+            //response.send(body);
+        
     });
     //console.log('datalog: ' + data);
     //response.send(data);

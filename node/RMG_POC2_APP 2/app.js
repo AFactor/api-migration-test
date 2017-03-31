@@ -8,7 +8,7 @@ var bodyParser = require('body-parser');
 var f = require('./functions.js');
 var index = require('./routes/index');
 var config = require('./config.json');
-var port = 3001;
+var port = 4001;
 
 var app = express();
 
