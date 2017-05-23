@@ -1,6 +1,7 @@
-﻿using System;
+﻿using IBMApiAnalytics.Models;
+using System;
 
-namespace IBMApiAnalytics.App
+namespace IBMApiAnalytics.Utils
 {
     public class CommandLineParser
     {

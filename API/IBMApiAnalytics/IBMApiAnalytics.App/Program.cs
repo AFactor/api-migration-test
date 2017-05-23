@@ -25,17 +25,13 @@ namespace IBMApiAnalytics.App
         {
             var arguments = CommandLineParser.Parse(args);
 
-            //var startDateTime = arguments.StartDateTime;
-            //var endDateTime = arguments.EndDateTime;
-
             var groupSummary = bool.Parse(ConfigurationManager.AppSettings["summary"]);
             var detail = bool.Parse(ConfigurationManager.AppSettings["detail"]);
             var elastic = ConfigurationManager.AppSettings["elastic"];
             var target = ConfigurationManager.AppSettings["target"];
             var timeRangeTypes = (TimeRangeType)Enum.Parse(typeof(TimeRangeType), ConfigurationManager.AppSettings["timerange"]);
             int maxThreads = ConfigurationManager.AppSettings.SafeGet("maxParallelThreads", 3);
-
-            var processingStartTime = DateTime.Now;
+            var planFilter = ConfigurationManager.AppSettings.SafeGet("APIFilterDetail", "");
 
             if (target.Equals("AMAZON"))
             {
@@ -47,11 +43,12 @@ namespace IBMApiAnalytics.App
             {
                 if (timeRangeTypes == TimeRangeType.XDays)
                 {
+                    var processingStartTime = DateTime.Now;
                     var daysToProcess = new List<DateTime>();
 
                     for (var day = 0; day < arguments.NoOfDaysToProcess; day++)
                     {
-                        daysToProcess.Add(arguments.StartDateTime.AddDays(day));
+                        daysToProcess.Add(arguments.StartDateTime.AddDays(-day));
                         
                     }
 
@@ -115,14 +112,16 @@ namespace IBMApiAnalytics.App
 
 
                             var retries = 0;
+                            var currentLoopEndTime = thisEndDateTime;
                             while (thisStartDateTime < thisEndDateTime)
                             {
                                 try
                                 {
                                     retries++;
                                     ApiMClient apiClient = new ApiMClient();
-                                    var currentLoopEndTime = (thisStartDateTime.AddMinutes(interval) > thisEndDateTime ? thisEndDateTime : thisStartDateTime.AddMinutes(interval));
-                                    var calls = apiClient.GetCalls(thisStartDateTime, currentLoopEndTime, arguments.Credentials).ToList();  
+                                    currentLoopEndTime = (thisStartDateTime.AddMinutes(interval) > thisEndDateTime ? thisEndDateTime : thisStartDateTime.AddMinutes(interval));
+                                    var callEvents = apiClient.GetCalls(thisStartDateTime, currentLoopEndTime, arguments.Credentials).ToList();
+                                    var calls = callEvents.Where(c => c.apiName.Contains(planFilter) || string.IsNullOrWhiteSpace(planFilter)).ToList();
                                     if (calls.Any(c => (c.planName != string.Empty)))
                                     {
                                         _logger.Debug("Some calls have a plan name");
@@ -139,10 +138,16 @@ namespace IBMApiAnalytics.App
                                     }
 
                                     thisStartDateTime = currentLoopEndTime;
-                                    _logger.Info(" Total calls from {0}  to {1} = {2}", thisStartDateTime, thisEndDateTime, totalCalls);
+                                    _logger.Info(" Total calls from {0} to {1} = {2}", thisStartDateTime, currentLoopEndTime, totalCalls);
                                     _logger.Info(" Time taken {0} - ", DateTime.Now - processingStartTime);
 
                                     recordsProcessedUpto = thisStartDateTime;
+
+
+                                    if (groupSummary)
+                                    {
+                                        PersistSummaryData(summary, currentDay, fileNamePart, elastic);
+                                    }
                                 }
                                 catch (Exception e)
                                 {
@@ -152,17 +157,13 @@ namespace IBMApiAnalytics.App
                                         e.Message);
                                     if (retries < 3)
                                     {
-                                        _logger.Info("Retry attempt {0} of 3 for {1}", retries, currentDay);
+                                        _logger.Info("Attempt {0} of 3 for {1}-{2}", retries, thisStartDateTime, currentLoopEndTime);
                                         thisStartDateTime = recordsProcessedUpto;
                                         continue;
                                     }
                                 }
 
 
-                                if (groupSummary)
-                                {
-                                    PersistSummaryData(summary, currentDay, fileNamePart, elastic);
-                                }
                                 _logger.Info("Time taken to process {0} calls - {1}", totalCalls, DateTime.Now - processingStartTime);
                                 _logger.Info("Last processed time : {0}", recordsProcessedUpto);
 

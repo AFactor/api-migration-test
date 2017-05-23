@@ -25,7 +25,7 @@ namespace IBMApiAnalytics.Client
             var callsProcesssed = 0;
             int totalCalls;
             var calls = new List<Call>();
-            var nextRef = string.Format(uri, org, env, endDate.ToString("yyyy-MM-ddTHH:mm:ss"), startDate.ToString("yyyy-MM-ddTHH:mm:ss"), limit);
+            var nextRef = string.Format(uri, org, env, endDate.ToString("yyyy-MM-ddTHH:mm:ssZ"), startDate.ToString("yyyy-MM-ddTHH:mm:ssZ"), limit);
             _logger.Debug("Fetching records from {0}  to {1}.", startDate, endDate);
             while (!string.IsNullOrEmpty(nextRef))
             {
@@ -52,7 +52,7 @@ namespace IBMApiAnalytics.Client
             var uri = ConfigurationManager.AppSettings["uri"];
             var proxy = ConfigurationManager.AppSettings["proxy"];
             var useProxy = bool.Parse(ConfigurationManager.AppSettings["useProxy"]);
-            var nextRef = string.Format(uri, org, env, endDate.ToString("yyyy-MM-ddTHH:mm:ss"), startDate.ToString("yyyy-MM-ddTHH:mm:ss"), 1); // Send limit as 1 since we are only interested in the Value of the Total Calls 
+            var nextRef = string.Format(uri, org, env, endDate.ToString("yyyy-MM-ddTHH:mm:ssZ"), startDate.ToString("yyyy-MM-ddTHH:mm:ssZ"), 1); // Send limit as 1 since we are only interested in the Value of the Total Calls 
             var data = FromUri(nextRef, credentials, proxy, useProxy);
             var log = JsonConvert.DeserializeObject<Log>(data);
             return log.totalCalls;
@@ -77,6 +77,7 @@ namespace IBMApiAnalytics.Client
 
                 json = client.DownloadString(uri);
             }
+
             return json;
         }
     }

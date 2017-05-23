@@ -31,7 +31,7 @@ namespace IBMApiAnalytics.Client
         {
             using (var file = new System.IO.StreamWriter($"apiDetail_{fileNameSuffix}.csv", true))
             {
-                var csv = CsvSerializer.SerializeToCsv(data.Select(i => new { i.Id, i.apiName, i.apiVersion, i.appName, i.datetime, i.devOrgName, i.envName, i.planName, i.planVersion, i.statusCode, i.timeToServeRequest, i.latency, i.requestBody, i.queryString }));
+                var csv = CsvSerializer.SerializeToCsv(data.Select(i => new { i.Id, i.apiName, i.apiVersion, i.appName, i.datetime, i.devOrgName, i.envName, i.planName, i.planVersion, i.statusCode, i.timeToServeRequest, i.latency, i.requestBody, i.queryString, i.uriPath, i.responseBody }));
                 file.Write(csv);
             }
         }
