@@ -12,6 +12,7 @@ using IBMApiAnalytics.Client;
 using IBMApiAnalytics.Models;
 using IBMApiAnalytics.Utils;
 using NLog;
+using System.Xml.Linq;
 
 namespace IBMApiAnalytics.App
 {
@@ -31,7 +32,10 @@ namespace IBMApiAnalytics.App
             var target = ConfigurationManager.AppSettings["target"];
             var timeRangeTypes = (TimeRangeType)Enum.Parse(typeof(TimeRangeType), ConfigurationManager.AppSettings["timerange"]);
             int maxThreads = ConfigurationManager.AppSettings.SafeGet("maxParallelThreads", 3);
-            var planFilter = ConfigurationManager.AppSettings.SafeGet("APIFilterDetail", "");
+            var apiFilter = ConfigurationManager.AppSettings.SafeGet("detailapifilter", "");
+            var orgFilterForClient = ConfigurationManager.AppSettings.SafeGet("clientorgfilter", "");
+            var apiFilterForClient = ConfigurationManager.AppSettings.SafeGet("clientapifilter", "");
+            var processDataForClient = bool.Parse(ConfigurationManager.AppSettings.SafeGet("clientprocessing", "false"));
 
             if (target.Equals("AMAZON"))
             {
@@ -121,15 +125,29 @@ namespace IBMApiAnalytics.App
                                     ApiMClient apiClient = new ApiMClient();
                                     currentLoopEndTime = (thisStartDateTime.AddMinutes(interval) > thisEndDateTime ? thisEndDateTime : thisStartDateTime.AddMinutes(interval));
                                     var callEvents = apiClient.GetCalls(thisStartDateTime, currentLoopEndTime, arguments.Credentials).ToList();
-                                    var calls = callEvents.Where(c => c.apiName.Contains(planFilter) || string.IsNullOrWhiteSpace(planFilter)).ToList();
-                                    if (calls.Any(c => (c.planName != string.Empty)))
-                                    {
-                                        _logger.Debug("Some calls have a plan name");
-                                    }
+                                    // For Pitney Bowes
+                                    var calls = callEvents.Where(c => c.apiName.Contains(apiFilter) || string.IsNullOrWhiteSpace(apiFilter)).ToList();
+
                                     if (detail)
                                     {
+                                        calls.ForEach(c => c.Id = GetCallId(c));
                                         ProcessDetailCalls(calls, thisStartDateTime, fileNamePart, elastic);
                                         totalCalls += calls.Count;
+
+                                        // For Pitney Bowes / other client processing
+                                        if (processDataForClient)
+                                        {
+                                            var filteredCalls = callEvents;
+                                            if (!String.IsNullOrEmpty(orgFilterForClient))
+                                            {
+                                                filteredCalls = filteredCalls.Where(c => c.devOrgName == orgFilterForClient).ToList();
+                                            }
+                                            if (!String.IsNullOrEmpty(apiFilterForClient))
+                                            {
+                                                filteredCalls = filteredCalls.Where(c => c.apiName == apiFilterForClient).ToList();
+                                            }
+                                            ProcessClientCalls(filteredCalls, thisStartDateTime, fileNamePart, orgFilterForClient);
+                                        }
                                     }
 
                                     if (groupSummary)
@@ -200,6 +218,24 @@ namespace IBMApiAnalytics.App
             {
                 var elasticClient = new AnalyticsElasticClient();
                 elasticClient.IndexDetail(calls, date, elastic);
+            }
+        }
+
+        private static void ProcessClientCalls(List<Call> calls, DateTime date, string fileNameSuffix, string org)
+        {
+            if (!calls.Any())
+            {
+                _logger.Debug("No detail records to index");
+                return;
+            }
+            foreach (var e in calls)
+            {
+                e.esbErrorCode = (e.apiName.Contains("soap") && !String.IsNullOrEmpty(e.responseBody) ? GetErrorCode(e.responseBody) : "");
+            }
+            if (bool.Parse(ConfigurationManager.AppSettings["createCSV"]))
+            {
+                var csvClient = new AnalyticsCsvClient();
+                csvClient.WriteClientDetails(calls, fileNameSuffix, org);
             }
         }
 
@@ -307,6 +343,19 @@ namespace IBMApiAnalytics.App
             return $"{transactionId}|{call.datetime}|{call.apiName}|{call.uriPath}|{call.timeToServeRequest}";
         }
 
+        private static string GetErrorCode(string response)
+        {
+            try
+            {
+                var document = XDocument.Parse(response, LoadOptions.SetBaseUri);
+                return document.Descendants(XName.Get("exceptionCode", "")).First().Value;
+            }
+            catch
+            {
+                return "";
+            }
+
+        }
 
         #region Old Code
 

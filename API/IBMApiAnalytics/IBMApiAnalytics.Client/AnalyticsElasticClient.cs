@@ -68,8 +68,8 @@ namespace IBMApiAnalytics.Client
                 productName = d.productName,
                 statusCode = d.statusCode,
                 timeToServeRequest = d.timeToServeRequest,
-                requestBody = (d.apiName!= null && d.apiName.Contains("live") ? string.Empty : d.requestBody),
-                responseBody = (d.apiName != null && d.apiName.Contains("live") ? string.Empty : d.responseBody),
+                requestBody = (d.productName != null && d.productName.Contains("test") ? string.Empty : d.requestBody),
+                responseBody = (d.productName != null && d.productName.Contains("test") ? string.Empty : d.responseBody),
                 planName = d.planName
             }).ToList();
 

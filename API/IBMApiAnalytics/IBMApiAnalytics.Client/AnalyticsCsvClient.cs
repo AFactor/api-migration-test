@@ -35,5 +35,15 @@ namespace IBMApiAnalytics.Client
                 file.Write(csv);
             }
         }
+
+        public void WriteClientDetails(IEnumerable<Call> data, string fileNameSuffix, string org)
+        {
+            using (var file = new System.IO.StreamWriter($"{org}_APIDetail_{fileNameSuffix}.csv", true))
+            {
+                var csv = CsvSerializer.SerializeToCsv(data.Select(i => new { i.apiName, i.apiVersion, i.appName, i.datetime, i.devOrgName, i.statusCode, i.esbErrorCode, i.latency, i.requestBody, i.queryString, i.uriPath, i.responseBody }));
+                file.Write(csv);
+            }
+
+        }
     }
 }
