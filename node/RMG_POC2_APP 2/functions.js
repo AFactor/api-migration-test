@@ -42,7 +42,8 @@ f.getTrackingDetails = function (url, callback) {
 	request.get({
 		url: url,
 		headers: {
-			"Content-Type": "application/json"
+			"Content-Type": "application/json",
+			"X-IBM-Client-Id": config.client_id
 		},
 		strictSSL: false
 	}, (err, res, body) => {

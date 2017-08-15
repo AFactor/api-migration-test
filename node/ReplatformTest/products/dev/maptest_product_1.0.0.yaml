@@ -1,0 +1,24 @@
+product: 1.0.0
+info:
+  name: maptest
+  title: MapTest
+  version: 1.0.0
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  maptest:
+    $ref: maptest_1.0.0.yaml
+plans:
+  Default:
+    title: Default Plan
+    apis:
+      maptest: {}

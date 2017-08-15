@@ -1,0 +1,23 @@
+product: 1.0.0
+info:
+  name: shipping-api-v2-rest-uat
+  title: Shipping API V2 REST (UAT)
+  version: 1.15.06.1
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  shipping-v2-rest:
+    $ref: shipping-v2-rest_DEV v1.7.yaml
+plans:
+  Default:
+    title: Default Plan
+    apis: {}

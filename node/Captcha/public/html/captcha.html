@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+
+<html>
+
+<head>
+  <script type="application/javascript" src='https://www.google.com/recaptcha/api.js'></script>
+  <script type="application/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script type="text/javascript">
+  function showToken()
+  {
+    var val = document.getElementById('g-recaptcha-response').value;
+    document.getElementById('label').value = val;
+    var el =document.querySelector('g-recaptcha-response');
+    document.execcommand('copy');
+
+  }
+  </script>
+  <link rel="stylesheet" type="text/css" href="./style.css">
+</head>
+<body>
+  <h1>RMG Parcel Capcha Generator</h1>
+  <div class="g-recaptcha form_element" data-sitekey="6LckfyMUAAAAAB0WtmGh0vZ0EFoG-K_240Xcfvdq"></div>
+
+    <input id="gen" type="button" name="Show Token" value="Show Token" onclick="showToken();">
+
+
+
+    <input id='label' type="text" >
+
+
+
+</body>
+
+</script>
+</html>
+~         

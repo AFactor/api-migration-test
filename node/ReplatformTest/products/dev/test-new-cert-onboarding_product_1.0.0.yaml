@@ -1,0 +1,29 @@
+product: 1.0.0
+info:
+  name: test-new-cert-onboarding
+  title: Test New Cert - Onboarding
+  version: 1.0.0
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  customs-declaration-api-soap-test-onboarding:
+    $ref: customs-declaration-api-soap-test-onboarding_test-new-cert-onboarding-rev1.yaml
+  customs-declaration-api-soap-test-live:
+    $ref: customs-declaration-api-soap-test-live_test-new-cert-live-rev1.yaml
+plans:
+  default:
+    title: Default Plan
+    description: Default Plan
+    approval: false
+    rate-limit:
+      hard-limit: false
+      value: 100/hour

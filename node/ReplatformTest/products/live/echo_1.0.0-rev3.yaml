@@ -1,0 +1,112 @@
+info:
+  x-ibm-name: echo
+  version: 1.0.0-rev3
+  description: |-
+    An API to assist with debugging and testing.
+    Used a public domain echo service
+  title: Echo
+paths:
+  /get:
+    get:
+      responses:
+        '200':
+          examples:
+            application/json:
+              args:
+                str: qwertyuiop
+          description: ''
+          schema: {}
+      parameters:
+        - description: ''
+          default: '123'
+          required: false
+          in: query
+          type: string
+          name: str
+      tags: []
+      summary: ''
+      security:
+        - Client ID: []
+      description: ''
+schemes:
+  - https
+tags: []
+basePath: /echo
+x-ibm-configuration:
+  enforced: true
+  catalogs: {}
+  externalDocs: []
+  gateway: datapower-gateway
+  cors:
+    enabled: false
+  phase: realized
+  assembly:
+    execute:
+      - operation-switch:
+          case:
+            - operations:
+                - path: /get
+                  verb: get
+              execute:
+                - activity-log:
+                    content: payload
+                    title: Activity Log
+                    error-content: payload
+                - map:
+                    inputs:
+                      in1:
+                        variable: request.parameters
+                        schema:
+                          type: object
+                          properties:
+                            str:
+                              type: string
+                    options:
+                      inlineNamespaces: false
+                    actions:
+                      - set: out1.args.str
+                        from: '#/in1.str'
+                      - default: 200
+                        set: out2
+                    outputs:
+                      out1:
+                        variable: message.body
+                        content: application/json
+                        schema:
+                          type: object
+                          properties:
+                            args:
+                              type: object
+                              properties:
+                                str:
+                                  type: string
+                      out2:
+                        variable: message.status.code
+                        schema:
+                          default: 200
+                          type: integer
+                          format: int32
+                      out3:
+                        variable: message.headers
+                        schema:
+                          type: object
+          title: operation-switch
+  testable: false
+  properties:
+    activity.log:
+      encoded: false
+      description: ''
+      value: payload
+    error.log:
+      encoded: false
+      description: ''
+      value: payload
+securityDefinitions:
+  Client ID:
+    type: apiKey
+    description: ''
+    name: X-IBM-Client-Id
+    in: header
+definitions: {}
+security: []
+swagger: '2.0'

@@ -52,109 +52,197 @@ security:
 x-ibm-configuration:
   assembly:
     execute:
-      - map:
-          title: 'createShipment: input'
-          inputs:
-            input:
-              schema:
-                $ref: '#/definitions/shipment'
-              variable: request.body
-              content: application/json
-            userName:
-              schema:
-                type: string
-                title: userName
-              variable: request.headers.username
-            password:
-              schema:
-                type: string
-                title: password
-              variable: request.headers.password
-          outputs:
-            body:
-              schema:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentInput'
-              variable: message.body
-              content: application/xml
-            content-type:
-              schema:
-                type: string
-                title: content-type
-              variable: message.headers.content-type
-            SOAPAction:
-              schema:
-                type: string
-                title: SOAPAction
-              variable: message.headers.SOAPAction
-          actions:
-            - set: content-type
-              default: text/xml
-            - set: SOAPAction
-              default: createShipment
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.shipmentType.code
-              from: input.shipmentType
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.serviceOccurrence
-              from: input.serviceOccurrence
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.serviceType.code
-              from: input.serviceType
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.serviceOffering.serviceOfferingCode.code
-              from: input.serviceOffering
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.serviceFormat.serviceFormatCode.code
-              from: input.serviceFormat
-            - create: body.Envelope.Body.createShipmentRequest.requestedShipment.serviceEnhancements.enhancementType
-              from: input.serviceEnhancements
-              foreach: input.serviceEnhancements
-              actions:
-                - set: serviceEnhancementCode.code
-                  from: $item
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.signature
-              from: input.signature
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.shippingDate
-              from: input.shippingDate
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.recipientContact.name
-              from: input.recipientContact.name
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.recipientContact.complementaryName
-              from: input.recipientContact.complementaryName
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.recipientContact.telephoneNumber.telephoneNumber
-              from: input.recipientContact.telephoneNumber
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.recipientContact.electronicAddress.electronicAddress
-              from: input.recipientContact.email
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.recipientAddress.buildingName
-              from: input.recipientAddress.buildingName
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.recipientAddress.buildingNumber
-              from: input.recipientAddress.buildingNumber
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.recipientAddress.addressLine1
-              from: input.recipientAddress.addressLine1
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.recipientAddress.addressLine2
-              from: input.recipientAddress.addressLine2
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.recipientAddress.postTown
-              from: input.recipientAddress.postTown
-            - set: body.Envelope.Body.createShipmentRequest.requestedShipment.recipientAddress.domesticIndicator
-              default: 'Y'
-            - set: body.Envelope.Body.createShipmentRequest.integrationHeader.identification.applicationId
-              default: '1'
-            - set: body.Envelope.Body.createShipmentRequest.integrationHeader.identification.transactionId
-              default: '1'
-            - set: body.Envelope.Header.wsSecurityHeader.UsernameToken.Username
-              default: request.headers.username
-      - invoke:
-          title: 'createShipment: invoke'
-          target-url: 'https://test.api.royalmail.net/shipping/v2'
-          timeout: 60
-          verb: POST
-          cache-response: protocol
-          cache-ttl: 900
-          output: createShipmentOut
-      - map:
-          title: 'createShipment: output'
-          inputs:
-            input:
-              schema:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentOutput'
-              variable: createShipmentOut.body
-              content: application/xml
-          outputs: {}
-          actions: []
+      - operation-switch:
+          title: operation-switch
+          case:
+            - operations:
+                - createDomesticShipment
+              execute:
+                - map:
+                    title: 'map:createShipment'
+                    inputs:
+                      input:
+                        schema:
+                          $ref: '#/definitions/shipment'
+                        variable: request.body
+                        content: application/json
+                      userName:
+                        schema:
+                          type: string
+                          title: userName
+                        variable: request.headers.username
+                      password:
+                        schema:
+                          type: string
+                          title: password
+                        variable: request.headers.password
+                    outputs:
+                      body:
+                        schema:
+                          $ref: >-
+                            #/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentInput
+                        variable: message.body
+                        content: application/xml
+                      content-type:
+                        schema:
+                          type: string
+                          title: content-type
+                        variable: message.headers.content-type
+                      SOAPAction:
+                        schema:
+                          type: string
+                          title: SOAPAction
+                        variable: message.headers.SOAPAction
+                    actions:
+                      - set: content-type
+                        default: text/xml
+                      - set: SOAPAction
+                        default: createShipment
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.shipmentType.code
+                        from: input.shipmentType
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.serviceOccurrence
+                        from: input.serviceOccurrence
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.serviceType.code
+                        from: input.serviceType
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.serviceOffering.serviceOfferingCode.code
+                        from: input.serviceOffering
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.serviceFormat.serviceFormatCode.code
+                        from: input.serviceFormat
+                      - create: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.serviceEnhancements.enhancementType
+                        from: input.serviceEnhancements
+                        foreach: input.serviceEnhancements
+                        actions:
+                          - set: serviceEnhancementCode.code
+                            from: $item
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.signature
+                        from: input.signature
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.shippingDate
+                        from: input.shippingDate
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.recipientContact.name
+                        from: input.recipientContact.name
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.recipientContact.complementaryName
+                        from: input.recipientContact.complementaryName
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.recipientContact.telephoneNumber.telephoneNumber
+                        from: input.recipientContact.telephoneNumber
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.recipientContact.electronicAddress.electronicAddress
+                        from: input.recipientContact.email
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.recipientAddress.buildingName
+                        from: input.recipientAddress.buildingName
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.recipientAddress.buildingNumber
+                        from: input.recipientAddress.buildingNumber
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.recipientAddress.addressLine1
+                        from: input.recipientAddress.addressLine1
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.recipientAddress.addressLine2
+                        from: input.recipientAddress.addressLine2
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.recipientAddress.postTown
+                        from: input.recipientAddress.postTown
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.requestedShipment.recipientAddress.domesticIndicator
+                        default: 'Y'
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.integrationHeader.identification.applicationId
+                        default: '1'
+                      - set: >-
+                          body.Envelope.Body.createShipmentRequest.integrationHeader.identification.transactionId
+                        default: '1'
+                      - set: >-
+                          body.Envelope.Header.wsSecurityHeader.UsernameToken.Username
+                        default: request.headers.username
+                    options:
+                      includeEmptyXMLElements: false
+                - invoke:
+                    title: 'invoke: createShipment'
+                    target-url: 'https://test.api.royalmail.net/shipping/v2'
+                    timeout: 60
+                    verb: POST
+                    cache-response: protocol
+                    cache-ttl: 900
+                    output: createShipmentOut
+                - map:
+                    title: 'output: createShipment'
+                    inputs:
+                      input:
+                        schema:
+                          $ref: >-
+                            #/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentOutput
+                        variable: createShipmentOut.body
+                        content: application/xml
+                    outputs: {}
+                    actions: []
+            - operations:
+                - cancelShipment
+              execute:
+                - map:
+                    title: 'cancelShipment: input'
+                    inputs:
+                      input:
+                        schema:
+                          type: string
+                          title: input
+                        variable: request.parameters.paramname
+                    outputs:
+                      body:
+                        schema:
+                          $ref: >-
+                            #/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentInput
+                        variable: message.body
+                        content: application/xml
+                      content-type:
+                        schema:
+                          type: string
+                          title: content-type
+                        variable: message.headers.content-type
+                      SOAPAction:
+                        schema:
+                          type: string
+                          title: SOAPAction
+                        variable: message.headers.SOAPAction
+                    actions:
+                      - set: content-type
+                        default: text/xml
+                      - set: SOAPAction
+                        default: cancelShipment
+                      - set: >-
+                          body.Envelope.Body.cancelShipmentRequest.cancelShipments.shipmentNumber
+                        from: input
+                - invoke:
+                    title: 'cancelShipment: invoke'
+                    target-url: >-
+                      https://api.eu.apim.ibmcloud.com/royalmail/live/shipping/v2
+                    timeout: 60
+                    verb: POST
+                    cache-response: protocol
+                    cache-ttl: 900
+                    output: cancelShipmentOut
+                - map:
+                    title: 'cancelShipment: output'
+                    inputs:
+                      input:
+                        schema:
+                          $ref: >-
+                            #/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentOutput
+                        variable: cancelShipmentOut.body
+                        content: application/xml
+                    outputs: {}
+                    actions: []
+          otherwise: []
     catch: []
   targets:
     shippingAPI:
@@ -208,16 +296,19 @@ x-ibm-configuration:
                 name: body
                 required: true
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentInput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentInput
             responses:
               '500':
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentFault'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentFault
               default:
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentOutput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentOutput
             x-ibm-soap:
               soap-action: createShipment
               soap-operation: '{http://www.royalmailgroup.com/api/ship/V2}createShipment'
@@ -231,16 +322,19 @@ x-ibm-configuration:
                 name: body
                 required: true
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printLabelInput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/printLabelInput
             responses:
               '500':
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printLabelFault'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/printLabelFault
               default:
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printLabelOutput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/printLabelOutput
             x-ibm-soap:
               soap-action: printLabel
               soap-operation: '{http://www.royalmailgroup.com/api/ship/V2}printLabel'
@@ -254,16 +348,19 @@ x-ibm-configuration:
                 name: body
                 required: true
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createManifestInput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/createManifestInput
             responses:
               '500':
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createManifestFault'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/createManifestFault
               default:
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createManifestOutput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/createManifestOutput
             x-ibm-soap:
               soap-action: createManifest
               soap-operation: '{http://www.royalmailgroup.com/api/ship/V2}createManifest'
@@ -277,16 +374,19 @@ x-ibm-configuration:
                 name: body
                 required: true
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printManifestInput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/printManifestInput
             responses:
               '500':
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printManifestFault'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/printManifestFault
               default:
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printManifestOutput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/printManifestOutput
             x-ibm-soap:
               soap-action: printManifest
               soap-operation: '{http://www.royalmailgroup.com/api/ship/V2}printManifest'
@@ -300,16 +400,19 @@ x-ibm-configuration:
                 name: body
                 required: true
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/updateShipmentInput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/updateShipmentInput
             responses:
               '500':
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/updateShipmentFault'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/updateShipmentFault
               default:
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/updateShipmentOutput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/updateShipmentOutput
             x-ibm-soap:
               soap-action: updateShipment
               soap-operation: '{http://www.royalmailgroup.com/api/ship/V2}updateShipment'
@@ -323,16 +426,19 @@ x-ibm-configuration:
                 name: body
                 required: true
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentInput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentInput
             responses:
               '500':
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentFault'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentFault
               default:
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentOutput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentOutput
             x-ibm-soap:
               soap-action: cancelShipment
               soap-operation: '{http://www.royalmailgroup.com/api/ship/V2}cancelShipment'
@@ -346,16 +452,19 @@ x-ibm-configuration:
                 name: body
                 required: true
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printDocumentInput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/printDocumentInput
             responses:
               '500':
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printDocumentFault'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/printDocumentFault
               default:
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printDocumentOutput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/printDocumentOutput
             x-ibm-soap:
               soap-action: printDocument
               soap-operation: '{http://www.royalmailgroup.com/api/ship/V2}printDocument'
@@ -369,16 +478,19 @@ x-ibm-configuration:
                 name: body
                 required: true
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/request1DRangesInput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/request1DRangesInput
             responses:
               '500':
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/request1DRangesFault'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/request1DRangesFault
               default:
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/request1DRangesOutput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/request1DRangesOutput
             x-ibm-soap:
               soap-action: request1DRanges
               soap-operation: '{http://www.royalmailgroup.com/api/ship/V2}request1DRanges'
@@ -392,23 +504,27 @@ x-ibm-configuration:
                 name: body
                 required: true
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/request2DItemIDRangeInput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/request2DItemIDRangeInput
             responses:
               '500':
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/request2DItemIDRangeFault'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/request2DItemIDRangeFault
               default:
                 description: ''
                 schema:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/request2DItemIDRangeOutput'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/request2DItemIDRangeOutput
             x-ibm-soap:
               soap-action: request2DItemIDRange
               soap-operation: '{http://www.royalmailgroup.com/api/ship/V2}request2DItemIDRange'
       definitions:
         wsSecurityHeader:
           xml:
-            namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+            namespace: >-
+              http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd
             prefix: wsse
           type: object
           properties:
@@ -429,15 +545,18 @@ x-ibm-configuration:
               type: object
               properties:
                 Header:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentHeader'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentHeader
                 Body:
                   type: object
                   properties:
                     createShipmentRequest:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentRequest'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentRequest
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Header>
               <wsse:wsSecurityHeader xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
                <UsernameToken>
@@ -1026,10 +1145,12 @@ x-ibm-configuration:
                   type: object
                   properties:
                     createShipmentResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentResponse'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/createShipmentResponse
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Body>
               <tns:createShipmentResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2">
                <tns:integrationHeader>
@@ -1616,7 +1737,8 @@ x-ibm-configuration:
           type: object
           properties:
             wsSecurityHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader
             Security:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/Security'
         createShipmentFault:
@@ -1632,7 +1754,8 @@ x-ibm-configuration:
                   type: object
                   properties:
                     faultResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse'
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse
         printLabelInput:
           type: object
           properties:
@@ -1643,15 +1766,18 @@ x-ibm-configuration:
               type: object
               properties:
                 Header:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printLabelHeader'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/printLabelHeader
                 Body:
                   type: object
                   properties:
                     printLabelRequest:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printLabelRequest'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/printLabelRequest
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Header>
               <wsse:wsSecurityHeader xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
                <UsernameToken>
@@ -1811,10 +1937,12 @@ x-ibm-configuration:
                   type: object
                   properties:
                     printLabelResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printLabelResponse'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/printLabelResponse
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Body>
               <tns:printLabelResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2">
                <tns:integrationHeader>
@@ -2002,7 +2130,8 @@ x-ibm-configuration:
           type: object
           properties:
             wsSecurityHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader
             Security:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/Security'
         printLabelFault:
@@ -2018,7 +2147,8 @@ x-ibm-configuration:
                   type: object
                   properties:
                     faultResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse'
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse
         createManifestInput:
           type: object
           properties:
@@ -2029,15 +2159,18 @@ x-ibm-configuration:
               type: object
               properties:
                 Header:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createManifestHeader'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/createManifestHeader
                 Body:
                   type: object
                   properties:
                     createManifestRequest:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createManifestRequest'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/createManifestRequest
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Header>
               <wsse:wsSecurityHeader xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
                <UsernameToken>
@@ -2089,10 +2222,12 @@ x-ibm-configuration:
                   type: object
                   properties:
                     createManifestResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/createManifestResponse'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/createManifestResponse
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Body>
               <tns:createManifestResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2">
                <tns:integrationHeader>
@@ -2154,7 +2289,8 @@ x-ibm-configuration:
           type: object
           properties:
             wsSecurityHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader
             Security:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/Security'
         createManifestFault:
@@ -2170,7 +2306,8 @@ x-ibm-configuration:
                   type: object
                   properties:
                     faultResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse'
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse
         printManifestInput:
           type: object
           properties:
@@ -2181,15 +2318,18 @@ x-ibm-configuration:
               type: object
               properties:
                 Header:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printManifestHeader'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/printManifestHeader
                 Body:
                   type: object
                   properties:
                     printManifestRequest:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printManifestRequest'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/printManifestRequest
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Header>
               <wsse:wsSecurityHeader xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
                <UsernameToken>
@@ -2230,10 +2370,12 @@ x-ibm-configuration:
                   type: object
                   properties:
                     printManifestResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printManifestResponse'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/printManifestResponse
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Body>
               <tns:printManifestResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2">
                <tns:integrationHeader>
@@ -2277,7 +2419,8 @@ x-ibm-configuration:
           type: object
           properties:
             wsSecurityHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader
             Security:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/Security'
         printManifestFault:
@@ -2293,7 +2436,8 @@ x-ibm-configuration:
                   type: object
                   properties:
                     faultResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse'
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse
         updateShipmentInput:
           type: object
           properties:
@@ -2304,15 +2448,18 @@ x-ibm-configuration:
               type: object
               properties:
                 Header:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/updateShipmentHeader'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/updateShipmentHeader
                 Body:
                   type: object
                   properties:
                     updateShipmentRequest:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/updateShipmentRequest'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/updateShipmentRequest
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Header>
               <wsse:wsSecurityHeader xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
                <UsernameToken>
@@ -2902,10 +3049,12 @@ x-ibm-configuration:
                   type: object
                   properties:
                     updateShipmentResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/updateShipmentResponse'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/updateShipmentResponse
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Body>
               <tns:updateShipmentResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2">
                <tns:integrationHeader>
@@ -3509,7 +3658,8 @@ x-ibm-configuration:
           type: object
           properties:
             wsSecurityHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader
             Security:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/Security'
         updateShipmentFault:
@@ -3525,7 +3675,8 @@ x-ibm-configuration:
                   type: object
                   properties:
                     faultResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse'
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse
         cancelShipmentInput:
           type: object
           properties:
@@ -3536,15 +3687,18 @@ x-ibm-configuration:
               type: object
               properties:
                 Header:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentHeader'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentHeader
                 Body:
                   type: object
                   properties:
                     cancelShipmentRequest:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentRequest'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentRequest
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Header>
               <wsse:wsSecurityHeader xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
                <UsernameToken>
@@ -3588,10 +3742,12 @@ x-ibm-configuration:
                   type: object
                   properties:
                     cancelShipmentResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentResponse'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipmentResponse
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Body>
               <tns:cancelShipmentResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2">
                <tns:integrationHeader>
@@ -3651,7 +3807,8 @@ x-ibm-configuration:
           type: object
           properties:
             wsSecurityHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader
             Security:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/Security'
         cancelShipmentFault:
@@ -3667,7 +3824,8 @@ x-ibm-configuration:
                   type: object
                   properties:
                     faultResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse'
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse
         printDocumentInput:
           type: object
           properties:
@@ -3678,15 +3836,18 @@ x-ibm-configuration:
               type: object
               properties:
                 Header:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printDocumentHeader'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/printDocumentHeader
                 Body:
                   type: object
                   properties:
                     printDocumentRequest:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printDocumentRequest'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/printDocumentRequest
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Header>
               <wsse:wsSecurityHeader xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
                <UsernameToken>
@@ -3731,10 +3892,12 @@ x-ibm-configuration:
                   type: object
                   properties:
                     printDocumentResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/printDocumentResponse'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/printDocumentResponse
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Body>
               <tns:printDocumentResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2">
                <tns:integrationHeader>
@@ -3778,7 +3941,8 @@ x-ibm-configuration:
           type: object
           properties:
             wsSecurityHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader
             Security:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/Security'
         printDocumentFault:
@@ -3794,7 +3958,8 @@ x-ibm-configuration:
                   type: object
                   properties:
                     faultResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse'
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse
         request1DRangesInput:
           type: object
           properties:
@@ -3805,15 +3970,18 @@ x-ibm-configuration:
               type: object
               properties:
                 Header:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/request1DRangesHeader'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/request1DRangesHeader
                 Body:
                   type: object
                   properties:
                     request1DRangesRequest:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/request1DRangesRequest'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/request1DRangesRequest
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Header>
               <wsse:wsSecurityHeader xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
                <UsernameToken>
@@ -3884,10 +4052,12 @@ x-ibm-configuration:
                   type: object
                   properties:
                     request1DRangesResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/request1DRangesResponse'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/request1DRangesResponse
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Body>
               <tns:request1DRangesResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2">
                <tns:integrationHeader>
@@ -3966,7 +4136,8 @@ x-ibm-configuration:
           type: object
           properties:
             wsSecurityHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader
             Security:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/Security'
         request1DRangesFault:
@@ -3982,7 +4153,8 @@ x-ibm-configuration:
                   type: object
                   properties:
                     faultResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse'
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse
         request2DItemIDRangeInput:
           type: object
           properties:
@@ -3993,15 +4165,18 @@ x-ibm-configuration:
               type: object
               properties:
                 Header:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/request2DItemIDRangeHeader'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/request2DItemIDRangeHeader
                 Body:
                   type: object
                   properties:
                     request2DItemIDRangeRequest:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/request2DItemIDRangeRequest'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/request2DItemIDRangeRequest
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Header>
               <wsse:wsSecurityHeader xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
                <UsernameToken>
@@ -4042,10 +4217,12 @@ x-ibm-configuration:
                   type: object
                   properties:
                     request2DItemIDRangeResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/request2DItemIDRangeResponse'
-          example: |-
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/request2DItemIDRangeResponse
+          example: >-
 
-            <soap-env:Envelope xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
              <soap-env:Body>
               <tns:request2DItemIDRangeResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2">
                <tns:integrationHeader>
@@ -4092,7 +4269,8 @@ x-ibm-configuration:
           type: object
           properties:
             wsSecurityHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/wsSecurityHeader
             Security:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/Security'
         request2DItemIDRangeFault:
@@ -4108,23 +4286,30 @@ x-ibm-configuration:
                   type: object
                   properties:
                     faultResponse:
-                      $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse'
+                      $ref: >-
+                        #/x-ibm-configuration/targets/shippingAPI/definitions/faultResponse
         createShipmentRequest:
           xml:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
             prefix: tns
           allOf:
-            - $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest'
+            - $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest
             - xml:
                 namespace: 'http://www.royalmailgroup.com/api/ship/V2'
                 prefix: tns
               type: object
               properties:
                 requestedShipment:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/requestedShipment'
-          example: |-
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/requestedShipment
+          example: >-
 
-            <tns:createShipment xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1" xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3" xmlns:com="http://www.royalmailgroup.com/cm/common/V4">
+            <tns:createShipment
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+            xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3"
+            xmlns:com="http://www.royalmailgroup.com/cm/common/V4">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -4711,14 +4896,21 @@ x-ibm-configuration:
           type: object
           properties:
             integrationHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader
             completedShipmentInfo:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/completedShipmentInfo'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/completedShipmentInfo
             integrationFooter:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter'
-          example: |-
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter
+          example: >-
 
-            <tns:createShipmentResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1" xmlns:com="http://www.royalmailgroup.com/cm/common/V4" xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
+            <tns:createShipmentResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+            xmlns:com="http://www.royalmailgroup.com/cm/common/V4"
+            xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -5368,15 +5560,20 @@ x-ibm-configuration:
           type: object
           properties:
             exceptionTransactionId:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/transactionId'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/transactionId
             exceptionCode:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/errorCode'
             exceptionText:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
-          description: Used to hold the RMG defined data elements associated with the SOAP fault
-          example: |-
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
+          description: >-
+            Used to hold the RMG defined data elements associated with the SOAP
+            fault
+          example: >-
 
-            <soapext:faultResponse xmlns:soapext="http://www.royalmailgroup.com/soap/extensions/V1">
+            <soapext:faultResponse
+            xmlns:soapext="http://www.royalmailgroup.com/soap/extensions/V1">
              <exceptionTransactionId>string</exceptionTransactionId>
              <exceptionCode>string</exceptionCode>
              <exceptionText>string</exceptionText>
@@ -5386,23 +5583,31 @@ x-ibm-configuration:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
             prefix: tns
           allOf:
-            - $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest'
+            - $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest
             - xml:
                 namespace: 'http://www.royalmailgroup.com/api/ship/V2'
                 prefix: tns
               type: object
               properties:
                 shipmentNumber:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/identifier
                 outputFormat:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/identifier
                 localisedAddress:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/localisedAddress'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/localisedAddress
               required:
                 - shipmentNumber
-          example: |-
+          example: >-
 
-            <tns:printLabel xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1" xmlns:com="http://www.royalmailgroup.com/cm/common/V4" xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
+            <tns:printLabel
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+            xmlns:com="http://www.royalmailgroup.com/cm/common/V4"
+            xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -5543,21 +5748,28 @@ x-ibm-configuration:
           type: object
           properties:
             integrationHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader
             label:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/document'
             labelImages:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/labelImages'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/labelImages
             labelData:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/labelData'
             outputFormat:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
             integrationFooter:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter
           description: schema to hold response details for printLabel operation
-          example: |-
+          example: >-
 
-            <tns:printLabelResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1" xmlns:com="http://www.royalmailgroup.com/cm/common/V4" xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
+            <tns:printLabelResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+            xmlns:com="http://www.royalmailgroup.com/cm/common/V4"
+            xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -5742,23 +5954,31 @@ x-ibm-configuration:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
             prefix: tns
           allOf:
-            - $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest'
+            - $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest
             - xml:
                 namespace: 'http://www.royalmailgroup.com/api/ship/V2'
                 prefix: tns
               type: object
               properties:
                 serviceOccurrence:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/ordinal'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/ordinal
                 serviceOffering:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceOfferingType'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/serviceOfferingType
                 yourDescription:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/comment'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/comment
                 yourReference:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
-          example: |-
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/identifier
+          example: >-
 
-            <tns:createManifest xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1" xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
+            <tns:createManifest
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+            xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -5791,15 +6011,21 @@ x-ibm-configuration:
           type: object
           properties:
             integrationHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader
             completedManifests:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/completedManifests'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/completedManifests
             integrationFooter:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter
           description: schema to hold response details for createManifest operation
-          example: |-
+          example: >-
 
-            <tns:createManifestResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1" xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
+            <tns:createManifestResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+            xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -5858,10 +6084,13 @@ x-ibm-configuration:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
             prefix: tns
           allOf:
-            - $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest'
-          example: |-
+            - $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest
+          example: >-
 
-            <tns:printManifest xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
+            <tns:printManifest
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -5883,15 +6112,19 @@ x-ibm-configuration:
           type: object
           properties:
             integrationHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader
             manifest:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/document'
             integrationFooter:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter
           description: schema to hold response details for printManifest operation.
-          example: |-
+          example: >-
 
-            <tns:printManifestResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
+            <tns:printManifestResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -5932,19 +6165,26 @@ x-ibm-configuration:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
             prefix: tns
           allOf:
-            - $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest'
+            - $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest
             - xml:
                 namespace: 'http://www.royalmailgroup.com/api/ship/V2'
                 prefix: tns
               type: object
               properties:
                 shipmentNumber:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/identifier
                 requestedShipment:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/requestedShipment'
-          example: |-
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/requestedShipment
+          example: >-
 
-            <tns:updateShipment xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1" xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3" xmlns:com="http://www.royalmailgroup.com/cm/common/V4">
+            <tns:updateShipment
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+            xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3"
+            xmlns:com="http://www.royalmailgroup.com/cm/common/V4">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -6532,19 +6772,26 @@ x-ibm-configuration:
           type: object
           properties:
             integrationHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader
             status:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/status'
             shipmentNumber:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
             requestedShipment:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/requestedShipment'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/requestedShipment
             integrationFooter:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter
           description: schema to hold response details for updateShipment operation
-          example: |-
+          example: >-
 
-            <tns:updateShipmentResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1" xmlns:com="http://www.royalmailgroup.com/cm/common/V4" xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
+            <tns:updateShipmentResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+            xmlns:com="http://www.royalmailgroup.com/cm/common/V4"
+            xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -7162,17 +7409,21 @@ x-ibm-configuration:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
             prefix: tns
           allOf:
-            - $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest'
+            - $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest
             - xml:
                 namespace: 'http://www.royalmailgroup.com/api/ship/V2'
                 prefix: tns
               type: object
               properties:
                 cancelShipments:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipments'
-          example: |-
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/cancelShipments
+          example: >-
 
-            <tns:cancelShipment xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
+            <tns:cancelShipment
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -7197,15 +7448,22 @@ x-ibm-configuration:
           type: object
           properties:
             integrationHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader
             completedCancelInfo:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/completedCancelInfo'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/completedCancelInfo
             integrationFooter:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter
           description: schema to hold request details for cancelShipmentResponse operation
-          example: |-
+          example: >-
 
-            <tns:cancelShipmentResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1" xmlns:com="http://www.royalmailgroup.com/cm/common/V4" xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
+            <tns:cancelShipmentResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+            xmlns:com="http://www.royalmailgroup.com/cm/common/V4"
+            xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -7262,23 +7520,30 @@ x-ibm-configuration:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
             prefix: tns
           allOf:
-            - $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest'
+            - $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest
             - xml:
                 namespace: 'http://www.royalmailgroup.com/api/ship/V2'
                 prefix: tns
               type: object
               properties:
                 shipmentNumber:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/identifier
                 documentName:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/identifier
                 documentFormat:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/identifier
                 documentCopies:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integer'
-          example: |-
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/integer
+          example: >-
 
-            <tns:printDocument xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
+            <tns:printDocument
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -7304,15 +7569,19 @@ x-ibm-configuration:
           type: object
           properties:
             integrationHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader
             internationalDocument:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/document'
             integrationFooter:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter
           description: schema to hold response details for printDocument operation
-          example: |-
+          example: >-
 
-            <tns:printDocumentResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
+            <tns:printDocumentResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -7353,17 +7622,22 @@ x-ibm-configuration:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
             prefix: tns
           allOf:
-            - $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest'
+            - $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest
             - xml:
                 namespace: 'http://www.royalmailgroup.com/api/ship/V2'
                 prefix: tns
               type: object
               properties:
                 serviceReferences:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceReferences'
-          example: |-
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/serviceReferences
+          example: >-
 
-            <tns:request1DRanges xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1" xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
+            <tns:request1DRanges
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+            xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -7415,15 +7689,21 @@ x-ibm-configuration:
           type: object
           properties:
             integrationHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader
             serviceRanges:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceRanges'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/serviceRanges
             integrationFooter:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter
           description: schema to hold response details for request1DRangeRequest operation
-          example: |-
+          example: >-
 
-            <tns:request1DRangesResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1" xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
+            <tns:request1DRangesResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+            xmlns:rd="http://www.royalmailgroup.com/cm/referenceData/V3">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -7499,10 +7779,13 @@ x-ibm-configuration:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
             prefix: tns
           allOf:
-            - $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest'
-          example: |-
+            - $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/baseRequest
+          example: >-
 
-            <tns:request2DItemIDRange xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
+            <tns:request2DItemIDRange
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -7524,15 +7807,22 @@ x-ibm-configuration:
           type: object
           properties:
             integrationHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader
             itemIDRange:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/itemIDRange'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/itemIDRange
             integrationFooter:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter'
-          description: schema to hold response details for request2DItemIDRangeRequest operation
-          example: |-
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationFooter
+          description: >-
+            schema to hold response details for request2DItemIDRangeRequest
+            operation
+          example: >-
 
-            <tns:request2DItemIDRangeResponse xmlns:tns="http://www.royalmailgroup.com/api/ship/V2" xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
+            <tns:request2DItemIDRangeResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/ship/V2"
+            xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
              <tns:integrationHeader>
               <int:dateTime>2016-04-18T14:07:37</int:dateTime>
               <int:version>string</int:version>
@@ -7573,11 +7863,14 @@ x-ibm-configuration:
             </tns:request2DItemIDRangeResponse>
         Security:
           xml:
-            namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+            namespace: >-
+              http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd
             prefix: wsse
           type: object
           properties: {}
-          description: This complexType defines header block to use for security-relevant data directed at a specific SOAP actor.
+          description: >-
+            This complexType defines header block to use for security-relevant
+            data directed at a specific SOAP actor.
         baseRequest:
           xml:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
@@ -7585,7 +7878,8 @@ x-ibm-configuration:
           type: object
           properties:
             integrationHeader:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/integrationHeader
           description: schema to hold static elements in ComplexContents
         requestedShipment:
           xml:
@@ -7594,19 +7888,25 @@ x-ibm-configuration:
           type: object
           properties:
             shipmentType:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
             serviceOccurrence:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/ordinal'
             serviceType:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
             serviceOffering:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceOfferingType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/serviceOfferingType
             serviceFormat:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceFormatType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/serviceFormatType
             bfpoFormat:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/bFPOFormatType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/bFPOFormatType
             serviceEnhancements:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceEnhancements'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/serviceEnhancements
             signature:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/boolean'
             shippingDate:
@@ -7634,7 +7934,8 @@ x-ibm-configuration:
             exporterAddress:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/address'
             internationalInfo:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/internationalInfo'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/internationalInfo
           description: |-
             schema to hold the details for the shipment;
             importerContact: schema to hold contact details of importer;
@@ -7652,21 +7953,35 @@ x-ibm-configuration:
             version:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/decimal'
             identification:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identificationStructure'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/identificationStructure
             testFlag:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/boolean'
             debugFlag:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/boolean'
             performanceFlag:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/boolean'
-          description: |-
+          description: >-
             Common integration header definition;
-            dateTime: Date timestamp associated with when the data was generated, sent or received;
+
+            dateTime: Date timestamp associated with when the data was
+            generated, sent or received;
+
             version: Version of the service;
-            identification: Identification details associated with the Service Requestor or Service Provider;
-            testFlag: Flag which can be used to test that the exposed service is available. It is not expected that this flag will be used under normal BAU service operation.;
-            debugFlag: Flag which can be used to allow any messages to be dynamically debugged. It is not expected that this flag will be used under normal BAU service operation.;
-            performanceFlag: Flag which can be used to track the performance of the service across RMG systems (entry time, exit time, latency etc).
+
+            identification: Identification details associated with the Service
+            Requestor or Service Provider;
+
+            testFlag: Flag which can be used to test that the exposed service is
+            available. It is not expected that this flag will be used under
+            normal BAU service operation.;
+
+            debugFlag: Flag which can be used to allow any messages to be
+            dynamically debugged. It is not expected that this flag will be used
+            under normal BAU service operation.;
+
+            performanceFlag: Flag which can be used to track the performance of
+            the service across RMG systems (entry time, exit time, latency etc).
         completedShipmentInfo:
           xml:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
@@ -7676,9 +7991,11 @@ x-ibm-configuration:
             status:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/status'
             allCompletedShipments:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/allCompletedShipments'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/allCompletedShipments
             requestedShipment:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/requestedShipment'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/requestedShipment
           description: schema to hold details of the response to created shipments
         integrationFooter:
           xml:
@@ -7687,13 +8004,17 @@ x-ibm-configuration:
           type: object
           properties:
             errors:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/errorStructure'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/errorStructure
             warnings:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/warningStructure'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/warningStructure
           description: Common integration footer definition
         transactionId:
-          description: 'Id preserved throughout the lifespan of the transaction, unique when combined with the applicationId and intermediaryId (if applicable).'
-          pattern: "[a-zA-Z0-9/\\-]*"
+          description: >-
+            Id preserved throughout the lifespan of the transaction, unique when
+            combined with the applicationId and intermediaryId (if applicable).
+          pattern: '[a-zA-Z0-9/\-]*'
           maxLength: 50
           minLength: 1
           $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
@@ -7702,11 +8023,18 @@ x-ibm-configuration:
           pattern: '[E]{1}[0-9]{4}'
           $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
         description:
-          description: A description is a sub-type of string and is statement in words that gives an account or descriptive representation of a thing. Descriptions are only editable via an admin function and are for display and information purposes only for end users.
+          description: >-
+            A description is a sub-type of string and is statement in words that
+            gives an account or descriptive representation of a thing.
+            Descriptions are only editable via an admin function and are for
+            display and information purposes only for end users.
           maxLength: 256
           $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/string'
         identifier:
-          description: An identifier is a sub-type of string which serves as a means of identification for a particular thing; An identifier can be associated with a name.
+          description: >-
+            An identifier is a sub-type of string which serves as a means of
+            identification for a particular thing; An identifier can be
+            associated with a name.
           maxLength: 128
           $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/string'
         localisedAddress:
@@ -7719,7 +8047,9 @@ x-ibm-configuration:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/contact'
             recipientAddress:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/address'
-          description: schema to hold native address and contact details for non-English countries
+          description: >-
+            schema to hold native address and contact details for non-English
+            countries
         document:
           xml:
             namespace: ''
@@ -7735,7 +8065,8 @@ x-ibm-configuration:
             image1DBarcode:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/document'
             image2DMatrix:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/twoDBarcode'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/twoDBarcode
           description: schema to hold an array of shipment numbers
         labelData:
           xml:
@@ -7780,7 +8111,8 @@ x-ibm-configuration:
             reservedBIVK:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
             spareCapacity:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/shortDescription'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/shortDescription
             buildingNumber:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integer'
             buildingName:
@@ -7802,14 +8134,22 @@ x-ibm-configuration:
           type: object
           properties:
             serviceOfferingCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
-          description: |-
-            Defines the type of offering/product (with specific parameters) which may be sold to a customer.;
-            serviceOfferingCode: Defines the type of offering/product (with specific parameters) which may be sold to a customer.
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
+          description: >-
+            Defines the type of offering/product (with specific parameters)
+            which may be sold to a customer.;
+
+            serviceOfferingCode: Defines the type of offering/product (with
+            specific parameters) which may be sold to a customer.
           required:
             - serviceOfferingCode
         comment:
-          description: 'A comment is a sub-type of string which can be used as a note intended as an explanation, illustration, instruction, capture of an interaction or an annotation. This is free format text which can be input by the end user.'
+          description: >-
+            A comment is a sub-type of string which can be used as a note
+            intended as an explanation, illustration, instruction, capture of an
+            interaction or an annotation. This is free format text which can be
+            input by the end user.
           maxLength: 4000
           $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/string'
         completedManifests:
@@ -7821,7 +8161,8 @@ x-ibm-configuration:
             completedManifestInfo:
               type: array
               items:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/completedManifestInfo'
+                $ref: >-
+                  #/x-ibm-configuration/targets/shippingAPI/definitions/completedManifestInfo
               minItems: 1
           description: schema to hold array of manifest details
           required:
@@ -7838,10 +8179,15 @@ x-ibm-configuration:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/dateTime'
             validTo:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/dateTime'
-          description: |-
-            This is the state of the entity (i.e. it is active, approved, draft, inactive, etc).;
-            status: This is the state of the reference data (i.e. it is active, approved, draft, inactive, etc).;
+          description: >-
+            This is the state of the entity (i.e. it is active, approved, draft,
+            inactive, etc).;
+
+            status: This is the state of the reference data (i.e. it is active,
+            approved, draft, inactive, etc).;
+
             validFrom: The date at which the data becomes active.;
+
             validTo: The date at which the data is retired.
           required:
             - status
@@ -7855,7 +8201,8 @@ x-ibm-configuration:
             shipmentNumber:
               type: array
               items:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
+                $ref: >-
+                  #/x-ibm-configuration/targets/shippingAPI/definitions/identifier
               minItems: 1
           description: schema to hold array of shipment numbers
           required:
@@ -7869,14 +8216,18 @@ x-ibm-configuration:
             status:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/status'
             completedCancelShipments:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/completedCancelShipments'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/completedCancelShipments
           description: schema to hold array of cancelled shipments
         integer:
           xml:
             namespace: ''
             prefix: ''
           type: number
-          description: 'An integer is a whole number (not a fraction) that can be positive, negative, or zero. Unlike floats, integers cannot have decimal places.'
+          description: >-
+            An integer is a whole number (not a fraction) that can be positive,
+            negative, or zero. Unlike floats, integers cannot have decimal
+            places.
         serviceReferences:
           xml:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
@@ -7884,7 +8235,8 @@ x-ibm-configuration:
           type: object
           properties:
             serviceReference:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceReference'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/serviceReference
           description: schema to hold array of service references
         serviceRanges:
           xml:
@@ -7893,7 +8245,8 @@ x-ibm-configuration:
           type: object
           properties:
             serviceRange:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceRange'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/serviceRange
           description: schema to hold array of serviceRanges
         itemIDRange:
           xml:
@@ -7919,12 +8272,25 @@ x-ibm-configuration:
             name:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/longName'
             description:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
-          description: |-
-            The reference data class gives a common structure which will be adopted for all generic reference data. Reference data tends to be 'Qualifier' data (referenced in the data standards document on Sharepoint). For example the expression Product Short Name; 'Short' in this instance is the qualifier and could have a corresponding set of reference values that could be used.;
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
+          description: >-
+            The reference data class gives a common structure which will be
+            adopted for all generic reference data. Reference data tends to be
+            'Qualifier' data (referenced in the data standards document on
+            Sharepoint). For example the expression Product Short Name; 'Short'
+            in this instance is the qualifier and could have a corresponding set
+            of reference values that could be used.;
+
             identifier: ~Unique identifier for a Reference Data instance.;
-            code: The code is used as an identifier to recognize or establish a particular person or thing. It is used to verify the identity of the bearer of an identity.;
-            name: Name assorted with the code i.e. Name - United States for Code - US.;
+
+            code: The code is used as an identifier to recognize or establish a
+            particular person or thing. It is used to verify the identity of the
+            bearer of an identity.;
+
+            name: Name assorted with the code i.e. Name - United States for Code
+            - US.;
+
             description: A description or the reference data item.
         serviceFormatType:
           xml:
@@ -7933,7 +8299,8 @@ x-ibm-configuration:
           type: object
           properties:
             serviceFormatCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
           description: |-
             Defines the format of the Service being offered.;
             serviceFormatCode: Defines the format of the Service being offered.
@@ -7946,10 +8313,14 @@ x-ibm-configuration:
           type: object
           properties:
             bFPOFormatCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
-          description: |-
-            Reference data identifying the format of British Forces Posting Overseas Mail Items;
-            bFPOFormatCode: Reference data identifying the Format of British Forces Posting Overseas Mail Items
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
+          description: >-
+            Reference data identifying the format of British Forces Posting
+            Overseas Mail Items;
+
+            bFPOFormatCode: Reference data identifying the Format of British
+            Forces Posting Overseas Mail Items
           required:
             - bFPOFormatCode
         serviceEnhancements:
@@ -7961,20 +8332,27 @@ x-ibm-configuration:
             enhancementType:
               type: array
               items:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceEnhancementType'
+                $ref: >-
+                  #/x-ibm-configuration/targets/shippingAPI/definitions/serviceEnhancementType
           description: schema to hold service enhancements
         boolean:
           xml:
             namespace: ''
             prefix: ''
           type: boolean
-          description: "Boolean, or boolean logic, is a subset of algebra used for creating true/false statements. Boolean expressions use the operators AND, OR, XOR, and NOT to compare values and return a true or false result. Boolean values can also be referred to as 'flags'."
+          description: >-
+            Boolean, or boolean logic, is a subset of algebra used for creating
+            true/false statements. Boolean expressions use the operators AND,
+            OR, XOR, and NOT to compare values and return a true or false
+            result. Boolean values can also be referred to as 'flags'.
         date:
           xml:
             namespace: ''
             prefix: ''
           type: string
-          description: 'A date represents a period in time which could be a particular month, day, and year at which some event happened or will happen.'
+          description: >-
+            A date represents a period in time which could be a particular
+            month, day, and year at which some event happened or will happen.
           format: date
         contact:
           xml:
@@ -7985,11 +8363,14 @@ x-ibm-configuration:
             name:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/longName'
             complementaryName:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/complementaryName'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/complementaryName
             telephoneNumber:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/telephoneNumber'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/telephoneNumber
             electronicAddress:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/digitalAddress'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/digitalAddress
         address:
           xml:
             namespace: ''
@@ -7999,7 +8380,8 @@ x-ibm-configuration:
             addressUsageType:
               type: array
               items:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/addressUsageType'
+                $ref: >-
+                  #/x-ibm-configuration/targets/shippingAPI/definitions/addressUsageType
             domesticIndicator:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/boolean'
             buildingName:
@@ -8007,15 +8389,20 @@ x-ibm-configuration:
             buildingNumber:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integer'
             addressLine1:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
             addressLine2:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
             addressLine3:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
             addressLine4:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
             stateOrProvince:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/stateOrProvinceType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/stateOrProvinceType
             postTown:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/name'
             county:
@@ -8023,28 +8410,62 @@ x-ibm-configuration:
             postcode:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
             country:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/countryType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/countryType
             status:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/status'
             audit:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/audit'
-          description: |-
-            A postal address is a method of identifying a deliverable Location to the postal service.;
-            addressUsageType: This denotes the function the address plays (i.e. it is a primary address, seasonal, etc).;
-            domesticIndicator: This flag indicates whether the address is a UK domestic address or an international address.;
-            buildingName: This is the vanity name for a building or house (i.e. Rowland Hill House).;
-            buildingNumber: This is the allocated number identifying the location within the postcode.;
-            addressLine1: Generic line to hold address body (i.e. street name and number, direction, borough, etc).;
-            addressLine2: Generic line to hold address body (i.e. street name and number, direction, borough, etc).;
-            addressLine3: Generic line to hold address body (i.e. street name and number, direction, borough, etc).;
-            addressLine4: Generic line to hold address body (i.e. street name and number, direction, borough, etc).;
-            stateOrProvince: This is used specifically for international items only and is applicable for the US, Canada, Australia, etc.;
-            postTown: A town is a human settlement larger than a village but smaller than a city.;
-            county: A territorial division exercising administrative, judicial, and political functions.;
-            postcode: A code created to abbreviate a series of postal addresses, that share location affinity, in order to facilitate mail collection, processing and delivery.;
-            country: A Country as recognised by the International Standards Organisation.;
-            status: This is the state of the entity (i.e. it is active, approved, draft, inactive, etc).;
-            audit: The audit type is appended to all business data constructs to ensure a standard way of capturing key data to track back users who have made changes to the data.
+          description: >-
+            A postal address is a method of identifying a deliverable Location
+            to the postal service.;
+
+            addressUsageType: This denotes the function the address plays (i.e.
+            it is a primary address, seasonal, etc).;
+
+            domesticIndicator: This flag indicates whether the address is a UK
+            domestic address or an international address.;
+
+            buildingName: This is the vanity name for a building or house (i.e.
+            Rowland Hill House).;
+
+            buildingNumber: This is the allocated number identifying the
+            location within the postcode.;
+
+            addressLine1: Generic line to hold address body (i.e. street name
+            and number, direction, borough, etc).;
+
+            addressLine2: Generic line to hold address body (i.e. street name
+            and number, direction, borough, etc).;
+
+            addressLine3: Generic line to hold address body (i.e. street name
+            and number, direction, borough, etc).;
+
+            addressLine4: Generic line to hold address body (i.e. street name
+            and number, direction, borough, etc).;
+
+            stateOrProvince: This is used specifically for international items
+            only and is applicable for the US, Canada, Australia, etc.;
+
+            postTown: A town is a human settlement larger than a village but
+            smaller than a city.;
+
+            county: A territorial division exercising administrative, judicial,
+            and political functions.;
+
+            postcode: A code created to abbreviate a series of postal addresses,
+            that share location affinity, in order to facilitate mail
+            collection, processing and delivery.;
+
+            country: A Country as recognised by the International Standards
+            Organisation.;
+
+            status: This is the state of the entity (i.e. it is active,
+            approved, draft, inactive, etc).;
+
+            audit: The audit type is appended to all business data constructs to
+            ensure a standard way of capturing key data to track back users who
+            have made changes to the data.
         items:
           xml:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
@@ -8073,15 +8494,19 @@ x-ibm-configuration:
             documentsOnly:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/boolean'
             documentsDescription:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/shortDescription'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/shortDescription
             shipmentDescription:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/shortDescription'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/shortDescription
             comments:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/longDescription'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/longDescription
             invoiceDate:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/date'
             termsOfDelivery:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/longDescription'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/longDescription
             purchaseOrderRef:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
           description: Only for international shipments
@@ -8090,14 +8515,23 @@ x-ibm-configuration:
             namespace: ''
             prefix: ''
           type: string
-          description: 'dateTime represents a period in time which could be a particular month, day, and year at which some event happened or will happen but also includes a breakdown of time using hours, minutes, seconds and milliseconds. A dateTime stamp is a common use for this data type so that a precise record of an event can be captured.'
+          description: >-
+            dateTime represents a period in time which could be a particular
+            month, day, and year at which some event happened or will happen but
+            also includes a breakdown of time using hours, minutes, seconds and
+            milliseconds. A dateTime stamp is a common use for this data type so
+            that a precise record of an event can be captured.
           format: date-time
         decimal:
           xml:
             namespace: ''
             prefix: ''
           type: string
-          description: 'A decimal data type represents a real number with every decimal place indicating a multiple of a negative power of 10. It represents non-repeating decimal fractions like 0.3 and -1.17 without rounding, and gives the ability to do arithmetic on them.'
+          description: >-
+            A decimal data type represents a real number with every decimal
+            place indicating a multiple of a negative power of 10. It represents
+            non-repeating decimal fractions like 0.3 and -1.17 without rounding,
+            and gives the ability to do arithmetic on them.
         identificationStructure:
           xml:
             namespace: 'http://www.royalmailgroup.com/integration/core/V1'
@@ -8107,16 +8541,26 @@ x-ibm-configuration:
             endUserId:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
             applicationId:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/applicationId'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/applicationId
             intermediaryId:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/applicationId'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/applicationId
             transactionId:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/transactionId'
-          description: |-
-            endUserId: User ID associated with the end user of the internal or external organisation;
-            applicationId: The ID of the Service Requester system calling the service, unique when combined with the transactionId.;
-            intermediaryId: Id associated with the Intermediary application (if applicable).;
-            transactionId: Unique session id sent by the Service Requestor (for the request) or returned by the Service Provider (for the response)
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/transactionId
+          description: >-
+            endUserId: User ID associated with the end user of the internal or
+            external organisation;
+
+            applicationId: The ID of the Service Requester system calling the
+            service, unique when combined with the transactionId.;
+
+            intermediaryId: Id associated with the Intermediary application (if
+            applicable).;
+
+            transactionId: Unique session id sent by the Service Requestor (for
+            the request) or returned by the Service Provider (for the response)
         allCompletedShipments:
           xml:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
@@ -8126,7 +8570,8 @@ x-ibm-configuration:
             completedShipments:
               type: array
               items:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/completedShipments'
+                $ref: >-
+                  #/x-ibm-configuration/targets/shippingAPI/definitions/completedShipments
               minItems: 1
           description: schema containing the choice of 1D or 2D structures
           required:
@@ -8140,7 +8585,8 @@ x-ibm-configuration:
             error:
               type: array
               items:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/errorDetail'
+                $ref: >-
+                  #/x-ibm-configuration/targets/shippingAPI/definitions/errorDetail
         warningStructure:
           xml:
             namespace: 'http://www.royalmailgroup.com/integration/core/V1'
@@ -8150,7 +8596,8 @@ x-ibm-configuration:
             warning:
               type: array
               items:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/warningDetail'
+                $ref: >-
+                  #/x-ibm-configuration/targets/shippingAPI/definitions/warningDetail
         string:
           xml:
             namespace: ''
@@ -8165,11 +8612,19 @@ x-ibm-configuration:
           type: string
           description: Used in the digital representation of 2D Barcodes
         shortDescription:
-          description: A short description is a sub-type of string and is a shorter version of a description (see definition of description) and is used to summarise a longer description. Descriptions are only editable via an admin function and are for display and information purposes only for end users
+          description: >-
+            A short description is a sub-type of string and is a shorter version
+            of a description (see definition of description) and is used to
+            summarise a longer description. Descriptions are only editable via
+            an admin function and are for display and information purposes only
+            for end users
           maxLength: 128
           $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/string'
         name:
-          description: 'A name is a sub-type of string and is word or a combination of words by which a person, place, or thing, a body or class, or any object of thought is designated, called, or known.'
+          description: >-
+            A name is a sub-type of string and is word or a combination of words
+            by which a person, place, or thing, a body or class, or any object
+            of thought is designated, called, or known.
           maxLength: 64
           $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/string'
         completedManifestInfo:
@@ -8183,7 +8638,8 @@ x-ibm-configuration:
             totalItemCount:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/cardinal'
             manifestShipments:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/manifestShipments'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/manifestShipments
           description: schema to hold details of manifest
           required:
             - manifestBatchNumber
@@ -8196,10 +8652,16 @@ x-ibm-configuration:
           type: object
           properties:
             statusCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
-          description: |-
-            This is the state of an entity (i.e. it is active, approved, draft, inactive, etc). The sequence of states an entity passes through define the entity life history.;
-            statusCode: This is the state of an entity (i.e. it is active, approved, draft, inactive, etc).  The sequence of states an entity passes through define the entity life history.
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
+          description: >-
+            This is the state of an entity (i.e. it is active, approved, draft,
+            inactive, etc). The sequence of states an entity passes through
+            define the entity life history.;
+
+            statusCode: This is the state of an entity (i.e. it is active,
+            approved, draft, inactive, etc).  The sequence of states an entity
+            passes through define the entity life history.
           required:
             - statusCode
         completedCancelShipments:
@@ -8211,9 +8673,12 @@ x-ibm-configuration:
             shipmentNumber:
               type: array
               items:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
+                $ref: >-
+                  #/x-ibm-configuration/targets/shippingAPI/definitions/identifier
               minItems: 1
-          description: schema to hold details of cancelled shipments and their associated status
+          description: >-
+            schema to hold details of cancelled shipments and their associated
+            status
           required:
             - shipmentNumber
         serviceReference:
@@ -8225,14 +8690,19 @@ x-ibm-configuration:
             serviceOccurrence:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/ordinal'
             serviceOffering:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceOfferingType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/serviceOfferingType
             serviceEnhancements:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceEnhancements'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/serviceEnhancements
             signature:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/boolean'
             serviceType:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
-          description: 'schema to hold details for service occurrence, service offering, service enhancements combinations'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
+          description: >-
+            schema to hold details for service occurrence, service offering,
+            service enhancements combinations
         serviceRange:
           xml:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
@@ -8240,12 +8710,19 @@ x-ibm-configuration:
           type: object
           properties:
             serviceReference:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceReference'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/serviceReference
             barcode1DRange:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/barcode1DRange'
-          description: schema to hold details of 1D Barcodes and associated service references
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/barcode1DRange
+          description: >-
+            schema to hold details of 1D Barcodes and associated service
+            references
         longName:
-          description: 'A long name is a sub-type of string and is word or a combination of words by which an organization, place, or thing, a body or class, or any object of thought is designated, called, or known.'
+          description: >-
+            A long name is a sub-type of string and is word or a combination of
+            words by which an organization, place, or thing, a body or class, or
+            any object of thought is designated, called, or known.
           maxLength: 128
           $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/string'
         serviceEnhancementType:
@@ -8255,34 +8732,48 @@ x-ibm-configuration:
           type: object
           properties:
             serviceEnhancementCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
-          description: |-
-            Defines the type of enhancement used to add to an offering/product (with specific parameters) which may be sold to a customer.;
-            serviceEnhancementCode: Defines the type of enhancement used to add to an offering/product (with specific parameters) which may be sold to a customer.
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
+          description: >-
+            Defines the type of enhancement used to add to an offering/product
+            (with specific parameters) which may be sold to a customer.;
+
+            serviceEnhancementCode: Defines the type of enhancement used to add
+            to an offering/product (with specific parameters) which may be sold
+            to a customer.
           required:
             - serviceEnhancementCode
         complementaryName:
-          description: 'A long name is a sub-type of string and is word or a combination of words by which an organization, place, or thing, a body or class, or any object of thought is designated, called, or known.'
+          description: >-
+            A long name is a sub-type of string and is word or a combination of
+            words by which an organization, place, or thing, a body or class, or
+            any object of thought is designated, called, or known.
           maxLength: 128
           $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/string'
         telephoneNumber:
           allOf:
-            - $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/contactMechanism'
+            - $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/contactMechanism
             - xml:
                 namespace: 'http://www.royalmailgroup.com/cm/common/V4'
                 prefix: com
               type: object
               properties:
                 countryCode:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integer'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/integer
                 areaCode:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integer'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/integer
                 telephoneNumber:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integer'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/integer
                 extensionNumber:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integer'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/integer
                 speedDialNumber:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/integer'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/integer
               description: |-
                 countryCode: Standard Country Dialing code i.e. 0044;
                 areaCode: Standard telephone number area code;
@@ -8291,15 +8782,19 @@ x-ibm-configuration:
                 speedDialNumber: Speed dial number for a location.
         digitalAddress:
           allOf:
-            - $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/contactMechanism'
+            - $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/contactMechanism
             - xml:
                 namespace: 'http://www.royalmailgroup.com/cm/common/V4'
                 prefix: com
               type: object
               properties:
                 electronicAddress:
-                  $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
-              description: 'electronicAddress: A address relating to email, website or other internet location'
+                  $ref: >-
+                    #/x-ibm-configuration/targets/shippingAPI/definitions/description
+              description: >-
+                electronicAddress: A address relating to email, website or other
+                internet location
               required:
                 - electronicAddress
         addressUsageType:
@@ -8309,10 +8804,14 @@ x-ibm-configuration:
           type: object
           properties:
             addressUsageCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
-          description: |-
-            This denotes the function the address plays (i.e. it is a primary address, seasonal, etc).;
-            addressUsageCode: This denotes the function the address plays (i.e. it is a primary address, seasonal, etc).
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
+          description: >-
+            This denotes the function the address plays (i.e. it is a primary
+            address, seasonal, etc).;
+
+            addressUsageCode: This denotes the function the address plays (i.e.
+            it is a primary address, seasonal, etc).
           required:
             - addressUsageCode
         stateOrProvinceType:
@@ -8322,10 +8821,14 @@ x-ibm-configuration:
           type: object
           properties:
             stateOrProvinceCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
-          description: |-
-            This is used specifically for international items only and is applicable for the US, Canada, Australia, etc.;
-            stateOrProvinceCode: This is used specifically for international items only and is applicable for the US, Canada, Australia, etc.
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
+          description: >-
+            This is used specifically for international items only and is
+            applicable for the US, Canada, Australia, etc.;
+
+            stateOrProvinceCode: This is used specifically for international
+            items only and is applicable for the US, Canada, Australia, etc.
           required:
             - stateOrProvinceCode
         countyType:
@@ -8335,10 +8838,14 @@ x-ibm-configuration:
           type: object
           properties:
             countyCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
-          description: |-
-            A territorial division exercising administrative, judicial, and political functions.;
-            countyCode: A territorial division exercising administrative, judicial, and political functions.
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
+          description: >-
+            A territorial division exercising administrative, judicial, and
+            political functions.;
+
+            countyCode: A territorial division exercising administrative,
+            judicial, and political functions.
           required:
             - countyCode
         countryType:
@@ -8348,10 +8855,14 @@ x-ibm-configuration:
           type: object
           properties:
             countryCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
-          description: |-
-            A Country as recognised by the International Standards Organisation.;
-            countryCode: A Country as recognised by the International Standards Organisation
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
+          description: >-
+            A Country as recognised by the International Standards
+            Organisation.;
+
+            countryCode: A Country as recognised by the International Standards
+            Organisation
           required:
             - countryCode
         audit:
@@ -8364,10 +8875,15 @@ x-ibm-configuration:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/dateTime'
             lastUpdateUserIdentifier:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
-          description: |-
-            The audit class is appended to all business and reference data constructs to ensure a standard way of capturing key data to track back users who have made changes to the data.;
+          description: >-
+            The audit class is appended to all business and reference data
+            constructs to ensure a standard way of capturing key data to track
+            back users who have made changes to the data.;
+
             lastUpdateDate: The date the data was late updated.;
-            lastUpdateUserIdentifier: The last update user ID represents the user identifier for the last person who updated the record.
+
+            lastUpdateUserIdentifier: The last update user ID represents the
+            user identifier for the last person who updated the record.
           required:
             - lastUpdateDate
             - lastUpdateUserIdentifier
@@ -8400,12 +8916,21 @@ x-ibm-configuration:
                 $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/parcel'
           description: schema to hold array of single parcel structures
         longDescription:
-          description: A long description is a sub-type of string and is a longer version of a description (see definition of description) and is used to expand a description. Descriptions are only editable via an admin function and are for display and information purposes only for end users.
+          description: >-
+            A long description is a sub-type of string and is a longer version
+            of a description (see definition of description) and is used to
+            expand a description. Descriptions are only editable via an admin
+            function and are for display and information purposes only for end
+            users.
           maxLength: 512
           $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/string'
         applicationId:
-          description: 'For a request, this is the ID of the Service Requester calling the service, unique when combined with the TransactionId. For the response, this is the ID of the Service Provider, unique when combined with the TransactionId.'
-          pattern: "[a-zA-Z0-9/\\-]*"
+          description: >-
+            For a request, this is the ID of the Service Requester calling the
+            service, unique when combined with the TransactionId. For the
+            response, this is the ID of the Service Provider, unique when
+            combined with the TransactionId.
+          pattern: '[a-zA-Z0-9/\-]*'
           maxLength: 50
           minLength: 1
           $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
@@ -8420,7 +8945,8 @@ x-ibm-configuration:
             shipments:
               type: array
               items:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/shipments'
+                $ref: >-
+                  #/x-ibm-configuration/targets/shippingAPI/definitions/shipments
               minItems: 1
           description: schema to hold the details for 1D barcoded items
           required:
@@ -8434,18 +8960,27 @@ x-ibm-configuration:
             errorCode:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/errorCode'
             errorDescription:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
             errorCause:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
             errorResolution:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
             errorContext:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
-          description: |-
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
+          description: >-
             errorCode: Code associated with the error condition;
+
             errorDescription: Description of the error condition;
+
             errorCause: Cause of the business error (if known);
-            errorResolution: Description of the resolution and action required to correct the error;
+
+            errorResolution: Description of the resolution and action required
+            to correct the error;
+
             errorContext: Context of the business error, e.g. client or server
         warningDetail:
           xml:
@@ -8454,20 +8989,30 @@ x-ibm-configuration:
           type: object
           properties:
             warningCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/warningCode'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/warningCode
             warningDescription:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
             warningCause:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
             warningResolution:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
             warningContext:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
-          description: |-
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
+          description: >-
             warningCode: Code associated with the warning;
+
             warningDescription: Description of the warning;
+
             warningCause: Cause of the warning (if known);
-            warningResolution: Description of the resolution and action required to correct the warning;
+
+            warningResolution: Description of the resolution and action required
+            to correct the warning;
+
             warningContext: Context of the warning, e.g. client or server
         cardinal:
           description: A number indicating a whole number amount as in a count of items.
@@ -8481,7 +9026,8 @@ x-ibm-configuration:
             manifestShipment:
               type: array
               items:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/manifestShipment'
+                $ref: >-
+                  #/x-ibm-configuration/targets/shippingAPI/definitions/manifestShipment
               minItems: 1
           description: schema to hold array of shipments manifested
           required:
@@ -8506,9 +9052,11 @@ x-ibm-configuration:
             contactMechanismIdentifier:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
             contactMethod:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/contactMethodType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/contactMethodType
             contactUsage:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/contactUsageType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/contactUsageType
             audit:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/audit'
           description: "The Contact Mechanism object contains the methods and usage for contacting a Party.;\ncontactMechanismIdentifier: Contact mechanism unique identifier;\ncontactMethod: Contact method unique identifier in the MDM system;\ncontactUsage: Defines Contact usage i.e. \n???\t1000000 ??? UNKNOWN\n???\t1000001 ??? NOT APPLICABLE\n???\t1000002 ??? BUSINESS;\naudit: The audit type is appended to all business data constructs to ensure a standard way of capturing key data to track back users who have made changes to the data."
@@ -8519,13 +9067,22 @@ x-ibm-configuration:
           type: object
           properties:
             unitOfMeasure:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/unitOfMeasureType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/unitOfMeasureType
             value:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/float'
-          description: |-
-            A dimension is a measure of spatial extent. It is a physical property, such as mass, length, time, or a combination thereof, regarded as a fundamental measure or as one of a set of fundamental measures of a physical quantity.;
-            unitOfMeasure: A unit of measure is the reference value to select the type of dimension being referenced. Sample values could be weight, length, height, depth, etc.;
-            value: The number that designates the quantity of the dimension. i.e. 5 centimeters.
+          description: >-
+            A dimension is a measure of spatial extent. It is a physical
+            property, such as mass, length, time, or a combination thereof,
+            regarded as a fundamental measure or as one of a set of fundamental
+            measures of a physical quantity.;
+
+            unitOfMeasure: A unit of measure is the reference value to select
+            the type of dimension being referenced. Sample values could be
+            weight, length, height, depth, etc.;
+
+            value: The number that designates the quantity of the dimension.
+            i.e. 5 centimeters.
           required:
             - unitOfMeasure
             - value
@@ -8541,7 +9098,9 @@ x-ibm-configuration:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
             status:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/status'
-          description: schema to hold an details of a shipment including 1D barcode and ItemID references
+          description: >-
+            schema to hold an details of a shipment including 1D barcode and
+            ItemID references
         parcel:
           xml:
             namespace: 'http://www.royalmailgroup.com/api/ship/V2'
@@ -8557,9 +9116,11 @@ x-ibm-configuration:
             width:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/dimension'
             purposeOfShipment:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
             explanation:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/description'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/description
             invoiceNumber:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
             exportLicenseNumber:
@@ -8567,7 +9128,8 @@ x-ibm-configuration:
             certificateNumber:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
             contentDetails:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/contentDetails'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/contentDetails
             fees:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/decimal'
             offlineShipments:
@@ -8584,7 +9146,8 @@ x-ibm-configuration:
             shipmentNumber:
               type: array
               items:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
+                $ref: >-
+                  #/x-ibm-configuration/targets/shippingAPI/definitions/identifier
               maxItems: 99
             shipment:
               type: array
@@ -8603,7 +9166,8 @@ x-ibm-configuration:
           type: object
           properties:
             serviceOffering:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/serviceOfferingType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/serviceOfferingType
             shipmentNumber:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
           description: schema to hold shipments manifested and associated service offering
@@ -8614,9 +9178,12 @@ x-ibm-configuration:
           type: object
           properties:
             contactMethodCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
-          description: |-
-            Contains the communication methods. Communication methods include telephone or email.;
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
+          description: >-
+            Contains the communication methods. Communication methods include
+            telephone or email.;
+
             contactMethodCode: Means of communication, telephone, email, etc
           required:
             - contactMethodCode
@@ -8627,10 +9194,13 @@ x-ibm-configuration:
           type: object
           properties:
             contactUsageCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
-          description: |-
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
+          description: >-
             Usage associated with a contact method i.e. business, social etc;
-            contactUsageCode: Usage associated with a contact method i.e. business, social etc
+
+            contactUsageCode: Usage associated with a contact method i.e.
+            business, social etc
           required:
             - contactUsageCode
         unitOfMeasureType:
@@ -8640,10 +9210,27 @@ x-ibm-configuration:
           type: object
           properties:
             unitOfMeasureCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
-          description: |-
-            A unitOfMeasure represents is a definite magnitude of a physical quantity, defined and adopted by convention or by law, that is used as a standard for measurement of the same physical quantity. Any other value of the physical quantity can be expressed as a simple multiple of the unit of measure. For example, length is a physical quantity. The metre is a unit of length that represents a definite predetermined length. When we say 10 metres, we actually mean 10 times the definite predetermined length called ???metre???.;
-            unitOfMeasureCode: A unitOfMeasure represents is a definite magnitude of a physical quantity, defined and adopted by convention or by law, that is used as a standard for measurement of the same physical quantity. Any other value of the physical quantity can be expressed as a simple multiple of the unit of measure. For example, length is a physical quantity. The metre is a unit of length that represents a definite predetermined length. When we say 10 metres, we actually mean 10 times the definite predetermined length called ???metre???.
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
+          description: >-
+            A unitOfMeasure represents is a definite magnitude of a physical
+            quantity, defined and adopted by convention or by law, that is used
+            as a standard for measurement of the same physical quantity. Any
+            other value of the physical quantity can be expressed as a simple
+            multiple of the unit of measure. For example, length is a physical
+            quantity. The metre is a unit of length that represents a definite
+            predetermined length. When we say 10 metres, we actually mean 10
+            times the definite predetermined length called ???metre???.;
+
+            unitOfMeasureCode: A unitOfMeasure represents is a definite
+            magnitude of a physical quantity, defined and adopted by convention
+            or by law, that is used as a standard for measurement of the same
+            physical quantity. Any other value of the physical quantity can be
+            expressed as a simple multiple of the unit of measure. For example,
+            length is a physical quantity. The metre is a unit of length that
+            represents a definite predetermined length. When we say 10 metres,
+            we actually mean 10 times the definite predetermined length called
+            ???metre???.
           required:
             - unitOfMeasureCode
         float:
@@ -8651,9 +9238,15 @@ x-ibm-configuration:
             namespace: ''
             prefix: ''
           type: number
-          description: |-
-            A float describes a data type for representing an approximation to real numbers in a way that can support a wide range of values. The numbers are, in general, represented approximately to a fixed number of significant digits (the mantissa) and scaled using an exponent. The base for the scaling is normally 2, 10 or 16.
-            For example, the numbers 5.5, 0.001, and -2,345.6789 are floating point numbers.
+          description: >-
+            A float describes a data type for representing an approximation to
+            real numbers in a way that can support a wide range of values. The
+            numbers are, in general, represented approximately to a fixed number
+            of significant digits (the mantissa) and scaled using an exponent.
+            The base for the scaling is normally 2, 10 or 16.
+
+            For example, the numbers 5.5, 0.001, and -2,345.6789 are floating
+            point numbers.
           format: float
         contentDetails:
           xml:
@@ -8664,7 +9257,8 @@ x-ibm-configuration:
             contentDetail:
               type: array
               items:
-                $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/contentDetail'
+                $ref: >-
+                  #/x-ibm-configuration/targets/shippingAPI/definitions/contentDetail
           description: schema to hold array of single parcel structures
         contentDetail:
           xml:
@@ -8673,11 +9267,13 @@ x-ibm-configuration:
           type: object
           properties:
             countryOfManufacture:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/countryType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/countryType
             manufacturersName:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
             description:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/shortDescription'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/shortDescription
             unitWeight:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/dimension'
             unitQuantity:
@@ -8685,16 +9281,25 @@ x-ibm-configuration:
             unitValue:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/decimal'
             currencyCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
             tariffCode:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
             tariffDescription:
-              $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType'
+              $ref: >-
+                #/x-ibm-configuration/targets/shippingAPI/definitions/referenceDataType
             articleReference:
               $ref: '#/x-ibm-configuration/targets/shippingAPI/definitions/identifier'
-          description: |-
+          description: >-
             schema to hold details of a parcel contents;
-            currencyCode: Currency code is used to indicate the system of money (monetary units) in common use within a nation. Under this definition, British pounds, U.S. dollars, and European euros are different types of currency, or currencies. Currencies in the sense used by foreign exchange markets, are defined by governments, and each type has limited boundaries of acceptance.
+
+            currencyCode: Currency code is used to indicate the system of money
+            (monetary units) in common use within a nation. Under this
+            definition, British pounds, U.S. dollars, and European euros are
+            different types of currency, or currencies. Currencies in the sense
+            used by foreign exchange markets, are defined by governments, and
+            each type has limited boundaries of acceptance.
   gateway: datapower-gateway
   enforced: true
   testable: true

@@ -1,0 +1,3210 @@
+swagger: '2.0'
+info:
+  title: broker
+  description: ''
+  x-ibm-name: broker-1
+  version: 1.0.0
+schemes:
+  - https
+basePath: /broker
+produces:
+  - application/xml
+consumes:
+  - application/soap+xml
+securityDefinitions:
+  clientID:
+    type: apiKey
+    name: X-IBM-Client-Id
+    in: header
+    description: ''
+security:
+  - clientID: []
+x-ibm-configuration:
+  type: wsdl
+  wsdl-definition:
+    wsdl: broker-1_1.0.0.zip
+    service: broker
+    port: broker
+    soap-version: '1.2'
+  assembly:
+    execute:
+      - proxy:
+          title: proxy
+          target-url: 'https://api-servicesqt.royalmail.com/services/OLPService/multi/broker'
+          tls-profile: bulk-indicia-test
+    catch: []
+  gateway: datapower-gateway
+  enforced: true
+  testable: true
+  phase: realized
+  cors:
+    enabled: true
+paths:
+  /createIndicia:
+    post:
+      summary: Operation createIndicia
+      description: ''
+      operationId: createIndicia
+      x-ibm-soap:
+        soap-action: 'http://schemas.xmlsoap.org/soap/http/createIndicia'
+        soap-operation: '{http://com/royalmail/stampbroker/webservice/requestAndResponse}createIndiciaRequest'
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/createIndiciaInput'
+      responses:
+        '500':
+          description: ''
+          schema:
+            $ref: '#/definitions/createIndiciaFault'
+        default:
+          description: ''
+          schema:
+            $ref: '#/definitions/createIndiciaOutput'
+definitions:
+  Security:
+    xml:
+      namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+      prefix: wsse
+    type: object
+    properties:
+      UsernameToken:
+        xml:
+          namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+          prefix: wsse
+        type: object
+        properties:
+          Username:
+            xml:
+              namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+              prefix: wsse
+            type: string
+          Password:
+            xml:
+              namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+              prefix: wsse
+            type: string
+          Nonce:
+            xml:
+              namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+              prefix: wsse
+            type: string
+            properties:
+              EncodingType:
+                xml:
+                  namespace: ''
+                  attribute: true
+                type: string
+          Created:
+            xml:
+              namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+              prefix: wsu
+            type: string
+      Timestamp:
+        xml:
+          namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+          prefix: wsu
+        type: object
+        properties:
+          Created:
+            xml:
+              namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+              prefix: wsu
+            type: string
+          Expires:
+            xml:
+              namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+              prefix: wsu
+            type: string
+          Id:
+            xml:
+              namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+              prefix: wsu
+              attribute: true
+            type: string
+  createIndiciaInput:
+    type: object
+    properties:
+      Envelope:
+        xml:
+          prefix: soapenv
+          namespace: 'http://www.w3.org/2003/05/soap-envelope'
+        type: object
+        properties:
+          Header:
+            $ref: '#/definitions/createIndiciaHeader'
+          Body:
+            type: object
+            properties:
+              createIndiciaRequest:
+                $ref: '#/definitions/createIndiciaRequest_ci'
+            required:
+              - createIndiciaRequest
+        required:
+          - Body
+    required:
+      - Envelope
+    example: >-
+      <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+
+       <soapenv:Header>
+
+        <wsse:Security
+      xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd"
+      xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd">
+
+         <wsse:UsernameToken>
+
+          <wsse:Username>string</wsse:Username>
+
+          <wsse:Password>string</wsse:Password>
+
+          <wsse:Nonce EncodingType="string">string</wsse:Nonce>
+
+          <wsu:Created>string</wsu:Created>
+
+         </wsse:UsernameToken>
+
+         <wsu:Timestamp wsu:Id="string">
+
+          <wsu:Created>string</wsu:Created>
+
+          <wsu:Expires>string</wsu:Expires>
+
+         </wsu:Timestamp>
+
+        </wsse:Security>
+
+       </soapenv:Header>
+
+       <soapenv:Body>
+
+        <ci:createIndiciaRequest
+      xmlns:ci="http://com/royalmail/stampbroker/webservice/requestAndResponse"
+      xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+      xmlns:ns2="http://www.royalmailgroup.com/cm/common/V5"><!-- mandatory -->
+
+         <int:integrationHeader><!-- mandatory -->
+
+          <int:dateTime>2016-04-18T14:07:37</int:dateTime>
+
+          <int:version>3</int:version>
+
+          <int:identification><!-- mandatory -->
+
+           <int:endUserId>string</int:endUserId>
+
+           <int:clientId>string</int:clientId>
+
+           <int:applicationId><!-- mandatory -->string</int:applicationId>
+
+           <int:intermediaryId>string</int:intermediaryId>
+
+           <int:transactionId><!-- mandatory -->string</int:transactionId>
+
+          </int:identification>
+
+          <int:testFlag>true</int:testFlag>
+
+          <int:debugFlag>true</int:debugFlag>
+
+          <int:performanceFlag>true</int:performanceFlag>
+
+         </int:integrationHeader>
+
+         <int:indiciaItemParamsType><!-- mandatory --><!-- between 1 and
+      unlimited repetitions of this element -->
+
+          <carrier><!-- mandatory -->string</carrier>
+
+          <serviceName><!-- mandatory -->string</serviceName>
+
+          <mailServiceOption>
+
+           <serviceFormatCode><!-- mandatory -->
+
+            <code>string</code>
+
+            <description>string</description>
+
+            <identifier>string</identifier>
+
+            <name>string</name>
+
+           </serviceFormatCode>
+
+          </mailServiceOption>
+
+          <compensationAmount>
+
+           <creditIndicator><!-- mandatory -->true</creditIndicator>
+
+           <currency><!-- mandatory -->
+
+            <currencyCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </currencyCode>
+
+           </currency>
+
+           <value><!-- mandatory -->3</value>
+
+          </compensationAmount>
+
+          <price><!-- mandatory -->
+
+           <creditIndicator><!-- mandatory -->true</creditIndicator>
+
+           <currency><!-- mandatory -->
+
+            <currencyCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </currencyCode>
+
+           </currency>
+
+           <value><!-- mandatory -->3</value>
+
+          </price>
+
+          <ci:packageDimensionType>
+
+           <dimensionUoM><!-- mandatory -->
+
+            <unitOfMeasureCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </unitOfMeasureCode>
+
+           </dimensionUoM>
+
+           <height><!-- mandatory -->3</height>
+
+           <length><!-- mandatory -->3</length>
+
+           <width><!-- mandatory -->3</width>
+
+           <girth>3</girth>
+
+          </ci:packageDimensionType>
+
+          <ci:packageWeightType><!-- mandatory -->
+
+           <weightUoM><!-- mandatory -->
+
+            <unitOfMeasureCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </unitOfMeasureCode>
+
+           </weightUoM>
+
+           <weight><!-- mandatory -->3</weight>
+
+          </ci:packageWeightType>
+
+          <senderContactInformation>
+
+           <address><!-- mandatory -->
+
+            <name>string</name>
+
+            <company>string</company>
+
+            <buildingName>string</buildingName>
+
+            <buildingNumber>string</buildingNumber>
+
+            <address1><!-- mandatory -->string</address1>
+
+            <address2>string</address2>
+
+            <address3>string</address3>
+
+            <stateOrProvince><!-- mandatory -->
+
+             <stateOrProvinceCode><!-- mandatory -->
+
+              <code>string</code>
+
+              <description>string</description>
+
+              <identifier>string</identifier>
+
+              <name>string</name>
+
+             </stateOrProvinceCode>
+
+            </stateOrProvince>
+
+            <postTown><!-- mandatory -->string</postTown>
+
+            <county>
+
+             <countyCode><!-- mandatory -->
+
+              <code>string</code>
+
+              <description>string</description>
+
+              <identifier>string</identifier>
+
+              <name>string</name>
+
+             </countyCode>
+
+            </county>
+
+            <postCode><!-- mandatory -->string</postCode>
+
+            <poBox>string</poBox>
+
+            <country><!-- mandatory -->
+
+             <countryCode><!-- mandatory -->
+
+              <code>string</code>
+
+              <description>string</description>
+
+              <identifier>string</identifier>
+
+              <name>string</name>
+
+             </countryCode>
+
+            </country>
+
+            <zone>string</zone>
+
+            <region>string</region>
+
+           </address>
+
+           <telephone><!-- mandatory -->
+
+            <audit>
+
+             <lastUpdateDate>2016-04-18T14:07:37</lastUpdateDate>
+
+             <lastUpdateUserIdentifier>string</lastUpdateUserIdentifier>
+
+             <versionIdentifier>string</versionIdentifier>
+
+            </audit>
+
+            <contactMechanismIdentifier>string</contactMechanismIdentifier>
+
+            <contactMethod>
+
+             <contactMethodCode><!-- mandatory -->
+
+              <code>string</code>
+
+              <description>string</description>
+
+              <identifier>string</identifier>
+
+              <name>string</name>
+
+             </contactMethodCode>
+
+            </contactMethod>
+
+            <contactUsage>
+
+             <contactUsageCode><!-- mandatory -->
+
+              <code>string</code>
+
+              <description>string</description>
+
+              <identifier>string</identifier>
+
+              <name>string</name>
+
+             </contactUsageCode>
+
+            </contactUsage>
+
+            <areaCode>3</areaCode>
+
+            <countryCode>3</countryCode>
+
+            <extensionNumber>3</extensionNumber>
+
+            <speedDialNumber>3</speedDialNumber>
+
+            <telephoneNumber>3</telephoneNumber>
+
+           </telephone>
+
+           <fax>
+
+            <audit>
+
+             <lastUpdateDate>2016-04-18T14:07:37</lastUpdateDate>
+
+             <lastUpdateUserIdentifier>string</lastUpdateUserIdentifier>
+
+             <versionIdentifier>string</versionIdentifier>
+
+            </audit>
+
+            <contactMechanismIdentifier>string</contactMechanismIdentifier>
+
+            <contactMethod>
+
+             <contactMethodCode><!-- mandatory -->
+
+              <code>string</code>
+
+              <description>string</description>
+
+              <identifier>string</identifier>
+
+              <name>string</name>
+
+             </contactMethodCode>
+
+            </contactMethod>
+
+            <contactUsage>
+
+             <contactUsageCode><!-- mandatory -->
+
+              <code>string</code>
+
+              <description>string</description>
+
+              <identifier>string</identifier>
+
+              <name>string</name>
+
+             </contactUsageCode>
+
+            </contactUsage>
+
+            <areaCode>3</areaCode>
+
+            <countryCode>3</countryCode>
+
+            <extensionNumber>3</extensionNumber>
+
+            <speedDialNumber>3</speedDialNumber>
+
+            <telephoneNumber>3</telephoneNumber>
+
+           </fax>
+
+           <email>
+
+            <audit>
+
+             <lastUpdateDate>2016-04-18T14:07:37</lastUpdateDate>
+
+             <lastUpdateUserIdentifier>string</lastUpdateUserIdentifier>
+
+             <versionIdentifier>string</versionIdentifier>
+
+            </audit>
+
+            <contactMechanismIdentifier>string</contactMechanismIdentifier>
+
+            <contactMethod>
+
+             <contactMethodCode><!-- mandatory -->
+
+              <code>string</code>
+
+              <description>string</description>
+
+              <identifier>string</identifier>
+
+              <name>string</name>
+
+             </contactMethodCode>
+
+            </contactMethod>
+
+            <contactUsage>
+
+             <contactUsageCode><!-- mandatory -->
+
+              <code>string</code>
+
+              <description>string</description>
+
+              <identifier>string</identifier>
+
+              <name>string</name>
+
+             </contactUsageCode>
+
+            </contactUsage>
+
+            <electronicAddress><!-- mandatory -->string</electronicAddress>
+
+           </email>
+
+          </senderContactInformation>
+
+          <recipientContactInformationWithId><!-- mandatory --><!-- between 1 and
+      unlimited repetitions of this element -->
+
+           <recipientIndiciaItemId><!-- mandatory
+      -->string</recipientIndiciaItemId>
+
+           <recipientContactInformation><!-- mandatory -->
+
+            <address><!-- mandatory -->
+
+             <name>string</name>
+
+             <company>string</company>
+
+             <buildingName>string</buildingName>
+
+             <buildingNumber>string</buildingNumber>
+
+             <address1><!-- mandatory -->string</address1>
+
+             <address2>string</address2>
+
+             <address3>string</address3>
+
+             <stateOrProvince><!-- mandatory -->
+
+              <stateOrProvinceCode><!-- mandatory -->
+
+               <code>string</code>
+
+               <description>string</description>
+
+               <identifier>string</identifier>
+
+               <name>string</name>
+
+              </stateOrProvinceCode>
+
+             </stateOrProvince>
+
+             <postTown><!-- mandatory -->string</postTown>
+
+             <county>
+
+              <countyCode><!-- mandatory -->
+
+               <code>string</code>
+
+               <description>string</description>
+
+               <identifier>string</identifier>
+
+               <name>string</name>
+
+              </countyCode>
+
+             </county>
+
+             <postCode><!-- mandatory -->string</postCode>
+
+             <poBox>string</poBox>
+
+             <country><!-- mandatory -->
+
+              <countryCode><!-- mandatory -->
+
+               <code>string</code>
+
+               <description>string</description>
+
+               <identifier>string</identifier>
+
+               <name>string</name>
+
+              </countryCode>
+
+             </country>
+
+             <zone>string</zone>
+
+             <region>string</region>
+
+            </address>
+
+            <telephone><!-- mandatory -->
+
+             <audit>
+
+              <lastUpdateDate>2016-04-18T14:07:37</lastUpdateDate>
+
+              <lastUpdateUserIdentifier>string</lastUpdateUserIdentifier>
+
+              <versionIdentifier>string</versionIdentifier>
+
+             </audit>
+
+             <contactMechanismIdentifier>string</contactMechanismIdentifier>
+
+             <contactMethod>
+
+              <contactMethodCode><!-- mandatory -->
+
+               <code>string</code>
+
+               <description>string</description>
+
+               <identifier>string</identifier>
+
+               <name>string</name>
+
+              </contactMethodCode>
+
+             </contactMethod>
+
+             <contactUsage>
+
+              <contactUsageCode><!-- mandatory -->
+
+               <code>string</code>
+
+               <description>string</description>
+
+               <identifier>string</identifier>
+
+               <name>string</name>
+
+              </contactUsageCode>
+
+             </contactUsage>
+
+             <areaCode>3</areaCode>
+
+             <countryCode>3</countryCode>
+
+             <extensionNumber>3</extensionNumber>
+
+             <speedDialNumber>3</speedDialNumber>
+
+             <telephoneNumber>3</telephoneNumber>
+
+            </telephone>
+
+            <fax>
+
+             <audit>
+
+              <lastUpdateDate>2016-04-18T14:07:37</lastUpdateDate>
+
+              <lastUpdateUserIdentifier>string</lastUpdateUserIdentifier>
+
+              <versionIdentifier>string</versionIdentifier>
+
+             </audit>
+
+             <contactMechanismIdentifier>string</contactMechanismIdentifier>
+
+             <contactMethod>
+
+              <contactMethodCode><!-- mandatory -->
+
+               <code>string</code>
+
+               <description>string</description>
+
+               <identifier>string</identifier>
+
+               <name>string</name>
+
+              </contactMethodCode>
+
+             </contactMethod>
+
+             <contactUsage>
+
+              <contactUsageCode><!-- mandatory -->
+
+               <code>string</code>
+
+               <description>string</description>
+
+               <identifier>string</identifier>
+
+               <name>string</name>
+
+              </contactUsageCode>
+
+             </contactUsage>
+
+             <areaCode>3</areaCode>
+
+             <countryCode>3</countryCode>
+
+             <extensionNumber>3</extensionNumber>
+
+             <speedDialNumber>3</speedDialNumber>
+
+             <telephoneNumber>3</telephoneNumber>
+
+            </fax>
+
+            <email>
+
+             <audit>
+
+              <lastUpdateDate>2016-04-18T14:07:37</lastUpdateDate>
+
+              <lastUpdateUserIdentifier>string</lastUpdateUserIdentifier>
+
+              <versionIdentifier>string</versionIdentifier>
+
+             </audit>
+
+             <contactMechanismIdentifier>string</contactMechanismIdentifier>
+
+             <contactMethod>
+
+              <contactMethodCode><!-- mandatory -->
+
+               <code>string</code>
+
+               <description>string</description>
+
+               <identifier>string</identifier>
+
+               <name>string</name>
+
+              </contactMethodCode>
+
+             </contactMethod>
+
+             <contactUsage>
+
+              <contactUsageCode><!-- mandatory -->
+
+               <code>string</code>
+
+               <description>string</description>
+
+               <identifier>string</identifier>
+
+               <name>string</name>
+
+              </contactUsageCode>
+
+             </contactUsage>
+
+             <electronicAddress><!-- mandatory -->string</electronicAddress>
+
+            </email>
+
+           </recipientContactInformation>
+
+          </recipientContactInformationWithId>
+
+          <insuredAmount><!-- mandatory -->
+
+           <creditIndicator><!-- mandatory -->true</creditIndicator>
+
+           <currency><!-- mandatory -->
+
+            <currencyCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </currencyCode>
+
+           </currency>
+
+           <value><!-- mandatory -->3</value>
+
+          </insuredAmount>
+
+         </int:indiciaItemParamsType>
+
+        </ci:createIndiciaRequest>
+
+       </soapenv:Body>
+
+      </soapenv:Envelope>
+  createIndiciaHeader:
+    type: object
+    properties:
+      Security:
+        $ref: '#/definitions/Security'
+  createIndiciaOutput:
+    type: object
+    properties:
+      Envelope:
+        xml:
+          prefix: soapenv
+          namespace: 'http://www.w3.org/2003/05/soap-envelope'
+        type: object
+        properties:
+          Body:
+            type: object
+            properties:
+              createIndiciaResponse:
+                $ref: '#/definitions/createIndiciaResponse_ci'
+        required:
+          - Body
+    required:
+      - Envelope
+    example: >-
+      <soapenv:Envelope xmlns:soapenv="http://www.w3.org/2003/05/soap-envelope">
+
+       <soapenv:Body>
+
+        <ci:createIndiciaResponse
+      xmlns:ci="http://com/royalmail/stampbroker/webservice/requestAndResponse"
+      xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
+
+         <int:integrationHeader><!-- mandatory -->
+
+          <int:dateTime>2016-04-18T14:07:37</int:dateTime>
+
+          <int:version>3</int:version>
+
+          <int:identification><!-- mandatory -->
+
+           <int:endUserId>string</int:endUserId>
+
+           <int:clientId>string</int:clientId>
+
+           <int:applicationId><!-- mandatory -->string</int:applicationId>
+
+           <int:intermediaryId>string</int:intermediaryId>
+
+           <int:transactionId><!-- mandatory -->string</int:transactionId>
+
+          </int:identification>
+
+          <int:testFlag>true</int:testFlag>
+
+          <int:debugFlag>true</int:debugFlag>
+
+          <int:performanceFlag>true</int:performanceFlag>
+
+         </int:integrationHeader>
+
+         <int:indiciaItemType><!-- between zero and unlimited repetitions of this
+      element -->
+
+          <recipientIndiciaItemId><!-- mandatory
+      -->string</recipientIndiciaItemId>
+
+          <indiciaId>string</indiciaId>
+
+          <dataMatrix>abcd</dataMatrix>
+
+          <dataMatrixBarcodeImage>abcd</dataMatrixBarcodeImage>
+
+          <trackingNumber>string</trackingNumber>
+
+          <trackingNumberBarcodeImage>abcd</trackingNumberBarcodeImage>
+
+          <postByDate>2016-04-18</postByDate>
+
+          <errors>
+
+           <ci:error><!-- between zero and unlimited repetitions of this element
+      -->
+
+            <int:errorCode><!-- mandatory -->string</int:errorCode>
+
+            <int:errorDescription><!-- mandatory
+      -->string</int:errorDescription>
+
+            <int:errorCause>string</int:errorCause>
+
+            <int:errorResolution>string</int:errorResolution>
+
+            <int:errorContext>string</int:errorContext>
+
+           </ci:error>
+
+          </errors>
+
+          <warnings>
+
+           <ci:warning><!-- between zero and unlimited repetitions of this
+      element -->
+
+            <int:warningCode><!-- mandatory -->string</int:warningCode>
+
+            <int:warningDescription><!-- mandatory
+      -->string</int:warningDescription>
+
+            <int:warningCause>string</int:warningCause>
+
+            <int:warningResolution>string</int:warningResolution>
+
+            <int:warningContext>string</int:warningContext>
+
+           </ci:warning>
+
+          </warnings>
+
+         </int:indiciaItemType>
+
+         <int:integrationFooter><!-- mandatory -->
+
+          <int:errors>
+
+           <int:error><!-- between zero and unlimited repetitions of this element
+      -->
+
+            <int:errorCode><!-- mandatory -->string</int:errorCode>
+
+            <int:errorDescription><!-- mandatory
+      -->string</int:errorDescription>
+
+            <int:errorCause>string</int:errorCause>
+
+            <int:errorResolution>string</int:errorResolution>
+
+            <int:errorContext>string</int:errorContext>
+
+           </int:error>
+
+          </int:errors>
+
+          <int:warnings>
+
+           <int:warning><!-- between zero and unlimited repetitions of this
+      element -->
+
+            <int:warningCode><!-- mandatory -->string</int:warningCode>
+
+            <int:warningDescription><!-- mandatory
+      -->string</int:warningDescription>
+
+            <int:warningCause>string</int:warningCause>
+
+            <int:warningResolution>string</int:warningResolution>
+
+            <int:warningContext>string</int:warningContext>
+
+           </int:warning>
+
+          </int:warnings>
+
+         </int:integrationFooter>
+
+        </ci:createIndiciaResponse>
+
+       </soapenv:Body>
+
+      </soapenv:Envelope>
+  createIndiciaFault:
+    type: object
+    properties:
+      Envelope:
+        xml:
+          prefix: soapenv
+          namespace: 'http://www.w3.org/2003/05/soap-envelope'
+        type: object
+        properties:
+          Body:
+            type: object
+            properties:
+              Fault:
+                type: object
+                properties:
+                  Code:
+                    type: object
+                    properties:
+                      Value:
+                        type: string
+                      SubCode:
+                        $ref: '#/definitions/SubCode__SOAP12'
+                    required:
+                      - Value
+                  Reason:
+                    type: object
+                    properties:
+                      Text:
+                        type: array
+                        items:
+                          type: string
+                  Node:
+                    type: string
+                  Role:
+                    type: string
+                  Detail:
+                    type: object
+                    properties:
+                      Fault:
+                        $ref: '#/definitions/FaultResponse_ns'
+                required:
+                  - Code
+                  - Reason
+        required:
+          - Body
+    required:
+      - Envelope
+  createIndiciaRequest_ci:
+    xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    type: object
+    properties:
+      integrationHeader:
+        $ref: '#/definitions/integrationHeader_int'
+      indiciaItemParamsType:
+        type: array
+        items:
+          $ref: '#/definitions/indiciaItemParamsType_ci'
+        minItems: 1
+        description: 'Specifications for one or more indicias to be generated, one per recipient.'
+    required:
+      - integrationHeader
+      - indiciaItemParamsType
+    description: Overall definition for an Indicia creation request.
+    example: >-
+      <ci:createIndiciaRequest
+      xmlns:ci="http://com/royalmail/stampbroker/webservice/requestAndResponse"
+      xmlns:int="http://www.royalmailgroup.com/integration/core/V1"
+      xmlns:ns2="http://www.royalmailgroup.com/cm/common/V5">
+
+       <int:integrationHeader><!-- mandatory -->
+
+        <int:dateTime>2016-04-18T14:07:37</int:dateTime>
+
+        <int:version>3</int:version>
+
+        <int:identification><!-- mandatory -->
+
+         <int:endUserId>string</int:endUserId>
+
+         <int:clientId>string</int:clientId>
+
+         <int:applicationId><!-- mandatory -->string</int:applicationId>
+
+         <int:intermediaryId>string</int:intermediaryId>
+
+         <int:transactionId><!-- mandatory -->string</int:transactionId>
+
+        </int:identification>
+
+        <int:testFlag>true</int:testFlag>
+
+        <int:debugFlag>true</int:debugFlag>
+
+        <int:performanceFlag>true</int:performanceFlag>
+
+       </int:integrationHeader>
+
+       <int:indiciaItemParamsType><!-- mandatory --><!-- between 1 and unlimited
+      repetitions of this element -->
+
+        <carrier><!-- mandatory -->string</carrier>
+
+        <serviceName><!-- mandatory -->string</serviceName>
+
+        <mailServiceOption>
+
+         <serviceFormatCode><!-- mandatory -->
+
+          <code>string</code>
+
+          <description>string</description>
+
+          <identifier>string</identifier>
+
+          <name>string</name>
+
+         </serviceFormatCode>
+
+        </mailServiceOption>
+
+        <compensationAmount>
+
+         <creditIndicator><!-- mandatory -->true</creditIndicator>
+
+         <currency><!-- mandatory -->
+
+          <currencyCode><!-- mandatory -->
+
+           <code>string</code>
+
+           <description>string</description>
+
+           <identifier>string</identifier>
+
+           <name>string</name>
+
+          </currencyCode>
+
+         </currency>
+
+         <value><!-- mandatory -->3</value>
+
+        </compensationAmount>
+
+        <price><!-- mandatory -->
+
+         <creditIndicator><!-- mandatory -->true</creditIndicator>
+
+         <currency><!-- mandatory -->
+
+          <currencyCode><!-- mandatory -->
+
+           <code>string</code>
+
+           <description>string</description>
+
+           <identifier>string</identifier>
+
+           <name>string</name>
+
+          </currencyCode>
+
+         </currency>
+
+         <value><!-- mandatory -->3</value>
+
+        </price>
+
+        <ci:packageDimensionType>
+
+         <dimensionUoM><!-- mandatory -->
+
+          <unitOfMeasureCode><!-- mandatory -->
+
+           <code>string</code>
+
+           <description>string</description>
+
+           <identifier>string</identifier>
+
+           <name>string</name>
+
+          </unitOfMeasureCode>
+
+         </dimensionUoM>
+
+         <height><!-- mandatory -->3</height>
+
+         <length><!-- mandatory -->3</length>
+
+         <width><!-- mandatory -->3</width>
+
+         <girth>3</girth>
+
+        </ci:packageDimensionType>
+
+        <ci:packageWeightType><!-- mandatory -->
+
+         <weightUoM><!-- mandatory -->
+
+          <unitOfMeasureCode><!-- mandatory -->
+
+           <code>string</code>
+
+           <description>string</description>
+
+           <identifier>string</identifier>
+
+           <name>string</name>
+
+          </unitOfMeasureCode>
+
+         </weightUoM>
+
+         <weight><!-- mandatory -->3</weight>
+
+        </ci:packageWeightType>
+
+        <senderContactInformation>
+
+         <address><!-- mandatory -->
+
+          <name>string</name>
+
+          <company>string</company>
+
+          <buildingName>string</buildingName>
+
+          <buildingNumber>string</buildingNumber>
+
+          <address1><!-- mandatory -->string</address1>
+
+          <address2>string</address2>
+
+          <address3>string</address3>
+
+          <stateOrProvince><!-- mandatory -->
+
+           <stateOrProvinceCode><!-- mandatory -->
+
+            <code>string</code>
+
+            <description>string</description>
+
+            <identifier>string</identifier>
+
+            <name>string</name>
+
+           </stateOrProvinceCode>
+
+          </stateOrProvince>
+
+          <postTown><!-- mandatory -->string</postTown>
+
+          <county>
+
+           <countyCode><!-- mandatory -->
+
+            <code>string</code>
+
+            <description>string</description>
+
+            <identifier>string</identifier>
+
+            <name>string</name>
+
+           </countyCode>
+
+          </county>
+
+          <postCode><!-- mandatory -->string</postCode>
+
+          <poBox>string</poBox>
+
+          <country><!-- mandatory -->
+
+           <countryCode><!-- mandatory -->
+
+            <code>string</code>
+
+            <description>string</description>
+
+            <identifier>string</identifier>
+
+            <name>string</name>
+
+           </countryCode>
+
+          </country>
+
+          <zone>string</zone>
+
+          <region>string</region>
+
+         </address>
+
+         <telephone><!-- mandatory -->
+
+          <audit>
+
+           <lastUpdateDate>2016-04-18T14:07:37</lastUpdateDate>
+
+           <lastUpdateUserIdentifier>string</lastUpdateUserIdentifier>
+
+           <versionIdentifier>string</versionIdentifier>
+
+          </audit>
+
+          <contactMechanismIdentifier>string</contactMechanismIdentifier>
+
+          <contactMethod>
+
+           <contactMethodCode><!-- mandatory -->
+
+            <code>string</code>
+
+            <description>string</description>
+
+            <identifier>string</identifier>
+
+            <name>string</name>
+
+           </contactMethodCode>
+
+          </contactMethod>
+
+          <contactUsage>
+
+           <contactUsageCode><!-- mandatory -->
+
+            <code>string</code>
+
+            <description>string</description>
+
+            <identifier>string</identifier>
+
+            <name>string</name>
+
+           </contactUsageCode>
+
+          </contactUsage>
+
+          <areaCode>3</areaCode>
+
+          <countryCode>3</countryCode>
+
+          <extensionNumber>3</extensionNumber>
+
+          <speedDialNumber>3</speedDialNumber>
+
+          <telephoneNumber>3</telephoneNumber>
+
+         </telephone>
+
+         <fax>
+
+          <audit>
+
+           <lastUpdateDate>2016-04-18T14:07:37</lastUpdateDate>
+
+           <lastUpdateUserIdentifier>string</lastUpdateUserIdentifier>
+
+           <versionIdentifier>string</versionIdentifier>
+
+          </audit>
+
+          <contactMechanismIdentifier>string</contactMechanismIdentifier>
+
+          <contactMethod>
+
+           <contactMethodCode><!-- mandatory -->
+
+            <code>string</code>
+
+            <description>string</description>
+
+            <identifier>string</identifier>
+
+            <name>string</name>
+
+           </contactMethodCode>
+
+          </contactMethod>
+
+          <contactUsage>
+
+           <contactUsageCode><!-- mandatory -->
+
+            <code>string</code>
+
+            <description>string</description>
+
+            <identifier>string</identifier>
+
+            <name>string</name>
+
+           </contactUsageCode>
+
+          </contactUsage>
+
+          <areaCode>3</areaCode>
+
+          <countryCode>3</countryCode>
+
+          <extensionNumber>3</extensionNumber>
+
+          <speedDialNumber>3</speedDialNumber>
+
+          <telephoneNumber>3</telephoneNumber>
+
+         </fax>
+
+         <email>
+
+          <audit>
+
+           <lastUpdateDate>2016-04-18T14:07:37</lastUpdateDate>
+
+           <lastUpdateUserIdentifier>string</lastUpdateUserIdentifier>
+
+           <versionIdentifier>string</versionIdentifier>
+
+          </audit>
+
+          <contactMechanismIdentifier>string</contactMechanismIdentifier>
+
+          <contactMethod>
+
+           <contactMethodCode><!-- mandatory -->
+
+            <code>string</code>
+
+            <description>string</description>
+
+            <identifier>string</identifier>
+
+            <name>string</name>
+
+           </contactMethodCode>
+
+          </contactMethod>
+
+          <contactUsage>
+
+           <contactUsageCode><!-- mandatory -->
+
+            <code>string</code>
+
+            <description>string</description>
+
+            <identifier>string</identifier>
+
+            <name>string</name>
+
+           </contactUsageCode>
+
+          </contactUsage>
+
+          <electronicAddress><!-- mandatory -->string</electronicAddress>
+
+         </email>
+
+        </senderContactInformation>
+
+        <recipientContactInformationWithId><!-- mandatory --><!-- between 1 and
+      unlimited repetitions of this element -->
+
+         <recipientIndiciaItemId><!-- mandatory
+      -->string</recipientIndiciaItemId>
+
+         <recipientContactInformation><!-- mandatory -->
+
+          <address><!-- mandatory -->
+
+           <name>string</name>
+
+           <company>string</company>
+
+           <buildingName>string</buildingName>
+
+           <buildingNumber>string</buildingNumber>
+
+           <address1><!-- mandatory -->string</address1>
+
+           <address2>string</address2>
+
+           <address3>string</address3>
+
+           <stateOrProvince><!-- mandatory -->
+
+            <stateOrProvinceCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </stateOrProvinceCode>
+
+           </stateOrProvince>
+
+           <postTown><!-- mandatory -->string</postTown>
+
+           <county>
+
+            <countyCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </countyCode>
+
+           </county>
+
+           <postCode><!-- mandatory -->string</postCode>
+
+           <poBox>string</poBox>
+
+           <country><!-- mandatory -->
+
+            <countryCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </countryCode>
+
+           </country>
+
+           <zone>string</zone>
+
+           <region>string</region>
+
+          </address>
+
+          <telephone><!-- mandatory -->
+
+           <audit>
+
+            <lastUpdateDate>2016-04-18T14:07:37</lastUpdateDate>
+
+            <lastUpdateUserIdentifier>string</lastUpdateUserIdentifier>
+
+            <versionIdentifier>string</versionIdentifier>
+
+           </audit>
+
+           <contactMechanismIdentifier>string</contactMechanismIdentifier>
+
+           <contactMethod>
+
+            <contactMethodCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </contactMethodCode>
+
+           </contactMethod>
+
+           <contactUsage>
+
+            <contactUsageCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </contactUsageCode>
+
+           </contactUsage>
+
+           <areaCode>3</areaCode>
+
+           <countryCode>3</countryCode>
+
+           <extensionNumber>3</extensionNumber>
+
+           <speedDialNumber>3</speedDialNumber>
+
+           <telephoneNumber>3</telephoneNumber>
+
+          </telephone>
+
+          <fax>
+
+           <audit>
+
+            <lastUpdateDate>2016-04-18T14:07:37</lastUpdateDate>
+
+            <lastUpdateUserIdentifier>string</lastUpdateUserIdentifier>
+
+            <versionIdentifier>string</versionIdentifier>
+
+           </audit>
+
+           <contactMechanismIdentifier>string</contactMechanismIdentifier>
+
+           <contactMethod>
+
+            <contactMethodCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </contactMethodCode>
+
+           </contactMethod>
+
+           <contactUsage>
+
+            <contactUsageCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </contactUsageCode>
+
+           </contactUsage>
+
+           <areaCode>3</areaCode>
+
+           <countryCode>3</countryCode>
+
+           <extensionNumber>3</extensionNumber>
+
+           <speedDialNumber>3</speedDialNumber>
+
+           <telephoneNumber>3</telephoneNumber>
+
+          </fax>
+
+          <email>
+
+           <audit>
+
+            <lastUpdateDate>2016-04-18T14:07:37</lastUpdateDate>
+
+            <lastUpdateUserIdentifier>string</lastUpdateUserIdentifier>
+
+            <versionIdentifier>string</versionIdentifier>
+
+           </audit>
+
+           <contactMechanismIdentifier>string</contactMechanismIdentifier>
+
+           <contactMethod>
+
+            <contactMethodCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </contactMethodCode>
+
+           </contactMethod>
+
+           <contactUsage>
+
+            <contactUsageCode><!-- mandatory -->
+
+             <code>string</code>
+
+             <description>string</description>
+
+             <identifier>string</identifier>
+
+             <name>string</name>
+
+            </contactUsageCode>
+
+           </contactUsage>
+
+           <electronicAddress><!-- mandatory -->string</electronicAddress>
+
+          </email>
+
+         </recipientContactInformation>
+
+        </recipientContactInformationWithId>
+
+        <insuredAmount><!-- mandatory -->
+
+         <creditIndicator><!-- mandatory -->true</creditIndicator>
+
+         <currency><!-- mandatory -->
+
+          <currencyCode><!-- mandatory -->
+
+           <code>string</code>
+
+           <description>string</description>
+
+           <identifier>string</identifier>
+
+           <name>string</name>
+
+          </currencyCode>
+
+         </currency>
+
+         <value><!-- mandatory -->3</value>
+
+        </insuredAmount>
+
+       </int:indiciaItemParamsType>
+
+      </ci:createIndiciaRequest>
+  createIndiciaResponse_ci:
+    xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    type: object
+    properties:
+      integrationHeader:
+        $ref: '#/definitions/integrationHeader_int'
+      indiciaItemType:
+        type: array
+        items:
+          $ref: '#/definitions/indiciaItemType_ci'
+        description: 'Details of generated indicia (including tracking numbers and associated barcode images).  If greater than a configurable number of indicia are requested, then an error will be returned with this as the reason.'
+      integrationFooter:
+        $ref: '#/definitions/integrationFooter_int'
+    required:
+      - integrationHeader
+      - integrationFooter
+    description: Overall definition for an Indicia creation response.
+    example: >-
+      <ci:createIndiciaResponse
+      xmlns:ci="http://com/royalmail/stampbroker/webservice/requestAndResponse"
+      xmlns:int="http://www.royalmailgroup.com/integration/core/V1">
+
+       <int:integrationHeader><!-- mandatory -->
+
+        <int:dateTime>2016-04-18T14:07:37</int:dateTime>
+
+        <int:version>3</int:version>
+
+        <int:identification><!-- mandatory -->
+
+         <int:endUserId>string</int:endUserId>
+
+         <int:clientId>string</int:clientId>
+
+         <int:applicationId><!-- mandatory -->string</int:applicationId>
+
+         <int:intermediaryId>string</int:intermediaryId>
+
+         <int:transactionId><!-- mandatory -->string</int:transactionId>
+
+        </int:identification>
+
+        <int:testFlag>true</int:testFlag>
+
+        <int:debugFlag>true</int:debugFlag>
+
+        <int:performanceFlag>true</int:performanceFlag>
+
+       </int:integrationHeader>
+
+       <int:indiciaItemType><!-- between zero and unlimited repetitions of this
+      element -->
+
+        <recipientIndiciaItemId><!-- mandatory
+      -->string</recipientIndiciaItemId>
+
+        <indiciaId>string</indiciaId>
+
+        <dataMatrix>abcd</dataMatrix>
+
+        <dataMatrixBarcodeImage>abcd</dataMatrixBarcodeImage>
+
+        <trackingNumber>string</trackingNumber>
+
+        <trackingNumberBarcodeImage>abcd</trackingNumberBarcodeImage>
+
+        <postByDate>2016-04-18</postByDate>
+
+        <errors>
+
+         <ci:error><!-- between zero and unlimited repetitions of this element
+      -->
+
+          <int:errorCode><!-- mandatory -->string</int:errorCode>
+
+          <int:errorDescription><!-- mandatory -->string</int:errorDescription>
+
+          <int:errorCause>string</int:errorCause>
+
+          <int:errorResolution>string</int:errorResolution>
+
+          <int:errorContext>string</int:errorContext>
+
+         </ci:error>
+
+        </errors>
+
+        <warnings>
+
+         <ci:warning><!-- between zero and unlimited repetitions of this element
+      -->
+
+          <int:warningCode><!-- mandatory -->string</int:warningCode>
+
+          <int:warningDescription><!-- mandatory
+      -->string</int:warningDescription>
+
+          <int:warningCause>string</int:warningCause>
+
+          <int:warningResolution>string</int:warningResolution>
+
+          <int:warningContext>string</int:warningContext>
+
+         </ci:warning>
+
+        </warnings>
+
+       </int:indiciaItemType>
+
+       <int:integrationFooter><!-- mandatory -->
+
+        <int:errors>
+
+         <int:error><!-- between zero and unlimited repetitions of this element
+      -->
+
+          <int:errorCode><!-- mandatory -->string</int:errorCode>
+
+          <int:errorDescription><!-- mandatory -->string</int:errorDescription>
+
+          <int:errorCause>string</int:errorCause>
+
+          <int:errorResolution>string</int:errorResolution>
+
+          <int:errorContext>string</int:errorContext>
+
+         </int:error>
+
+        </int:errors>
+
+        <int:warnings>
+
+         <int:warning><!-- between zero and unlimited repetitions of this element
+      -->
+
+          <int:warningCode><!-- mandatory -->string</int:warningCode>
+
+          <int:warningDescription><!-- mandatory
+      -->string</int:warningDescription>
+
+          <int:warningCause>string</int:warningCause>
+
+          <int:warningResolution>string</int:warningResolution>
+
+          <int:warningContext>string</int:warningContext>
+
+         </int:warning>
+
+        </int:warnings>
+
+       </int:integrationFooter>
+
+      </ci:createIndiciaResponse>
+  FaultResponse_ns:
+    xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    type: object
+    properties:
+      exceptionTransactionId:
+        $ref: '#/definitions/transactionId_int_unqual'
+      exceptionCode:
+        $ref: '#/definitions/errorCode_int_unqual'
+      exceptionText:
+        $ref: '#/definitions/description_ns4'
+    required:
+      - exceptionTransactionId
+      - exceptionCode
+      - exceptionText
+    description: Used to hold the RMG defined data elements associated with the SOAP fault
+    example: >-
+      <ci:exceptionDetails
+      xmlns:ci="http://com/royalmail/stampbroker/webservice/requestAndResponse">
+
+       <exceptionTransactionId><!-- mandatory -->string</exceptionTransactionId>
+
+       <exceptionCode><!-- mandatory -->string</exceptionCode>
+
+       <exceptionText><!-- mandatory -->string</exceptionText>
+
+      </ci:exceptionDetails>
+  SubCode__SOAP12:
+    xml:
+      namespace: 'http://www.w3.org/2003/05/soap-envelope'
+      prefix: soapenv
+    type: object
+    properties:
+      Value:
+        type: string
+      SubCode:
+        xml:
+          namespace: 'http://www.w3.org/2003/05/soap-envelope'
+          prefix: soapenv
+        type: object
+        properties:
+          Value:
+            type: string
+          SubCode:
+            xml:
+              namespace: 'http://www.w3.org/2003/05/soap-envelope'
+              prefix: soapenv
+            type: object
+            properties:
+              Value:
+                type: string
+              SubCode:
+                $ref: '#/definitions/SubCode__SOAP12'
+    required:
+      - Value
+  integrationHeader_int:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    type: object
+    properties:
+      dateTime:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: string
+        format: date-time
+        description: >-
+          dateTime represents a period in time which could be a particular month,
+          day, and year at which some event happened or will happen but also
+          includes a breakdown of time using hours, minutes, seconds and
+          milliseconds. A dateTime stamp is a common use for this data type so
+          that a precise record of an event can be captured.;
+
+          Date timestamp associated with when the data was generated, sent or
+          received
+      version:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: number
+        description: >-
+          A decimal data type represents a real number with every decimal place
+          indicating a multiple of a negative power of 10. It represents
+          non-repeating decimal fractions like 0.3 and -1.17 without rounding,
+          and gives the ability to do arithmetic on them.;
+
+          Version of the service
+      identification:
+        $ref: '#/definitions/identificationStructure_int'
+        description: Identification details associated with the Service Requestor or Service Provider
+      testFlag:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: boolean
+        description: >-
+          Boolean, or boolean logic, is a subset of algebra used for creating
+          true/false statements. Boolean expressions use the operators AND, OR,
+          XOR, and NOT to compare values and return a true or false result.
+          Boolean values can also be referred to as 'flags'.;
+
+          Flag which can be used to test that the exposed service is available.
+          It is not expected that this flag will be used under normal BAU service
+          operation.
+      debugFlag:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: boolean
+        description: >-
+          Boolean, or boolean logic, is a subset of algebra used for creating
+          true/false statements. Boolean expressions use the operators AND, OR,
+          XOR, and NOT to compare values and return a true or false result.
+          Boolean values can also be referred to as 'flags'.;
+
+          Flag which can be used to allow any messages to be dynamically
+          debugged. It is not expected that this flag will be used under normal
+          BAU service operation.
+      performanceFlag:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: boolean
+        description: >-
+          Boolean, or boolean logic, is a subset of algebra used for creating
+          true/false statements. Boolean expressions use the operators AND, OR,
+          XOR, and NOT to compare values and return a true or false result.
+          Boolean values can also be referred to as 'flags'.;
+
+          Flag which can be used to track the performance of the service across
+          RMG systems (entry time, exit time, latency etc).
+    required:
+      - identification
+    description: Common integration header definition
+    x-xsi-type: integrationHeader
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: integrationHeader_int
+  indiciaItemParamsType_ci:
+    xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    type: object
+    properties:
+      carrier:
+        xml:
+          namespace: ''
+          prefix: ''
+        type: string
+        enum:
+          - RM
+          - RMG
+      serviceName:
+        $ref: '#/definitions/name_ns4'
+        description: 'The name of the postage service being requested, as returned from the Royal Mail Pricing API.'
+      mailServiceOption:
+        $ref: '#/definitions/serviceFormatType_ns3_unqual'
+        description: The mail service option requested.
+      compensationAmount:
+        $ref: '#/definitions/amount_ns2_unqual'
+        description: Associated amount of compensation associated with the Service.
+      price:
+        $ref: '#/definitions/amount_ns2_unqual'
+        description: Unit price paid for the indicia.
+      packageDimensionType:
+        $ref: '#/definitions/packageDimensionType_ci'
+        description: Dimensions of the package.
+      packageWeightType:
+        $ref: '#/definitions/packageWeightType_ci'
+        description: Weight of the package.
+      senderContactInformation:
+        $ref: '#/definitions/contactInformationType_ci'
+        description: "Optional sender contact information.  N.b. if the country is 'GB' then the postcode is mandatory, else it is optional."
+      recipientContactInformationWithId:
+        type: array
+        items:
+          $ref: '#/definitions/recipientContactInformationType_ci'
+        minItems: 1
+        description: Unbounded collection of one or more uniquely identified recipient contact details. One indicia will be generated per element.
+      insuredAmount:
+        $ref: '#/definitions/amount_ns2_unqual'
+        description: Insurance amount of the package.
+    required:
+      - carrier
+      - serviceName
+      - price
+      - packageWeightType
+      - recipientContactInformationWithId
+      - insuredAmount
+    description: Parameters required when requesting a set of Indicia be created.
+    x-xsi-type: indiciaItemParamsType
+    x-xsi-type-xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    x-xsi-type-uniquename: indiciaItemParamsType_ci
+  indiciaItemType_ci:
+    xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    type: object
+    properties:
+      recipientIndiciaItemId:
+        $ref: '#/definitions/recipientIndiciaItemIdType_ci'
+        description: A unique indentifier for a recipient / indicia combination - ties resulting indicia to requested recipient/indicia-args combination.
+      indiciaId:
+        $ref: '#/definitions/indiciaIdType_ci'
+        description: The unique indicia id which is also encapsulated as part of the data matrix.
+      dataMatrix:
+        $ref: '#/definitions/twoDBarcode_ns4'
+        description: The base-64-encoded data-matrix string which can be rendered into a 2D barcode image.
+      dataMatrixBarcodeImage:
+        $ref: '#/definitions/image_ns4'
+        description: The data-matrix as a 2D barcode image.
+      trackingNumber:
+        $ref: '#/definitions/trackingNumberType_ci'
+        description: The unique tracking number string which is also encapsulated as part of the data matrix.
+      trackingNumberBarcodeImage:
+        $ref: '#/definitions/image_ns4'
+        description: The tracking number as a 1D barcode image.
+      postByDate:
+        $ref: '#/definitions/date_ns4'
+        description: The date by which the indicia must be used before it expires.
+      errors:
+        $ref: '#/definitions/errorStructure_int_unqual'
+        description: Errors arising during the creation of the indicia item.
+      warnings:
+        $ref: '#/definitions/warningStructure_int_unqual'
+        description: Warnings arising during the creation of the indicia item.
+    required:
+      - recipientIndiciaItemId
+    description: The created Indicia in multiple formats with associated Tracking Number in multiple formats if applicable.
+    x-xsi-type: indiciaItemType
+    x-xsi-type-xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    x-xsi-type-uniquename: indiciaItemType_ci
+  integrationFooter_int:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    type: object
+    properties:
+      errors:
+        $ref: '#/definitions/errorStructure_int'
+      warnings:
+        $ref: '#/definitions/warningStructure_int'
+    description: Common integration footer definition
+    x-xsi-type: integrationFooter
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: integrationFooter_int
+  transactionId_int:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    type: string
+    pattern: "[a-zA-Z0-9/\\-]*"
+    maxLength: 50
+    minLength: 1
+    description: 'Id preserved throughout the lifespan of the transaction, unique when combined with the applicationId and intermediaryId (if applicable).'
+    x-xsi-type: transactionId
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: transactionId_int
+  transactionId_int_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    pattern: "[a-zA-Z0-9/\\-]*"
+    maxLength: 50
+    minLength: 1
+    description: 'Id preserved throughout the lifespan of the transaction, unique when combined with the applicationId and intermediaryId (if applicable).'
+    x-xsi-type: transactionId
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: transactionId_int_unqual
+  errorCode_int:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    type: string
+    pattern: '[E]{1}[0-9]{4}'
+    description: Code associated with the error condition in the form ENNNN
+    x-xsi-type: errorCode
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: errorCode_int
+  errorCode_int_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    pattern: '[E]{1}[0-9]{4}'
+    description: Code associated with the error condition in the form ENNNN
+    x-xsi-type: errorCode
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: errorCode_int_unqual
+  description_ns4:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    maxLength: 256
+    description: A description is a sub-type of string and is statement in words that gives an account or descriptive representation of a thing. Descriptions are only editable via an admin function and are for display and information purposes only for end users.
+    x-xsi-type: description
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/rmDatatypes/V1'
+      prefix: ns4
+    x-xsi-type-uniquename: description_ns4
+  identificationStructure_int:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    type: object
+    properties:
+      endUserId:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: string
+        maxLength: 128
+        description: >-
+          An identifier is a sub-type of string which serves as a means of
+          identification for a particular thing; An identifier can be associated
+          with a name.;
+
+          User ID associated with the end user of the internal or external
+          organisation
+      clientId:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: string
+        maxLength: 128
+        description: >-
+          An identifier is a sub-type of string which serves as a means of
+          identification for a particular thing; An identifier can be associated
+          with a name.;
+
+          The ID of the Service Requester organisation or sub-organisation
+          calling the service.
+      applicationId:
+        $ref: '#/definitions/applicationId_int'
+        description: 'The ID of the Service Requester system calling the service, unique when combined with the transactionId.'
+      intermediaryId:
+        $ref: '#/definitions/applicationId_int'
+        description: Id associated with the Intermediary application (if applicable).
+      transactionId:
+        $ref: '#/definitions/transactionId_int'
+        description: Unique session id sent by the Service Requestor (for the request) or returned by the Service Provider (for the response)
+    required:
+      - applicationId
+      - transactionId
+    x-xsi-type: identificationStructure
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: identificationStructure_int
+  name_ns4:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    maxLength: 64
+    description: 'A name is a sub-type of string and is word or a combination of words by which a person, place, or thing, a body or class, or any object of thought is designated, called, or known.'
+    x-xsi-type: name
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/rmDatatypes/V1'
+      prefix: ns4
+    x-xsi-type-uniquename: name_ns4
+  serviceFormatType_ns3_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      serviceFormatCode:
+        $ref: '#/definitions/referenceDataType_ns3_unqual'
+        description: Defines the format of the Service being offered.
+    required:
+      - serviceFormatCode
+    description: Defines the format of the Service being offered.
+    x-xsi-type: serviceFormatType
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/referenceData/V3'
+      prefix: ns3
+    x-xsi-type-uniquename: serviceFormatType_ns3_unqual
+  amount_ns2_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      creditIndicator:
+        type: boolean
+        xml:
+          namespace: ''
+          prefix: ''
+        description: 'This indicates whether the amount is a credit or a debit. If the boolean value is a 1 then the amount is greater than or equal to zero. If the boolean value is a 0, then the amount is less than zero.'
+      currency:
+        $ref: '#/definitions/currencyType_ns3_unqual'
+        description: 'The currency code for the taxonomy is used to indicate the system of money (monetary units) in common use, especially in a nation. Under this definition, British pounds, U.S. dollars, and European euros are different types of currency, or currencies. Currencies in the sense used by foreign exchange markets, are defined by governments, and each type has limited boundaries of acceptance.'
+      value:
+        $ref: '#/definitions/decimal_ns4'
+        description: 'A number that designates the quantity of an amount. i.e. 5.50. If there is a credit indicator, this field MUST always be an absolute value and the credit or debit is interpreted through the indicator field.'
+    required:
+      - creditIndicator
+      - currency
+      - value
+    description: An amount is the total or two or more quantities; the aggregate.
+    x-xsi-type: amount
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/common/V5'
+      prefix: ns2
+    x-xsi-type-uniquename: amount_ns2_unqual
+  packageDimensionType_ci:
+    xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    type: object
+    properties:
+      dimensionUoM:
+        $ref: '#/definitions/unitOfMeasureType_ns3_unqual'
+        description: The unit of measurement for the associated dimensions.
+      height:
+        $ref: '#/definitions/nonNegativeDecimalType_ci'
+        description: The height of the package.
+      length:
+        $ref: '#/definitions/nonNegativeDecimalType_ci'
+        description: The length of the package.
+      width:
+        $ref: '#/definitions/nonNegativeDecimalType_ci'
+        description: The width of the package.
+      girth:
+        $ref: '#/definitions/nonNegativeDecimalType_ci'
+        description: The girth of the package.
+    required:
+      - dimensionUoM
+      - height
+      - length
+      - width
+    description: Dimension details.
+    x-xsi-type: packageDimensionType
+    x-xsi-type-xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    x-xsi-type-uniquename: packageDimensionType_ci
+  packageWeightType_ci:
+    xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    type: object
+    properties:
+      weightUoM:
+        $ref: '#/definitions/unitOfMeasureType_ns3_unqual'
+      weight:
+        type: number
+        minimum: 0
+        xml:
+          namespace: ''
+          prefix: ''
+    required:
+      - weightUoM
+      - weight
+    description: Weight details.
+    x-xsi-type: packageWeightType
+    x-xsi-type-xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    x-xsi-type-uniquename: packageWeightType_ci
+  contactInformationType_ci:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      address:
+        $ref: '#/definitions/addressType_ci'
+        description: Address.
+      telephone:
+        $ref: '#/definitions/telephoneNumber_ns2_unqual'
+        description: Telephone number.
+      fax:
+        $ref: '#/definitions/telephoneNumber_ns2_unqual'
+        description: Fax number.
+      email:
+        $ref: '#/definitions/digitalAddress_ns2_unqual'
+        description: Email address.
+    required:
+      - address
+      - telephone
+    description: Contact information.
+    x-xsi-type: contactInformationType
+    x-xsi-type-xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    x-xsi-type-uniquename: contactInformationType_ci
+  recipientContactInformationType_ci:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      recipientIndiciaItemId:
+        $ref: '#/definitions/recipientIndiciaItemIdType_ci'
+        description: A unique indentifier for a recipient / indicia combination - ties resulting indicia or error/warning to requested recipient/indicia-args combination.
+      recipientContactInformation:
+        $ref: '#/definitions/contactInformationType_ci'
+        description: "Recipient's contact information."
+    required:
+      - recipientIndiciaItemId
+      - recipientContactInformation
+    description: Recipient contact information and unique identifier.
+    x-xsi-type: recipientContactInformationType
+    x-xsi-type-xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    x-xsi-type-uniquename: recipientContactInformationType_ci
+  recipientIndiciaItemIdType_ci:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    maxLength: 50
+    minLength: 1
+    description: A unique indentifier for a recipient / indicia combination.
+    x-xsi-type: recipientIndiciaItemIdType
+    x-xsi-type-xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    x-xsi-type-uniquename: recipientIndiciaItemIdType_ci
+  indiciaIdType_ci:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: An RMG standard indicia number
+    x-xsi-type: indiciaIdType
+    x-xsi-type-xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    x-xsi-type-uniquename: indiciaIdType_ci
+  twoDBarcode_ns4:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    format: binary
+    description: Used in the digital representation of 2D Barcodes
+    x-xsi-type: twoDBarcode
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/rmDatatypes/V1'
+      prefix: ns4
+    x-xsi-type-uniquename: twoDBarcode_ns4
+  image_ns4:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    format: binary
+    description: Used in the digital representation of Images
+    x-xsi-type: image
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/rmDatatypes/V1'
+      prefix: ns4
+    x-xsi-type-uniquename: image_ns4
+  trackingNumberType_ci:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    pattern: '[A-Z]{2}[0-9]{9}GB'
+    maxLength: 13
+    minLength: 13
+    description: An RMG standard tracking number
+    x-xsi-type: trackingNumberType
+    x-xsi-type-xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    x-xsi-type-uniquename: trackingNumberType_ci
+  date_ns4:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    format: date
+    description: 'A date represents a period in time which could be a particular month, day, and year at which some event happened or will happen.'
+    x-xsi-type: date
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/rmDatatypes/V1'
+      prefix: ns4
+    x-xsi-type-uniquename: date_ns4
+  errorStructure_int:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    type: object
+    properties:
+      error:
+        type: array
+        items:
+          $ref: '#/definitions/errorDetail_int'
+    x-xsi-type: errorStructure
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: errorStructure_int
+  errorStructure_int_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      error:
+        type: array
+        items:
+          $ref: '#/definitions/errorDetail_int'
+    x-xsi-type: errorStructure
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: errorStructure_int_unqual
+  warningStructure_int:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    type: object
+    properties:
+      warning:
+        type: array
+        items:
+          $ref: '#/definitions/warningDetail_int'
+    x-xsi-type: warningStructure
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: warningStructure_int
+  warningStructure_int_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      warning:
+        type: array
+        items:
+          $ref: '#/definitions/warningDetail_int'
+    x-xsi-type: warningStructure
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: warningStructure_int_unqual
+  applicationId_int:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    type: string
+    pattern: "[a-zA-Z0-9/\\-]*"
+    maxLength: 50
+    minLength: 1
+    description: 'For a request, this is the ID of the Service Requester calling the service, unique when combined with the TransactionId. For the response, this is the ID of the Service Provider, unique when combined with the TransactionId.'
+    x-xsi-type: applicationId
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: applicationId_int
+  referenceDataType_ns3_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      code:
+        $ref: '#/definitions/identifier_ns4'
+        description: The code is used as a nonunique identifier for an instance of a Reference Data Value i.e. US.
+      description:
+        $ref: '#/definitions/description_ns4'
+        description: A description or the reference data item.
+      identifier:
+        $ref: '#/definitions/identifier_ns4'
+        description: ~Unique identifier for a Reference Data instance.
+      name:
+        $ref: '#/definitions/longName_ns4'
+        description: Name assorted with the code i.e. Name - United States for Code - US.
+    description: "The reference data class gives a common structure which will be adopted for all generic reference data. Reference data tends to be 'Qualifier' data (referenced in the data standards document on Sharepoint). For example the expression Product Short Name; 'Short' in this instance is the qualifier and could have a corresponding set of reference values that could be used."
+    x-xsi-type: referenceDataType
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/referenceData/V3'
+      prefix: ns3
+    x-xsi-type-uniquename: referenceDataType_ns3_unqual
+  currencyType_ns3_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      currencyCode:
+        $ref: '#/definitions/referenceDataType_ns3_unqual'
+        description: 'Currency code is used to indicate the system of money (monetary units) in common use within a nation. Under this definition, British pounds, U.S. dollars, and European euros are different types of currency, or currencies. Currencies in the sense used by foreign exchange markets, are defined by governments, and each type has limited boundaries of acceptance.'
+    required:
+      - currencyCode
+    description: 'The currency code for the taxonomy is used to indicate the system of money (monetary units) in common use, especially in a nation. Under this definition, British pounds, U.S. dollars, and European euros are different types of currency, or currencies. Currencies in the sense used by foreign exchange markets, are defined by governments, and each type has limited boundaries of acceptance.'
+    x-xsi-type: currencyType
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/referenceData/V3'
+      prefix: ns3
+    x-xsi-type-uniquename: currencyType_ns3_unqual
+  decimal_ns4:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: number
+    description: 'A decimal data type represents a real number with every decimal place indicating a multiple of a negative power of 10. It represents non-repeating decimal fractions like 0.3 and -1.17 without rounding, and gives the ability to do arithmetic on them.'
+    x-xsi-type: decimal
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/rmDatatypes/V1'
+      prefix: ns4
+    x-xsi-type-uniquename: decimal_ns4
+  unitOfMeasureType_ns3_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      unitOfMeasureCode:
+        $ref: '#/definitions/referenceDataType_ns3_unqual'
+        description: 'A unitOfMeasure represents is a definite magnitude of a physical quantity, defined and adopted by convention or by law, that is used as a standard for measurement of the same physical quantity. Any other value of the physical quantity can be expressed as a simple multiple of the unit of measure. For example, length is a physical quantity. The metre is a unit of length that represents a definite predetermined length. When we say 10 metres, we actually mean 10 times the definite predetermined length called “metre”.'
+    required:
+      - unitOfMeasureCode
+    description: 'A unitOfMeasure represents is a definite magnitude of a physical quantity, defined and adopted by convention or by law, that is used as a standard for measurement of the same physical quantity. Any other value of the physical quantity can be expressed as a simple multiple of the unit of measure. For example, length is a physical quantity. The metre is a unit of length that represents a definite predetermined length. When we say 10 metres, we actually mean 10 times the definite predetermined length called “metre”.'
+    x-xsi-type: unitOfMeasureType
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/referenceData/V3'
+      prefix: ns3
+    x-xsi-type-uniquename: unitOfMeasureType_ns3_unqual
+  nonNegativeDecimalType_ci:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: number
+    minimum: 0
+    description: A non-neagtive decimal number (may be 0.00)
+    x-xsi-type: nonNegativeDecimalType
+    x-xsi-type-xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    x-xsi-type-uniquename: nonNegativeDecimalType_ci
+  addressType_ci:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      name:
+        $ref: '#/definitions/name_ns4'
+        description: 'Name of the addressee (optional, though one of this or company must be provided).'
+      company:
+        $ref: '#/definitions/name_ns4'
+        description: 'Company name (optional, though one of this or company must be provided).'
+      buildingName:
+        $ref: '#/definitions/name_ns4'
+        description: Building name (optional).
+      buildingNumber:
+        $ref: '#/definitions/string_ns4'
+        description: Building name (optional).
+      address1:
+        $ref: '#/definitions/description_ns4'
+        description: First line of the address - subsequent to the above fields (mandatory).
+      address2:
+        $ref: '#/definitions/description_ns4'
+        description: Second line of the address (optional).
+      address3:
+        $ref: '#/definitions/description_ns4'
+        description: Third line of the address (optional).
+      stateOrProvince:
+        $ref: '#/definitions/stateOrProvinceType_ns3_unqual'
+        description: State or province (if country is USA or Canada).
+      postTown:
+        $ref: '#/definitions/name_ns4'
+        description: Post town.
+      county:
+        $ref: '#/definitions/countyType_ns3_unqual'
+        description: County.
+      postCode:
+        $ref: '#/definitions/identifier_ns4'
+        description: Postcode.
+      poBox:
+        $ref: '#/definitions/identifier_ns4'
+        description: PO Box.
+      country:
+        $ref: '#/definitions/countryType_ns3_unqual'
+        description: Two-letter ISO country code.
+      zone:
+        $ref: '#/definitions/identifier_ns4'
+        description: Zone.
+      region:
+        $ref: '#/definitions/identifier_ns4'
+        description: Region.
+    required:
+      - address1
+      - stateOrProvince
+      - postTown
+      - postCode
+      - country
+    description: Address minus the postcode (because this element has different rules depending on if the address in question is for a sender or a recipient).
+    x-xsi-type: addressType
+    x-xsi-type-xml:
+      namespace: 'http://com/royalmail/stampbroker/webservice/requestAndResponse'
+      prefix: ci
+    x-xsi-type-uniquename: addressType_ci
+  telephoneNumber_ns2:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/cm/common/V5'
+      prefix: ns2
+    allOf:
+      - $ref: '#/definitions/contactMechanism_ns2'
+      - xml:
+          namespace: 'http://www.royalmailgroup.com/cm/common/V5'
+          prefix: ns2
+        type: object
+        properties:
+          areaCode:
+            $ref: '#/definitions/integer_ns4'
+            description: Standard telephone number area code
+          countryCode:
+            $ref: '#/definitions/integer_ns4'
+            description: Standard Country Dialing code i.e. 0044
+          extensionNumber:
+            $ref: '#/definitions/integer_ns4'
+            description: Extension number within a location.
+          speedDialNumber:
+            $ref: '#/definitions/integer_ns4'
+            description: Speed dial number for a location.
+          telephoneNumber:
+            $ref: '#/definitions/integer_ns4'
+            description: Body of the telephone number.
+    description: Standard Format for a telephone number
+    x-xsi-type: telephoneNumber
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/common/V5'
+      prefix: ns2
+    x-xsi-type-uniquename: telephoneNumber_ns2
+  telephoneNumber_ns2_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    allOf:
+      - $ref: '#/definitions/contactMechanism_ns2'
+      - xml:
+          namespace: ''
+          prefix: ''
+        type: object
+        properties:
+          areaCode:
+            $ref: '#/definitions/integer_ns4'
+            description: Standard telephone number area code
+          countryCode:
+            $ref: '#/definitions/integer_ns4'
+            description: Standard Country Dialing code i.e. 0044
+          extensionNumber:
+            $ref: '#/definitions/integer_ns4'
+            description: Extension number within a location.
+          speedDialNumber:
+            $ref: '#/definitions/integer_ns4'
+            description: Speed dial number for a location.
+          telephoneNumber:
+            $ref: '#/definitions/integer_ns4'
+            description: Body of the telephone number.
+    description: Standard Format for a telephone number
+    x-xsi-type: telephoneNumber
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/common/V5'
+      prefix: ns2
+    x-xsi-type-uniquename: telephoneNumber_ns2_unqual
+  digitalAddress_ns2:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/cm/common/V5'
+      prefix: ns2
+    allOf:
+      - $ref: '#/definitions/contactMechanism_ns2'
+      - xml:
+          namespace: 'http://www.royalmailgroup.com/cm/common/V5'
+          prefix: ns2
+        type: object
+        properties:
+          electronicAddress:
+            $ref: '#/definitions/description_ns4'
+            description: 'A address relating to email, website or other internet location'
+        required:
+          - electronicAddress
+    description: Electronic address such as email or twitter.
+    x-xsi-type: digitalAddress
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/common/V5'
+      prefix: ns2
+    x-xsi-type-uniquename: digitalAddress_ns2
+  digitalAddress_ns2_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    allOf:
+      - $ref: '#/definitions/contactMechanism_ns2'
+      - xml:
+          namespace: ''
+          prefix: ''
+        type: object
+        properties:
+          electronicAddress:
+            $ref: '#/definitions/description_ns4'
+            description: 'A address relating to email, website or other internet location'
+        required:
+          - electronicAddress
+    description: Electronic address such as email or twitter.
+    x-xsi-type: digitalAddress
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/common/V5'
+      prefix: ns2
+    x-xsi-type-uniquename: digitalAddress_ns2_unqual
+  errorDetail_int:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    type: object
+    properties:
+      errorCode:
+        $ref: '#/definitions/errorCode_int'
+        description: Code associated with the error condition
+      errorDescription:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: string
+        maxLength: 256
+        description: >-
+          A description is a sub-type of string and is statement in words that
+          gives an account or descriptive representation of a thing. Descriptions
+          are only editable via an admin function and are for display and
+          information purposes only for end users.;
+
+          Description of the error condition
+      errorCause:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: string
+        maxLength: 256
+        description: >-
+          A description is a sub-type of string and is statement in words that
+          gives an account or descriptive representation of a thing. Descriptions
+          are only editable via an admin function and are for display and
+          information purposes only for end users.;
+
+          Cause of the business error (if known)
+      errorResolution:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: string
+        maxLength: 256
+        description: >-
+          A description is a sub-type of string and is statement in words that
+          gives an account or descriptive representation of a thing. Descriptions
+          are only editable via an admin function and are for display and
+          information purposes only for end users.;
+
+          Description of the resolution and action required to correct the error
+      errorContext:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: string
+        maxLength: 256
+        description: >-
+          A description is a sub-type of string and is statement in words that
+          gives an account or descriptive representation of a thing. Descriptions
+          are only editable via an admin function and are for display and
+          information purposes only for end users.;
+
+          Context of the business error, e.g. client or server
+        x-nullable: true
+    required:
+      - errorCode
+      - errorDescription
+    x-xsi-type: errorDetail
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: errorDetail_int
+  warningDetail_int:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    type: object
+    properties:
+      warningCode:
+        $ref: '#/definitions/warningCode_int'
+        description: Code associated with the warning
+      warningDescription:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: string
+        maxLength: 256
+        description: >-
+          A description is a sub-type of string and is statement in words that
+          gives an account or descriptive representation of a thing. Descriptions
+          are only editable via an admin function and are for display and
+          information purposes only for end users.;
+
+          Description of the warning
+      warningCause:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: string
+        maxLength: 256
+        description: >-
+          A description is a sub-type of string and is statement in words that
+          gives an account or descriptive representation of a thing. Descriptions
+          are only editable via an admin function and are for display and
+          information purposes only for end users.;
+
+          Cause of the warning (if known)
+      warningResolution:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: string
+        maxLength: 256
+        description: >-
+          A description is a sub-type of string and is statement in words that
+          gives an account or descriptive representation of a thing. Descriptions
+          are only editable via an admin function and are for display and
+          information purposes only for end users.;
+
+          Description of the resolution and action required to correct the
+          warning
+      warningContext:
+        xml:
+          namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+          prefix: int
+        type: string
+        maxLength: 256
+        description: >-
+          A description is a sub-type of string and is statement in words that
+          gives an account or descriptive representation of a thing. Descriptions
+          are only editable via an admin function and are for display and
+          information purposes only for end users.;
+
+          Context of the warning, e.g. client or server
+        x-nullable: true
+    required:
+      - warningCode
+      - warningDescription
+    x-xsi-type: warningDetail
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: warningDetail_int
+  identifier_ns4:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    maxLength: 128
+    description: An identifier is a sub-type of string which serves as a means of identification for a particular thing; An identifier can be associated with a name.
+    x-xsi-type: identifier
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/rmDatatypes/V1'
+      prefix: ns4
+    x-xsi-type-uniquename: identifier_ns4
+  longName_ns4:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    maxLength: 128
+    description: 'A long name is a sub-type of string and is word or a combination of words by which an organization, place, or thing, a body or class, or any object of thought is designated, called, or known.'
+    x-xsi-type: longName
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/rmDatatypes/V1'
+      prefix: ns4
+    x-xsi-type-uniquename: longName_ns4
+  string_ns4:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    maxLength: 4000
+    description: Simple set of alphanumeric characters.
+    x-xsi-type: string
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/rmDatatypes/V1'
+      prefix: ns4
+    x-xsi-type-uniquename: string_ns4
+  stateOrProvinceType_ns3_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      stateOrProvinceCode:
+        $ref: '#/definitions/referenceDataType_ns3_unqual'
+        description: 'This is used specifically for international items only and is applicable for the US, Canada, Australia, etc.'
+    required:
+      - stateOrProvinceCode
+    description: 'This is used specifically for international items only and is applicable for the US, Canada, Australia, etc.'
+    x-xsi-type: stateOrProvinceType
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/referenceData/V3'
+      prefix: ns3
+    x-xsi-type-uniquename: stateOrProvinceType_ns3_unqual
+  countyType_ns3_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      countyCode:
+        $ref: '#/definitions/referenceDataType_ns3_unqual'
+        description: 'A territorial division exercising administrative, judicial, and political functions.'
+    required:
+      - countyCode
+    description: 'A territorial division exercising administrative, judicial, and political functions.'
+    x-xsi-type: countyType
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/referenceData/V3'
+      prefix: ns3
+    x-xsi-type-uniquename: countyType_ns3_unqual
+  countryType_ns3_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      countryCode:
+        $ref: '#/definitions/referenceDataType_ns3_unqual'
+        description: A Country as recognised by the International Standards Organisation
+    required:
+      - countryCode
+    description: A Country as recognised by the International Standards Organisation.
+    x-xsi-type: countryType
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/referenceData/V3'
+      prefix: ns3
+    x-xsi-type-uniquename: countryType_ns3_unqual
+  contactMechanism_ns2:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/cm/common/V5'
+      prefix: ns2
+    type: object
+    properties:
+      audit:
+        $ref: '#/definitions/audit_ns2_unqual'
+        description: The audit type is appended to all business data constructs to ensure a standard way of capturing key data to track back users who have made changes to the data.
+      contactMechanismIdentifier:
+        $ref: '#/definitions/identifier_ns4'
+        description: Contact mechanism unique identifier
+      contactMethod:
+        $ref: '#/definitions/contactMethodType_ns3_unqual'
+        description: Contact method unique identifier in the MDM system
+      contactUsage:
+        $ref: '#/definitions/contactUsageType_ns3_unqual'
+        description: "Defines Contact usage i.e. \n•\t1000000 – UNKNOWN\n•\t1000001 – NOT APPLICABLE\n•\t1000002 – BUSINESS"
+    description: The Contact Mechanism object contains the methods and usage for contacting a Party.
+    x-xsi-type: contactMechanism
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/common/V5'
+      prefix: ns2
+    x-xsi-type-uniquename: contactMechanism_ns2
+    x-ibm-discriminator: true
+  integer_ns4:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: number
+    description: 'An integer is a whole number (not a fraction) that can be positive, negative, or zero. Unlike floats, integers cannot have decimal places.'
+    x-xsi-type: integer
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/rmDatatypes/V1'
+      prefix: ns4
+    x-xsi-type-uniquename: integer_ns4
+  warningCode_int:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    type: string
+    pattern: '[W]{1}[0-9]{4}'
+    description: Code associated with the warning condition in the form WNNNN
+    x-xsi-type: warningCode
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+      prefix: int
+    x-xsi-type-uniquename: warningCode_int
+  audit_ns2_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      lastUpdateDate:
+        $ref: '#/definitions/dateTime_ns4'
+        description: The date the data was last updated.
+      lastUpdateUserIdentifier:
+        $ref: '#/definitions/identifier_ns4'
+        description: The last update user ID represents the user identifier for the last person who updated the record.
+      versionIdentifier:
+        $ref: '#/definitions/identifier_ns4'
+        description: Identifies the Version of an object
+    description: The audit class is appended to all business and reference data constructs to ensure a standard way of capturing key data to track back users who have made changes to the data.
+    x-xsi-type: audit
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/common/V5'
+      prefix: ns2
+    x-xsi-type-uniquename: audit_ns2_unqual
+  contactMethodType_ns3_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      contactMethodCode:
+        $ref: '#/definitions/referenceDataType_ns3_unqual'
+        description: 'Means of communication, telephone, email, etc'
+    required:
+      - contactMethodCode
+    description: Contains the communication methods. Communication methods include telephone or email.
+    x-xsi-type: contactMethodType
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/referenceData/V3'
+      prefix: ns3
+    x-xsi-type-uniquename: contactMethodType_ns3_unqual
+  contactUsageType_ns3_unqual:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      contactUsageCode:
+        $ref: '#/definitions/referenceDataType_ns3_unqual'
+        description: 'Usage associated with a contact method i.e. business, social etc'
+    required:
+      - contactUsageCode
+    description: 'Usage associated with a contact method i.e. business, social etc'
+    x-xsi-type: contactUsageType
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/referenceData/V3'
+      prefix: ns3
+    x-xsi-type-uniquename: contactUsageType_ns3_unqual
+  dateTime_ns4:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    format: date-time
+    description: 'dateTime represents a period in time which could be a particular month, day, and year at which some event happened or will happen but also includes a breakdown of time using hours, minutes, seconds and milliseconds. A dateTime stamp is a common use for this data type so that a precise record of an event can be captured.'
+    x-xsi-type: dateTime
+    x-xsi-type-xml:
+      namespace: 'http://www.royalmailgroup.com/cm/rmDatatypes/V1'
+      prefix: ns4
+    x-xsi-type-uniquename: dateTime_ns4

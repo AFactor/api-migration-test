@@ -4,6 +4,102 @@
 		"selected_items":
 		[
 			[
+				"cons",
+				"console"
+			],
+			[
+				"filter",
+				"filteredErrorList"
+			],
+			[
+				"fil",
+				"filteredErrorList"
+			],
+			[
+				"err",
+				"errorList"
+			],
+			[
+				"er",
+				"errorList"
+			],
+			[
+				"fi",
+				"fields"
+			],
+			[
+				"conf",
+				"config"
+			],
+			[
+				"ran",
+				"Range\t(): Range Range"
+			],
+			[
+				"uri",
+				"uriSegment"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"ra",
+				"Range\t(): Range Range"
+			],
+			[
+				"lin",
+				"linq"
+			],
+			[
+				"el",
+				"element"
+			],
+			[
+				"fore",
+				"forEach"
+			],
+			[
+				"call",
+				"calls"
+			],
+			[
+				"par",
+				"parse\t( json: string ): any JSON"
+			],
+			[
+				"li",
+				"limit"
+			],
+			[
+				"tota",
+				"totalCalls"
+			],
+			[
+				"sta",
+				"status\t: DOMString Window"
+			],
+			[
+				"lo",
+				"log\t( x: number ): number Math"
+			],
+			[
+				"cal",
+				"calls"
+			],
+			[
+				"ca",
+				"calls"
+			],
+			[
+				"co",
+				"count"
+			],
+			[
+				"a",
+				"async"
+			],
+			[
 				"re",
 				"return"
 			],
@@ -26,25 +122,11 @@
 			[
 				"req",
 				"require"
-			],
-			[
-				"a",
-				"application"
 			]
 		]
 	},
 	"buffers":
 	[
-		{
-			"file": "/Users/avik__000/Documents/Royal Mail/Big/node/RMG_POC2_APP 2/testData.json",
-			"settings":
-			{
-				"buffer_size": 27881,
-				"encoding": "UTF-8",
-				"line_ending": "Unix",
-				"name": "{\"totalCalls\":6741,\"next\":\"58d538ae0cf294a122baf5b"
-			}
-		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -104,16 +186,15 @@
 		"side_bar_visible": false,
 		"status_bar_visible": false
 	},
-	"expanded_folders":
-	[
-		"/Users/avik__000/Documents/Royal Mail/Big/node/TrackingHistoryService"
-	],
 	"file_history":
 	[
-		"/Users/avik__000/Documents/Royal Mail/Big/node/TrackingHistoryService/app.js",
-		"/Users/avik__000/Documents/Royal Mail/Big/node/TrackingHistoryService/apiData.js",
-		"/Users/avik__000/Documents/Royal Mail/Big/node/TrackingHistoryService/node_modules/request/index.js",
 		"/Users/avik__000/Documents/Royal Mail/Big/node/TrackingHistoryService/config.json",
+		"/Users/avik__000/Documents/Royal Mail/Big/node/TrackingHistoryService/apiData.js",
+		"/Users/avik__000/Documents/Royal Mail/Big/node/TrackingHistoryService/app.js",
+		"/Users/avik__000/Bookmarks.bak",
+		"/Users/avik__000/Documents/Royal Mail/Big/node/TrackingHistoryService/node_modules/linq/linq.js",
+		"/Users/avik__000/Documents/Royal Mail/Big/node/RMG_POC2_APP 2/testData.json",
+		"/Users/avik__000/Documents/Royal Mail/Big/node/TrackingHistoryService/node_modules/request/index.js",
 		"/usr/local/Cellar/mongodb/3.4.2/homebrew.mxcl.mongodb.plist",
 		"/nodeJs/RMG_POC2_APP/app.js",
 		"/Users/avik__000/Desktop/x.js",
@@ -175,47 +256,11 @@
 		"whole_word": false,
 		"wrap": true
 	},
-	"folders":
-	[
-		{
-			"path": "/Users/avik__000/Documents/Royal Mail/Big/node/TrackingHistoryService"
-		}
-	],
 	"groups":
 	[
 		{
-			"selected": 0,
 			"sheets":
 			[
-				{
-					"buffer": 0,
-					"file": "/Users/avik__000/Documents/Royal Mail/Big/node/RMG_POC2_APP 2/testData.json",
-					"semi_transient": false,
-					"settings":
-					{
-						"buffer_size": 27881,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								27881,
-								27881
-							]
-						],
-						"settings":
-						{
-							"auto_name": "{\"totalCalls\":6741,\"next\":\"58d538ae0cf294a122baf5b",
-							"syntax": "Packages/JavaScript/JSON.sublime-syntax"
-						},
-						"translation.x": 194242.0,
-						"translation.y": 0.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 0,
-					"type": "text"
-				}
 			]
 		}
 	],
@@ -252,14 +297,14 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 100.0
+		"height": 60.0
 	},
 	"output.find_results":
 	{
 		"height": 0.0
 	},
 	"pinned_build_system": "Packages/Nodejs/Nodejs.sublime-build",
-	"project": "",
+	"project": "Tracking.sublime-project",
 	"replace":
 	{
 		"height": 42.0
@@ -300,7 +345,7 @@
 	"show_open_files": false,
 	"show_tabs": true,
 	"side_bar_visible": true,
-	"side_bar_width": 150.0,
+	"side_bar_width": 322.0,
 	"status_bar_visible": true,
 	"template_settings":
 	{

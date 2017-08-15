@@ -1,0 +1,28 @@
+product: 1.0.0
+info:
+  title: Live-2 Tracking Plan
+  version: '6'
+  description: Plan to be used for restricting customer access to API
+  name: live-2-tracking-plan
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  tracking-api-soap:
+    $ref: tracking-api-soap_1-rev15.yaml
+  tracking-api-rest:
+    $ref: tracking-api-rest_1-rev16.yaml
+plans:
+  live-2-tracking-plan:
+    title: Live-2 Tracking Plan
+    description: Plan to be used for restricting customer access to API
+    approval: false
+    apis: {}

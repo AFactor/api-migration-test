@@ -1,0 +1,3310 @@
+swagger: '2.0'
+info:
+  title: Tracking API (SOAP) - New cert COB Test
+  description: "Tracking API provides the functionality to enquire on the tracking status of mail items. The API provides the latest tracking information for single and multiple mail items, the tracking history for a single mail item, and the proof of delivery information (minus the signature image) for a single mail item.\n \nThe API provides an alternative mechanism to using the track and trace function on the Royal Mail website (http://www.royalmail.com/track-trace). \n \nThere are no costs to customers for using the Tracking API services, however development costs must be covered by the customer. Royal Mail will not accept any responsibility for these development, implementation and testing costs.\n \nCustomers should address initial inquiries regarding development of systems for these purposes to their account handler."
+  version: 1-rev10-new-cert
+  x-ibm-name: tracking-api-soap
+basePath: /trackingv1
+schemes:
+  - https
+x-ibm-configuration:
+  enforced: true
+  phase: realized
+  testable: true
+  cors:
+    enabled: true
+  properties:
+    tracking ssl profile:
+      description: SSL profile for underlying api endpoint
+      encoded: false
+      value: live-ca2
+    tracking endpoint:
+      description: This is the endpoint of the Tracking API
+      encoded: false
+      value: 'https://api.royalmail.com/tracking'
+    Activity Log Level:
+      description: 'What to log per api call. Choices are none, activity, header, payload'
+      encoded: false
+      value: payload
+    Error Log Level:
+      description: 'What to log per api error. Choices are none, activity, header, payload'
+      encoded: false
+      value: payload
+    tracking live endpoint:
+      description: ''
+      encoded: false
+      value: 'https://cob-api.royalmail.com/tracking'
+  catalogs: {}
+  externalDocs: []
+  attachments:
+    - title: '  RMG Tracking API (SOAP) Technical User Guide'
+      description: ''
+      id: 56667cfd0cf223fe0519bc60
+    - title: RMG Tracking API (SOAP) Sample Data Set
+      description: ''
+      id: 56667b780cf223fe0519bbbb
+    - title: Tracking API Reference Data
+      description: ''
+      id: 56667b780cf223fe0519bbbf
+  gateway: datapower-gateway
+  type: wsdl
+  wsdl-definition:
+    wsdl: tracking-api-soap_1-rev10-new-cert.zip
+    service: TrackingAPIService
+    port: ''
+    soap-version: '1.1'
+  assembly:
+    execute:
+      - operation-switch:
+          title: operation-switch
+          case:
+            - operations:
+                - getMultiItemSummary
+                - getSingleItemSummary
+                - getSingleItemHistory
+                - getProofOfDelivery
+              execute:
+                - activity-log:
+                    content: $(Activity Log Level)
+                    error-content: $(Error Log Level)
+                    title: Activity Log
+                - proxy:
+                    verb: keep
+                    timeout: 60
+                    cache-response: protocol
+                    cache-ttl: 900
+                    target-url: $(tracking endpoint)
+                    tls-profile: rmg-new-tls-profile
+                    title: Tracking SOAP Operations
+                    description: Tracking SOAP Operations
+  targets:
+    TrackingAPIService:
+      swagger: '2.0'
+      info:
+        title: TrackingAPIService
+        description: ''
+        x-ibm-name: trackingapiservice
+        version: 1.0.0
+      schemes:
+        - https
+      basePath: /TrackingAPIService
+      produces:
+        - application/xml
+      consumes:
+        - text/xml
+      securityDefinitions:
+        clientID:
+          type: apiKey
+          name: X-IBM-Client-Id
+          in: header
+          description: ''
+      security:
+        - clientID: []
+      x-ibm-configuration:
+        type: wsdl
+        wsdl-definition:
+          wsdl: 591eb8c10cf2df2311fe49b8
+          service: TrackingAPIService
+          port: TrackingAPIServiceHttpSoap11Endpoint
+          soap-version: '1.1'
+        assembly:
+          execute:
+            - proxy:
+                title: proxy
+                target-url: 'https://api.royalmail.net/tracking'
+        gateway: datapower-gateway
+        enforced: true
+        testable: true
+        phase: realized
+        cors:
+          enabled: true
+      paths:
+        /getSingleItemHistory:
+          post:
+            summary: Operation getSingleItemHistory
+            description: ''
+            operationId: getSingleItemHistory
+            x-ibm-soap:
+              soap-action: 'urn:getSingleItemHistory'
+              soap-operation: '{http://www.royalmailgroup.com/api/track/V1}getSingleItemHistoryRequest'
+            parameters:
+              - in: body
+                name: body
+                required: true
+                schema:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getSingleItemHistoryInput'
+            responses:
+              '500':
+                description: ''
+                schema:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getSingleItemHistoryFault'
+              default:
+                description: ''
+                schema:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getSingleItemHistoryOutput'
+        /getProofOfDelivery:
+          post:
+            summary: Operation getProofOfDelivery
+            description: ''
+            operationId: getProofOfDelivery
+            x-ibm-soap:
+              soap-action: 'urn:getProofOfDelivery'
+              soap-operation: '{http://www.royalmailgroup.com/api/track/V1}getProofOfDeliveryRequest'
+            parameters:
+              - in: body
+                name: body
+                required: true
+                schema:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getProofOfDeliveryInput'
+            responses:
+              '500':
+                description: ''
+                schema:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getProofOfDeliveryFault'
+              default:
+                description: ''
+                schema:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getProofOfDeliveryOutput'
+        /getMultiItemSummary:
+          post:
+            summary: Operation getMultiItemSummary
+            description: ''
+            operationId: getMultiItemSummary
+            x-ibm-soap:
+              soap-action: 'urn:getMultiItemSummary'
+              soap-operation: '{http://www.royalmailgroup.com/api/track/V1}getMultiItemSummaryRequest'
+            parameters:
+              - in: body
+                name: body
+                required: true
+                schema:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getMultiItemSummaryInput'
+            responses:
+              '500':
+                description: ''
+                schema:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getMultiItemSummaryFault'
+              default:
+                description: ''
+                schema:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getMultiItemSummaryOutput'
+        /getSingleItemSummary:
+          post:
+            summary: Operation getSingleItemSummary
+            description: ''
+            operationId: getSingleItemSummary
+            x-ibm-soap:
+              soap-action: 'urn:getSingleItemSummary'
+              soap-operation: '{http://www.royalmailgroup.com/api/track/V1}getSingleItemSummaryRequest'
+            parameters:
+              - in: body
+                name: body
+                required: true
+                schema:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getSingleItemSummaryInput'
+            responses:
+              '500':
+                description: ''
+                schema:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getSingleItemSummaryFault'
+              default:
+                description: ''
+                schema:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getSingleItemSummaryOutput'
+      definitions:
+        Security:
+          xml:
+            namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+            prefix: wsse
+          type: object
+          properties:
+            UsernameToken:
+              type: object
+              properties:
+                Username:
+                  type: string
+                Password:
+                  type: string
+        getSingleItemHistoryInput:
+          type: object
+          properties:
+            Envelope:
+              xml:
+                prefix: soap-env
+                namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+              type: object
+              properties:
+                Header:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getSingleItemHistoryHeader'
+                Body:
+                  type: object
+                  properties:
+                    getSingleItemHistoryRequest:
+                      $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getSingleItemHistoryRequest_tns'
+          example: >-
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+
+             <soap-env:Header>
+
+              <wsse:Security
+            xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+
+               <UsernameToken>
+
+                <Username>string</Username>
+
+                <Password>string</Password>
+
+               </UsernameToken>
+
+              </wsse:Security>
+
+             </soap-env:Header>
+
+             <soap-env:Body>
+
+              <tns:getSingleItemHistoryRequest
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+               <tns:integrationHeader><!-- mandatory -->
+
+                <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+                <tns:version>string</tns:version>
+
+                <ns2:identification><!-- mandatory -->
+
+                 <ns2:endUserId>string</ns2:endUserId>
+
+                 <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+                 <ns2:intermediaryId>string</ns2:intermediaryId>
+
+                 <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+                </ns2:identification>
+
+                <ns2:testFlag>true</ns2:testFlag>
+
+                <ns2:debugFlag>true</ns2:debugFlag>
+
+               </tns:integrationHeader>
+
+               <tns:trackingNumber><!-- mandatory -->string</tns:trackingNumber>
+
+              </tns:getSingleItemHistoryRequest>
+
+             </soap-env:Body>
+
+            </soap-env:Envelope>
+        getSingleItemHistoryHeader:
+          type: object
+          properties:
+            Security:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/Security'
+        getSingleItemHistoryOutput:
+          type: object
+          properties:
+            Envelope:
+              xml:
+                prefix: soap-env
+                namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+              type: object
+              properties:
+                Body:
+                  type: object
+                  properties:
+                    getSingleItemHistoryResponse:
+                      $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getSingleItemHistoryResponse_tns'
+          example: >-
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+
+             <soap-env:Body>
+
+              <tns:getSingleItemHistoryResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+               <tns:integrationHeader><!-- mandatory -->
+
+                <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+                <tns:version>string</tns:version>
+
+                <ns2:identification><!-- mandatory -->
+
+                 <ns2:endUserId>string</ns2:endUserId>
+
+                 <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+                 <ns2:intermediaryId>string</ns2:intermediaryId>
+
+                 <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+                </ns2:identification>
+
+                <ns2:testFlag>true</ns2:testFlag>
+
+                <ns2:debugFlag>true</ns2:debugFlag>
+
+               </tns:integrationHeader>
+
+               <tns:trackDetail><!-- between zero and unlimited repetitions of
+            this element -->
+
+                <tns:trackDate>2016-04-18</tns:trackDate>
+
+                <tns:trackPoint>string</tns:trackPoint>
+
+                <tns:trackTime>string</tns:trackTime>
+
+                <tns:header>string</tns:header>
+
+                <tns:footer><!-- between zero and unlimited repetitions of this
+            element -->
+
+                 <tns:footerID>string</tns:footerID>
+
+                 <tns:footerText>string</tns:footerText>
+
+                </tns:footer>
+
+                <tns:podMessage>string</tns:podMessage>
+
+               </tns:trackDetail>
+
+               <tns:integrationFooter>
+
+                <ns2:errors>
+
+                 <ns2:error><!-- between zero and unlimited repetitions of this
+            element -->
+
+                  <ns2:errorCode><!-- mandatory -->string</ns2:errorCode>
+
+                  <ns2:errorDescription><!-- mandatory
+            -->string</ns2:errorDescription>
+
+                  <ns2:errorCause>string</ns2:errorCause>
+
+                  <ns2:errorResolution>string</ns2:errorResolution>
+
+                  <ns2:errorContext>string</ns2:errorContext>
+
+                 </ns2:error>
+
+                </ns2:errors>
+
+                <ns2:warnings>
+
+                 <ns2:warning><!-- between zero and unlimited repetitions of this
+            element -->
+
+                  <ns2:warningCode><!-- mandatory -->string</ns2:warningCode>
+
+                  <ns2:warningDescription><!-- mandatory
+            -->string</ns2:warningDescription>
+
+                  <ns2:warningCause>string</ns2:warningCause>
+
+                  <ns2:warningResolution>string</ns2:warningResolution>
+
+                  <ns2:warningContext>string</ns2:warningContext>
+
+                 </ns2:warning>
+
+                </ns2:warnings>
+
+               </tns:integrationFooter>
+
+              </tns:getSingleItemHistoryResponse>
+
+             </soap-env:Body>
+
+            </soap-env:Envelope>
+        getSingleItemHistoryFault:
+          type: object
+          properties:
+            Envelope:
+              xml:
+                prefix: soap-env
+                namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+              type: object
+              properties:
+                Fault:
+                  type: object
+                  properties:
+                    faultResponse:
+                      $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/faultResponse_tns'
+        getProofOfDeliveryInput:
+          type: object
+          properties:
+            Envelope:
+              xml:
+                prefix: soap-env
+                namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+              type: object
+              properties:
+                Header:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getProofOfDeliveryHeader'
+                Body:
+                  type: object
+                  properties:
+                    getProofOfDeliveryRequest:
+                      $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getProofOfDeliveryRequest_tns'
+          example: >-
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+
+             <soap-env:Header>
+
+              <wsse:Security
+            xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+
+               <UsernameToken>
+
+                <Username>string</Username>
+
+                <Password>string</Password>
+
+               </UsernameToken>
+
+              </wsse:Security>
+
+             </soap-env:Header>
+
+             <soap-env:Body>
+
+              <tns:getProofOfDeliveryRequest
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+               <tns:integrationHeader><!-- mandatory -->
+
+                <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+                <tns:version>string</tns:version>
+
+                <ns2:identification><!-- mandatory -->
+
+                 <ns2:endUserId>string</ns2:endUserId>
+
+                 <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+                 <ns2:intermediaryId>string</ns2:intermediaryId>
+
+                 <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+                </ns2:identification>
+
+                <ns2:testFlag>true</ns2:testFlag>
+
+                <ns2:debugFlag>true</ns2:debugFlag>
+
+               </tns:integrationHeader>
+
+               <tns:trackingNumber><!-- mandatory -->string</tns:trackingNumber>
+
+              </tns:getProofOfDeliveryRequest>
+
+             </soap-env:Body>
+
+            </soap-env:Envelope>
+        getProofOfDeliveryHeader:
+          type: object
+          properties:
+            Security:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/Security'
+        getProofOfDeliveryOutput:
+          type: object
+          properties:
+            Envelope:
+              xml:
+                prefix: soap-env
+                namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+              type: object
+              properties:
+                Body:
+                  type: object
+                  properties:
+                    getProofOfDeliveryResponse:
+                      $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getProofOfDeliveryResponse_tns'
+          example: >-
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+
+             <soap-env:Body>
+
+              <tns:getProofOfDeliveryResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+               <tns:integrationHeader><!-- mandatory -->
+
+                <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+                <tns:version>string</tns:version>
+
+                <ns2:identification><!-- mandatory -->
+
+                 <ns2:endUserId>string</ns2:endUserId>
+
+                 <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+                 <ns2:intermediaryId>string</ns2:intermediaryId>
+
+                 <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+                </ns2:identification>
+
+                <ns2:testFlag>true</ns2:testFlag>
+
+                <ns2:debugFlag>true</ns2:debugFlag>
+
+               </tns:integrationHeader>
+
+               <tns:wSImageResponse>
+
+                <tns:height>
+
+                 <unitOfMeasure><!-- mandatory -->
+
+                  <unitOfMeasureCode><!-- mandatory -->
+
+                   <identifier>string</identifier>
+
+                   <code>string</code>
+
+                   <name>string</name>
+
+                   <description>string</description>
+
+                  </unitOfMeasureCode>
+
+                 </unitOfMeasure>
+
+                 <value><!-- mandatory -->3.14</value>
+
+                </tns:height>
+
+                <tns:image>string</tns:image>
+
+                <tns:printedName>string</tns:printedName>
+
+                <tns:signatureTime>2016-04-18T14:07:37</tns:signatureTime>
+
+                <tns:trackingNumber><!-- mandatory
+            -->string</tns:trackingNumber>
+
+                <tns:width>
+
+                 <unitOfMeasure><!-- mandatory -->
+
+                  <unitOfMeasureCode><!-- mandatory -->
+
+                   <identifier>string</identifier>
+
+                   <code>string</code>
+
+                   <name>string</name>
+
+                   <description>string</description>
+
+                  </unitOfMeasureCode>
+
+                 </unitOfMeasure>
+
+                 <value><!-- mandatory -->3.14</value>
+
+                </tns:width>
+
+               </tns:wSImageResponse>
+
+               <tns:integrationFooter>
+
+                <ns2:errors>
+
+                 <ns2:error><!-- between zero and unlimited repetitions of this
+            element -->
+
+                  <ns2:errorCode><!-- mandatory -->string</ns2:errorCode>
+
+                  <ns2:errorDescription><!-- mandatory
+            -->string</ns2:errorDescription>
+
+                  <ns2:errorCause>string</ns2:errorCause>
+
+                  <ns2:errorResolution>string</ns2:errorResolution>
+
+                  <ns2:errorContext>string</ns2:errorContext>
+
+                 </ns2:error>
+
+                </ns2:errors>
+
+                <ns2:warnings>
+
+                 <ns2:warning><!-- between zero and unlimited repetitions of this
+            element -->
+
+                  <ns2:warningCode><!-- mandatory -->string</ns2:warningCode>
+
+                  <ns2:warningDescription><!-- mandatory
+            -->string</ns2:warningDescription>
+
+                  <ns2:warningCause>string</ns2:warningCause>
+
+                  <ns2:warningResolution>string</ns2:warningResolution>
+
+                  <ns2:warningContext>string</ns2:warningContext>
+
+                 </ns2:warning>
+
+                </ns2:warnings>
+
+               </tns:integrationFooter>
+
+              </tns:getProofOfDeliveryResponse>
+
+             </soap-env:Body>
+
+            </soap-env:Envelope>
+        getProofOfDeliveryFault:
+          type: object
+          properties:
+            Envelope:
+              xml:
+                prefix: soap-env
+                namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+              type: object
+              properties:
+                Fault:
+                  type: object
+                  properties:
+                    faultResponse:
+                      $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/faultResponse_tns'
+        getMultiItemSummaryInput:
+          type: object
+          properties:
+            Envelope:
+              xml:
+                prefix: soap-env
+                namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+              type: object
+              properties:
+                Header:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getMultiItemSummaryHeader'
+                Body:
+                  type: object
+                  properties:
+                    getMultiItemSummaryRequest:
+                      $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getMultiItemSummaryRequest_tns'
+          example: >-
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+
+             <soap-env:Header>
+
+              <wsse:Security
+            xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+
+               <UsernameToken>
+
+                <Username>string</Username>
+
+                <Password>string</Password>
+
+               </UsernameToken>
+
+              </wsse:Security>
+
+             </soap-env:Header>
+
+             <soap-env:Body>
+
+              <tns:getMultiItemSummaryRequest
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+               <tns:integrationHeader><!-- mandatory -->
+
+                <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+                <tns:version>string</tns:version>
+
+                <ns2:identification><!-- mandatory -->
+
+                 <ns2:endUserId>string</ns2:endUserId>
+
+                 <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+                 <ns2:intermediaryId>string</ns2:intermediaryId>
+
+                 <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+                </ns2:identification>
+
+                <ns2:testFlag>true</ns2:testFlag>
+
+                <ns2:debugFlag>true</ns2:debugFlag>
+
+               </tns:integrationHeader>
+
+               <tns:trackingNumbers><!-- mandatory -->
+
+                <tns:trackingNumber><!-- mandatory --><!-- between 1 and
+            5 repetitions of this element -->string</tns:trackingNumber>
+
+               </tns:trackingNumbers>
+
+              </tns:getMultiItemSummaryRequest>
+
+             </soap-env:Body>
+
+            </soap-env:Envelope>
+        getMultiItemSummaryHeader:
+          type: object
+          properties:
+            Security:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/Security'
+        getMultiItemSummaryOutput:
+          type: object
+          properties:
+            Envelope:
+              xml:
+                prefix: soap-env
+                namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+              type: object
+              properties:
+                Body:
+                  type: object
+                  properties:
+                    getMultiItemSummaryResponse:
+                      $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getMultiItemSummaryResponse_tns'
+          example: >-
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+
+             <soap-env:Body>
+
+              <tns:getMultiItemSummaryResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+               <tns:integrationHeader><!-- mandatory -->
+
+                <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+                <tns:version>string</tns:version>
+
+                <ns2:identification><!-- mandatory -->
+
+                 <ns2:endUserId>string</ns2:endUserId>
+
+                 <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+                 <ns2:intermediaryId>string</ns2:intermediaryId>
+
+                 <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+                </ns2:identification>
+
+                <ns2:testFlag>true</ns2:testFlag>
+
+                <ns2:debugFlag>true</ns2:debugFlag>
+
+               </tns:integrationHeader>
+
+               <tns:itemSummaries>
+
+                <tns:itemSummary><!-- mandatory --><!-- between 1 and
+            5 repetitions of this element -->
+
+                 <tns:eventDate>2016-04-18</tns:eventDate>
+
+                 <tns:eventTime>string</tns:eventTime>
+
+                 <tns:statusCode>
+
+                  <identifier>string</identifier>
+
+                  <code>string</code>
+
+                  <name>string</name>
+
+                  <description>string</description>
+
+                 </tns:statusCode>
+
+                 <tns:summaryLine>string</tns:summaryLine>
+
+                 <tns:trackingNumber><!-- mandatory
+            -->string</tns:trackingNumber>
+
+                 <tns:header>string</tns:header>
+
+                 <tns:footer><!-- between zero and unlimited repetitions of this
+            element -->
+
+                  <tns:footerID>string</tns:footerID>
+
+                  <tns:footerText>string</tns:footerText>
+
+                 </tns:footer>
+
+                </tns:itemSummary>
+
+               </tns:itemSummaries>
+
+               <tns:integrationFooter>
+
+                <ns2:errors>
+
+                 <ns2:error><!-- between zero and unlimited repetitions of this
+            element -->
+
+                  <ns2:errorCode><!-- mandatory -->string</ns2:errorCode>
+
+                  <ns2:errorDescription><!-- mandatory
+            -->string</ns2:errorDescription>
+
+                  <ns2:errorCause>string</ns2:errorCause>
+
+                  <ns2:errorResolution>string</ns2:errorResolution>
+
+                  <ns2:errorContext>string</ns2:errorContext>
+
+                 </ns2:error>
+
+                </ns2:errors>
+
+                <ns2:warnings>
+
+                 <ns2:warning><!-- between zero and unlimited repetitions of this
+            element -->
+
+                  <ns2:warningCode><!-- mandatory -->string</ns2:warningCode>
+
+                  <ns2:warningDescription><!-- mandatory
+            -->string</ns2:warningDescription>
+
+                  <ns2:warningCause>string</ns2:warningCause>
+
+                  <ns2:warningResolution>string</ns2:warningResolution>
+
+                  <ns2:warningContext>string</ns2:warningContext>
+
+                 </ns2:warning>
+
+                </ns2:warnings>
+
+               </tns:integrationFooter>
+
+              </tns:getMultiItemSummaryResponse>
+
+             </soap-env:Body>
+
+            </soap-env:Envelope>
+        getMultiItemSummaryFault:
+          type: object
+          properties:
+            Envelope:
+              xml:
+                prefix: soap-env
+                namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+              type: object
+              properties:
+                Fault:
+                  type: object
+                  properties:
+                    faultResponse:
+                      $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/faultResponse_tns'
+        getSingleItemSummaryInput:
+          type: object
+          properties:
+            Envelope:
+              xml:
+                prefix: soap-env
+                namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+              type: object
+              properties:
+                Header:
+                  $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getSingleItemSummaryHeader'
+                Body:
+                  type: object
+                  properties:
+                    getSingleItemSummaryRequest:
+                      $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getSingleItemSummaryRequest_tns'
+          example: >-
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+
+             <soap-env:Header>
+
+              <wsse:Security
+            xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+
+               <UsernameToken>
+
+                <Username>string</Username>
+
+                <Password>string</Password>
+
+               </UsernameToken>
+
+              </wsse:Security>
+
+             </soap-env:Header>
+
+             <soap-env:Body>
+
+              <tns:getSingleItemSummaryRequest
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+               <tns:integrationHeader><!-- mandatory -->
+
+                <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+                <tns:version>string</tns:version>
+
+                <ns2:identification><!-- mandatory -->
+
+                 <ns2:endUserId>string</ns2:endUserId>
+
+                 <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+                 <ns2:intermediaryId>string</ns2:intermediaryId>
+
+                 <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+                </ns2:identification>
+
+                <ns2:testFlag>true</ns2:testFlag>
+
+                <ns2:debugFlag>true</ns2:debugFlag>
+
+               </tns:integrationHeader>
+
+               <tns:trackingNumber><!-- mandatory -->string</tns:trackingNumber>
+
+              </tns:getSingleItemSummaryRequest>
+
+             </soap-env:Body>
+
+            </soap-env:Envelope>
+        getSingleItemSummaryHeader:
+          type: object
+          properties:
+            Security:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/Security'
+        getSingleItemSummaryOutput:
+          type: object
+          properties:
+            Envelope:
+              xml:
+                prefix: soap-env
+                namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+              type: object
+              properties:
+                Body:
+                  type: object
+                  properties:
+                    getSingleItemSummaryResponse:
+                      $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/getSingleItemSummaryResponse_tns'
+          example: >-
+            <soap-env:Envelope
+            xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+
+             <soap-env:Body>
+
+              <tns:getSingleItemSummaryResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+               <tns:integrationHeader><!-- mandatory -->
+
+                <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+                <tns:version>string</tns:version>
+
+                <ns2:identification><!-- mandatory -->
+
+                 <ns2:endUserId>string</ns2:endUserId>
+
+                 <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+                 <ns2:intermediaryId>string</ns2:intermediaryId>
+
+                 <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+                </ns2:identification>
+
+                <ns2:testFlag>true</ns2:testFlag>
+
+                <ns2:debugFlag>true</ns2:debugFlag>
+
+               </tns:integrationHeader>
+
+               <tns:itemSummary>
+
+                <tns:eventDate>2016-04-18</tns:eventDate>
+
+                <tns:eventTime>string</tns:eventTime>
+
+                <tns:statusCode>
+
+                 <identifier>string</identifier>
+
+                 <code>string</code>
+
+                 <name>string</name>
+
+                 <description>string</description>
+
+                </tns:statusCode>
+
+                <tns:summaryLine>string</tns:summaryLine>
+
+                <tns:trackingNumber><!-- mandatory
+            -->string</tns:trackingNumber>
+
+                <tns:header>string</tns:header>
+
+                <tns:footer><!-- between zero and unlimited repetitions of this
+            element -->
+
+                 <tns:footerID>string</tns:footerID>
+
+                 <tns:footerText>string</tns:footerText>
+
+                </tns:footer>
+
+               </tns:itemSummary>
+
+               <tns:integrationFooter>
+
+                <ns2:errors>
+
+                 <ns2:error><!-- between zero and unlimited repetitions of this
+            element -->
+
+                  <ns2:errorCode><!-- mandatory -->string</ns2:errorCode>
+
+                  <ns2:errorDescription><!-- mandatory
+            -->string</ns2:errorDescription>
+
+                  <ns2:errorCause>string</ns2:errorCause>
+
+                  <ns2:errorResolution>string</ns2:errorResolution>
+
+                  <ns2:errorContext>string</ns2:errorContext>
+
+                 </ns2:error>
+
+                </ns2:errors>
+
+                <ns2:warnings>
+
+                 <ns2:warning><!-- between zero and unlimited repetitions of this
+            element -->
+
+                  <ns2:warningCode><!-- mandatory -->string</ns2:warningCode>
+
+                  <ns2:warningDescription><!-- mandatory
+            -->string</ns2:warningDescription>
+
+                  <ns2:warningCause>string</ns2:warningCause>
+
+                  <ns2:warningResolution>string</ns2:warningResolution>
+
+                  <ns2:warningContext>string</ns2:warningContext>
+
+                 </ns2:warning>
+
+                </ns2:warnings>
+
+               </tns:integrationFooter>
+
+              </tns:getSingleItemSummaryResponse>
+
+             </soap-env:Body>
+
+            </soap-env:Envelope>
+        getSingleItemSummaryFault:
+          type: object
+          properties:
+            Envelope:
+              xml:
+                prefix: soap-env
+                namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+              type: object
+              properties:
+                Fault:
+                  type: object
+                  properties:
+                    faultResponse:
+                      $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/faultResponse_tns'
+        getSingleItemHistoryRequest_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            integrationHeader:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/integrationHeader_ns2_tns'
+            trackingNumber:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/trackingNumber_tns'
+          required:
+            - integrationHeader
+            - trackingNumber
+          example: >-
+            <tns:getSingleItemHistoryRequest
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+             <tns:integrationHeader><!-- mandatory -->
+
+              <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+              <tns:version>string</tns:version>
+
+              <ns2:identification><!-- mandatory -->
+
+               <ns2:endUserId>string</ns2:endUserId>
+
+               <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+               <ns2:intermediaryId>string</ns2:intermediaryId>
+
+               <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+              </ns2:identification>
+
+              <ns2:testFlag>true</ns2:testFlag>
+
+              <ns2:debugFlag>true</ns2:debugFlag>
+
+             </tns:integrationHeader>
+
+             <tns:trackingNumber><!-- mandatory -->string</tns:trackingNumber>
+
+            </tns:getSingleItemHistoryRequest>
+        getSingleItemHistoryResponse_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            integrationHeader:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/integrationHeader_ns2_tns'
+            trackDetail:
+              type: array
+              items:
+                $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/TrackDetail_tns'
+            integrationFooter:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/integrationFooter_ns2_tns'
+          required:
+            - integrationHeader
+          example: >-
+            <tns:getSingleItemHistoryResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+             <tns:integrationHeader><!-- mandatory -->
+
+              <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+              <tns:version>string</tns:version>
+
+              <ns2:identification><!-- mandatory -->
+
+               <ns2:endUserId>string</ns2:endUserId>
+
+               <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+               <ns2:intermediaryId>string</ns2:intermediaryId>
+
+               <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+              </ns2:identification>
+
+              <ns2:testFlag>true</ns2:testFlag>
+
+              <ns2:debugFlag>true</ns2:debugFlag>
+
+             </tns:integrationHeader>
+
+             <tns:trackDetail><!-- between zero and unlimited repetitions of this
+            element -->
+
+              <tns:trackDate>2016-04-18</tns:trackDate>
+
+              <tns:trackPoint>string</tns:trackPoint>
+
+              <tns:trackTime>string</tns:trackTime>
+
+              <tns:header>string</tns:header>
+
+              <tns:footer><!-- between zero and unlimited repetitions of this
+            element -->
+
+               <tns:footerID>string</tns:footerID>
+
+               <tns:footerText>string</tns:footerText>
+
+              </tns:footer>
+
+              <tns:podMessage>string</tns:podMessage>
+
+             </tns:trackDetail>
+
+             <tns:integrationFooter>
+
+              <ns2:errors>
+
+               <ns2:error><!-- between zero and unlimited repetitions of this
+            element -->
+
+                <ns2:errorCode><!-- mandatory -->string</ns2:errorCode>
+
+                <ns2:errorDescription><!-- mandatory
+            -->string</ns2:errorDescription>
+
+                <ns2:errorCause>string</ns2:errorCause>
+
+                <ns2:errorResolution>string</ns2:errorResolution>
+
+                <ns2:errorContext>string</ns2:errorContext>
+
+               </ns2:error>
+
+              </ns2:errors>
+
+              <ns2:warnings>
+
+               <ns2:warning><!-- between zero and unlimited repetitions of this
+            element -->
+
+                <ns2:warningCode><!-- mandatory -->string</ns2:warningCode>
+
+                <ns2:warningDescription><!-- mandatory
+            -->string</ns2:warningDescription>
+
+                <ns2:warningCause>string</ns2:warningCause>
+
+                <ns2:warningResolution>string</ns2:warningResolution>
+
+                <ns2:warningContext>string</ns2:warningContext>
+
+               </ns2:warning>
+
+              </ns2:warnings>
+
+             </tns:integrationFooter>
+
+            </tns:getSingleItemHistoryResponse>
+        faultResponse_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            exceptionTransactionId:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/transactionId_ns2_tns'
+            exceptionCode:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/errorCode_ns2_tns'
+            exceptionText:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/description_ns3'
+          description: Fault reporting structure
+          required:
+            - exceptionTransactionId
+            - exceptionCode
+            - exceptionText
+          example: >-
+            <tns:exceptionDetails
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1">
+
+             <exceptionTransactionId><!-- mandatory
+            -->string</exceptionTransactionId>
+
+             <exceptionCode><!-- mandatory -->string</exceptionCode>
+
+             <exceptionText><!-- mandatory -->string</exceptionText>
+
+            </tns:exceptionDetails>
+        getProofOfDeliveryRequest_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            integrationHeader:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/integrationHeader_ns2_tns'
+            trackingNumber:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/trackingNumber_tns'
+          required:
+            - integrationHeader
+            - trackingNumber
+          example: >-
+            <tns:getProofOfDeliveryRequest
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+             <tns:integrationHeader><!-- mandatory -->
+
+              <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+              <tns:version>string</tns:version>
+
+              <ns2:identification><!-- mandatory -->
+
+               <ns2:endUserId>string</ns2:endUserId>
+
+               <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+               <ns2:intermediaryId>string</ns2:intermediaryId>
+
+               <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+              </ns2:identification>
+
+              <ns2:testFlag>true</ns2:testFlag>
+
+              <ns2:debugFlag>true</ns2:debugFlag>
+
+             </tns:integrationHeader>
+
+             <tns:trackingNumber><!-- mandatory -->string</tns:trackingNumber>
+
+            </tns:getProofOfDeliveryRequest>
+        getProofOfDeliveryResponse_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            integrationHeader:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/integrationHeader_ns2_tns'
+            wSImageResponse:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/WSImageResponse_tns'
+            integrationFooter:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/integrationFooter_ns2_tns'
+          required:
+            - integrationHeader
+          example: >-
+            <tns:getProofOfDeliveryResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+             <tns:integrationHeader><!-- mandatory -->
+
+              <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+              <tns:version>string</tns:version>
+
+              <ns2:identification><!-- mandatory -->
+
+               <ns2:endUserId>string</ns2:endUserId>
+
+               <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+               <ns2:intermediaryId>string</ns2:intermediaryId>
+
+               <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+              </ns2:identification>
+
+              <ns2:testFlag>true</ns2:testFlag>
+
+              <ns2:debugFlag>true</ns2:debugFlag>
+
+             </tns:integrationHeader>
+
+             <tns:wSImageResponse>
+
+              <tns:height>
+
+               <unitOfMeasure><!-- mandatory -->
+
+                <unitOfMeasureCode><!-- mandatory -->
+
+                 <identifier>string</identifier>
+
+                 <code>string</code>
+
+                 <name>string</name>
+
+                 <description>string</description>
+
+                </unitOfMeasureCode>
+
+               </unitOfMeasure>
+
+               <value><!-- mandatory -->3.14</value>
+
+              </tns:height>
+
+              <tns:image>string</tns:image>
+
+              <tns:printedName>string</tns:printedName>
+
+              <tns:signatureTime>2016-04-18T14:07:37</tns:signatureTime>
+
+              <tns:trackingNumber><!-- mandatory -->string</tns:trackingNumber>
+
+              <tns:width>
+
+               <unitOfMeasure><!-- mandatory -->
+
+                <unitOfMeasureCode><!-- mandatory -->
+
+                 <identifier>string</identifier>
+
+                 <code>string</code>
+
+                 <name>string</name>
+
+                 <description>string</description>
+
+                </unitOfMeasureCode>
+
+               </unitOfMeasure>
+
+               <value><!-- mandatory -->3.14</value>
+
+              </tns:width>
+
+             </tns:wSImageResponse>
+
+             <tns:integrationFooter>
+
+              <ns2:errors>
+
+               <ns2:error><!-- between zero and unlimited repetitions of this
+            element -->
+
+                <ns2:errorCode><!-- mandatory -->string</ns2:errorCode>
+
+                <ns2:errorDescription><!-- mandatory
+            -->string</ns2:errorDescription>
+
+                <ns2:errorCause>string</ns2:errorCause>
+
+                <ns2:errorResolution>string</ns2:errorResolution>
+
+                <ns2:errorContext>string</ns2:errorContext>
+
+               </ns2:error>
+
+              </ns2:errors>
+
+              <ns2:warnings>
+
+               <ns2:warning><!-- between zero and unlimited repetitions of this
+            element -->
+
+                <ns2:warningCode><!-- mandatory -->string</ns2:warningCode>
+
+                <ns2:warningDescription><!-- mandatory
+            -->string</ns2:warningDescription>
+
+                <ns2:warningCause>string</ns2:warningCause>
+
+                <ns2:warningResolution>string</ns2:warningResolution>
+
+                <ns2:warningContext>string</ns2:warningContext>
+
+               </ns2:warning>
+
+              </ns2:warnings>
+
+             </tns:integrationFooter>
+
+            </tns:getProofOfDeliveryResponse>
+        getMultiItemSummaryRequest_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            integrationHeader:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/integrationHeader_ns2_tns'
+            trackingNumbers:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/trackingNumbers_tns'
+          required:
+            - integrationHeader
+            - trackingNumbers
+          example: >-
+            <tns:getMultiItemSummaryRequest
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+             <tns:integrationHeader><!-- mandatory -->
+
+              <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+              <tns:version>string</tns:version>
+
+              <ns2:identification><!-- mandatory -->
+
+               <ns2:endUserId>string</ns2:endUserId>
+
+               <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+               <ns2:intermediaryId>string</ns2:intermediaryId>
+
+               <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+              </ns2:identification>
+
+              <ns2:testFlag>true</ns2:testFlag>
+
+              <ns2:debugFlag>true</ns2:debugFlag>
+
+             </tns:integrationHeader>
+
+             <tns:trackingNumbers><!-- mandatory -->
+
+              <tns:trackingNumber><!-- mandatory --><!-- between 1 and
+            5 repetitions of this element -->string</tns:trackingNumber>
+
+             </tns:trackingNumbers>
+
+            </tns:getMultiItemSummaryRequest>
+        getMultiItemSummaryResponse_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            integrationHeader:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/integrationHeader_ns2_tns'
+            itemSummaries:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/itemSummaries_tns'
+            integrationFooter:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/integrationFooter_ns2_tns'
+          required:
+            - integrationHeader
+          example: >-
+            <tns:getMultiItemSummaryResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+             <tns:integrationHeader><!-- mandatory -->
+
+              <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+              <tns:version>string</tns:version>
+
+              <ns2:identification><!-- mandatory -->
+
+               <ns2:endUserId>string</ns2:endUserId>
+
+               <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+               <ns2:intermediaryId>string</ns2:intermediaryId>
+
+               <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+              </ns2:identification>
+
+              <ns2:testFlag>true</ns2:testFlag>
+
+              <ns2:debugFlag>true</ns2:debugFlag>
+
+             </tns:integrationHeader>
+
+             <tns:itemSummaries>
+
+              <tns:itemSummary><!-- mandatory --><!-- between 1 and 5 repetitions
+            of this element -->
+
+               <tns:eventDate>2016-04-18</tns:eventDate>
+
+               <tns:eventTime>string</tns:eventTime>
+
+               <tns:statusCode>
+
+                <identifier>string</identifier>
+
+                <code>string</code>
+
+                <name>string</name>
+
+                <description>string</description>
+
+               </tns:statusCode>
+
+               <tns:summaryLine>string</tns:summaryLine>
+
+               <tns:trackingNumber><!-- mandatory -->string</tns:trackingNumber>
+
+               <tns:header>string</tns:header>
+
+               <tns:footer><!-- between zero and unlimited repetitions of this
+            element -->
+
+                <tns:footerID>string</tns:footerID>
+
+                <tns:footerText>string</tns:footerText>
+
+               </tns:footer>
+
+              </tns:itemSummary>
+
+             </tns:itemSummaries>
+
+             <tns:integrationFooter>
+
+              <ns2:errors>
+
+               <ns2:error><!-- between zero and unlimited repetitions of this
+            element -->
+
+                <ns2:errorCode><!-- mandatory -->string</ns2:errorCode>
+
+                <ns2:errorDescription><!-- mandatory
+            -->string</ns2:errorDescription>
+
+                <ns2:errorCause>string</ns2:errorCause>
+
+                <ns2:errorResolution>string</ns2:errorResolution>
+
+                <ns2:errorContext>string</ns2:errorContext>
+
+               </ns2:error>
+
+              </ns2:errors>
+
+              <ns2:warnings>
+
+               <ns2:warning><!-- between zero and unlimited repetitions of this
+            element -->
+
+                <ns2:warningCode><!-- mandatory -->string</ns2:warningCode>
+
+                <ns2:warningDescription><!-- mandatory
+            -->string</ns2:warningDescription>
+
+                <ns2:warningCause>string</ns2:warningCause>
+
+                <ns2:warningResolution>string</ns2:warningResolution>
+
+                <ns2:warningContext>string</ns2:warningContext>
+
+               </ns2:warning>
+
+              </ns2:warnings>
+
+             </tns:integrationFooter>
+
+            </tns:getMultiItemSummaryResponse>
+        getSingleItemSummaryRequest_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            integrationHeader:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/integrationHeader_ns2_tns'
+            trackingNumber:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/trackingNumber_tns'
+          required:
+            - integrationHeader
+            - trackingNumber
+          example: >-
+            <tns:getSingleItemSummaryRequest
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+             <tns:integrationHeader><!-- mandatory -->
+
+              <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+              <tns:version>string</tns:version>
+
+              <ns2:identification><!-- mandatory -->
+
+               <ns2:endUserId>string</ns2:endUserId>
+
+               <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+               <ns2:intermediaryId>string</ns2:intermediaryId>
+
+               <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+              </ns2:identification>
+
+              <ns2:testFlag>true</ns2:testFlag>
+
+              <ns2:debugFlag>true</ns2:debugFlag>
+
+             </tns:integrationHeader>
+
+             <tns:trackingNumber><!-- mandatory -->string</tns:trackingNumber>
+
+            </tns:getSingleItemSummaryRequest>
+        getSingleItemSummaryResponse_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            integrationHeader:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/integrationHeader_ns2_tns'
+            itemSummary:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/ItemSummary_tns'
+            integrationFooter:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/integrationFooter_ns2_tns'
+          required:
+            - integrationHeader
+          example: >-
+            <tns:getSingleItemSummaryResponse
+            xmlns:tns="http://www.royalmailgroup.com/api/track/V1"
+            xmlns:ns2="http://www.royalmailgroup.com/integration/core/V1">
+
+             <tns:integrationHeader><!-- mandatory -->
+
+              <tns:dateTime>2016-04-18T14:07:37</tns:dateTime>
+
+              <tns:version>string</tns:version>
+
+              <ns2:identification><!-- mandatory -->
+
+               <ns2:endUserId>string</ns2:endUserId>
+
+               <ns2:applicationId><!-- mandatory -->string</ns2:applicationId>
+
+               <ns2:intermediaryId>string</ns2:intermediaryId>
+
+               <ns2:transactionId><!-- mandatory -->string</ns2:transactionId>
+
+              </ns2:identification>
+
+              <ns2:testFlag>true</ns2:testFlag>
+
+              <ns2:debugFlag>true</ns2:debugFlag>
+
+             </tns:integrationHeader>
+
+             <tns:itemSummary>
+
+              <tns:eventDate>2016-04-18</tns:eventDate>
+
+              <tns:eventTime>string</tns:eventTime>
+
+              <tns:statusCode>
+
+               <identifier>string</identifier>
+
+               <code>string</code>
+
+               <name>string</name>
+
+               <description>string</description>
+
+              </tns:statusCode>
+
+              <tns:summaryLine>string</tns:summaryLine>
+
+              <tns:trackingNumber><!-- mandatory -->string</tns:trackingNumber>
+
+              <tns:header>string</tns:header>
+
+              <tns:footer><!-- between zero and unlimited repetitions of this
+            element -->
+
+               <tns:footerID>string</tns:footerID>
+
+               <tns:footerText>string</tns:footerText>
+
+              </tns:footer>
+
+             </tns:itemSummary>
+
+             <tns:integrationFooter>
+
+              <ns2:errors>
+
+               <ns2:error><!-- between zero and unlimited repetitions of this
+            element -->
+
+                <ns2:errorCode><!-- mandatory -->string</ns2:errorCode>
+
+                <ns2:errorDescription><!-- mandatory
+            -->string</ns2:errorDescription>
+
+                <ns2:errorCause>string</ns2:errorCause>
+
+                <ns2:errorResolution>string</ns2:errorResolution>
+
+                <ns2:errorContext>string</ns2:errorContext>
+
+               </ns2:error>
+
+              </ns2:errors>
+
+              <ns2:warnings>
+
+               <ns2:warning><!-- between zero and unlimited repetitions of this
+            element -->
+
+                <ns2:warningCode><!-- mandatory -->string</ns2:warningCode>
+
+                <ns2:warningDescription><!-- mandatory
+            -->string</ns2:warningDescription>
+
+                <ns2:warningCause>string</ns2:warningCause>
+
+                <ns2:warningResolution>string</ns2:warningResolution>
+
+                <ns2:warningContext>string</ns2:warningContext>
+
+               </ns2:warning>
+
+              </ns2:warnings>
+
+             </tns:integrationFooter>
+
+            </tns:getSingleItemSummaryResponse>
+        integrationHeader_ns2:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+            prefix: ns2
+          type: object
+          properties:
+            dateTime:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/dateTime_ns3'
+            version:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/decimal_ns3'
+            identification:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identificationStructure_ns2'
+            testFlag:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/boolean_ns3'
+            debugFlag:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/boolean_ns3'
+          description: >-
+            Common integration header definition;
+
+            dateTime: Date timestamp associated with when the data was generated,
+            sent or received;
+
+            version: Version of the service;
+
+            identification: Identification details associated with the Service
+            Requestor or Service Provider;
+
+            testFlag: Flag which can be used to test that the exposed service is
+            available. It is not expected that this flag will be used under
+            normal BAU service operation.;
+
+            debugFlag: Flag which can be used to allow any messages to be
+            dynamically debugged. It is not expected that this flag will be used
+            under normal BAU service operation.
+          required:
+            - identification
+        integrationHeader_ns2_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            dateTime:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/dateTime_ns3'
+            version:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/decimal_ns3'
+            identification:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identificationStructure_ns2'
+            testFlag:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/boolean_ns3'
+            debugFlag:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/boolean_ns3'
+          description: >-
+            Common integration header definition;
+
+            dateTime: Date timestamp associated with when the data was generated,
+            sent or received;
+
+            version: Version of the service;
+
+            identification: Identification details associated with the Service
+            Requestor or Service Provider;
+
+            testFlag: Flag which can be used to test that the exposed service is
+            available. It is not expected that this flag will be used under
+            normal BAU service operation.;
+
+            debugFlag: Flag which can be used to allow any messages to be
+            dynamically debugged. It is not expected that this flag will be used
+            under normal BAU service operation.
+          required:
+            - identification
+        trackingNumber_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: string
+          pattern: '([a-zA-Z]{2}[0-9]{9}[a-zA-Z]{2})'
+        TrackDetail_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            trackDate:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/date_ns3'
+            trackPoint:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3_nil'
+            trackTime:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/time_ns3'
+            header:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3_nil'
+            footer:
+              type: array
+              items:
+                $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/footer_tns'
+              x-nullable: true
+            podMessage:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3_nil'
+        integrationFooter_ns2:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+            prefix: ns2
+          type: object
+          properties:
+            errors:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/errorStructure_ns2'
+            warnings:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/warningStructure_ns2'
+          description: Common integration footer definition
+        integrationFooter_ns2_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            errors:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/errorStructure_ns2'
+            warnings:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/warningStructure_ns2'
+          description: Common integration footer definition
+        transactionId_ns2:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+            prefix: ns2
+          type: string
+          description: 'Id preserved throughout the lifespan of the transaction, unique when combined with the applicationId and intermediaryId (if applicable).'
+          pattern: "[a-zA-Z0-9/\\-]*"
+          maxLength: 50
+          minLength: 1
+        transactionId_ns2_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: string
+          description: 'Id preserved throughout the lifespan of the transaction, unique when combined with the applicationId and intermediaryId (if applicable).'
+          pattern: "[a-zA-Z0-9/\\-]*"
+          maxLength: 50
+          minLength: 1
+        errorCode_ns2:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+            prefix: ns2
+          type: string
+          description: Code associated with the error condition in the form ENNNN
+          pattern: '[E]{1}[0-9]{4}'
+        errorCode_ns2_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: string
+          description: Code associated with the error condition in the form ENNNN
+          pattern: '[E]{1}[0-9]{4}'
+        description_ns3:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: string
+          description: A description is a sub-type of string and is statement in words that gives an account or descriptive representation of a thing. Descriptions are only editable via an admin function and are for display and information purposes only for end users.
+          maxLength: 256
+        WSImageResponse_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            height:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/dimension_ns4'
+            image:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/document_ns3'
+            printedName:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3_nil'
+            signatureTime:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/dateTime_ns3_nil'
+            trackingNumber:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3'
+            width:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/dimension_ns4'
+          required:
+            - trackingNumber
+        trackingNumbers_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            trackingNumber:
+              type: array
+              items:
+                $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/trackingNumber_tns'
+              maxItems: 5
+              minItems: 1
+          required:
+            - trackingNumber
+        itemSummaries_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            itemSummary:
+              type: array
+              items:
+                $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/ItemSummary_tns'
+              maxItems: 5
+              minItems: 1
+          required:
+            - itemSummary
+        ItemSummary_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            eventDate:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/date_ns3'
+            eventTime:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/time_ns3'
+            statusCode:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/referenceDataType_ns5_nil'
+            summaryLine:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/description_ns3_nil'
+            trackingNumber:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3'
+            header:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3_nil'
+            footer:
+              type: array
+              items:
+                $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/footer_tns'
+              x-nullable: true
+          required:
+            - trackingNumber
+        dateTime_ns3:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: string
+          description: 'dateTime represents a period in time which could be a particular month, day, and year at which some event happened or will happen but also includes a breakdown of time using hours, minutes, seconds and milliseconds. A dateTime stamp is a common use for this data type so that a precise record of an event can be captured.'
+          format: date-time
+        decimal_ns3:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: string
+          description: 'A decimal data type represents a real number with every decimal place indicating a multiple of a negative power of 10. It represents non-repeating decimal fractions like 0.3 and -1.17 without rounding, and gives the ability to do arithmetic on them.'
+        identificationStructure_ns2:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+            prefix: ns2
+          type: object
+          properties:
+            endUserId:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3'
+            applicationId:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/applicationId_ns2'
+            intermediaryId:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/applicationId_ns2'
+            transactionId:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/transactionId_ns2'
+          description: >-
+            endUserId: User ID associated with the end user of the internal or
+            external organisation;
+
+            applicationId: The ID of the Service Requester system calling the
+            service, unique when combined with the transactionId.;
+
+            intermediaryId: Id associated with the Intermediary application (if
+            applicable).;
+
+            transactionId: Unique session id sent by the Service Requestor (for
+            the request) or returned by the Service Provider (for the response)
+          required:
+            - applicationId
+            - transactionId
+        boolean_ns3:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: boolean
+          description: "Boolean, or boolean logic, is a subset of algebra used for creating true/false statements. Boolean expressions use the operators AND, OR, XOR, and NOT to compare values and return a true or false result. Boolean values can also be referred to as 'flags'."
+        date_ns3:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: string
+          description: 'A date represents a period in time which could be a particular month, day, and year at which some event happened or will happen.'
+          format: date
+          x-nullable: true
+        identifier_ns3:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: string
+          description: An identifier is a sub-type of string which serves as a means of identification for a particular thing; An identifier can be associated with a name.
+          maxLength: 128
+        time_ns3:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: string
+          description: 'time is a unit of measure to record hours, minutes, seconds and milliseconds.'
+          x-nullable: true
+        footer_tns:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/api/track/V1'
+            prefix: tns
+          type: object
+          properties:
+            footerID:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3_nil'
+            footerText:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3_nil'
+        errorStructure_ns2:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+            prefix: ns2
+          type: object
+          properties:
+            error:
+              type: array
+              items:
+                $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/errorDetail_ns2'
+        warningStructure_ns2:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+            prefix: ns2
+          type: object
+          properties:
+            warning:
+              type: array
+              items:
+                $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/warningDetail_ns2'
+        dimension_ns4:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: object
+          properties:
+            unitOfMeasure:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/unitOfMeasureType_ns5'
+            value:
+              type: number
+              format: float
+              description: The number that designates the quantity of the dimension. i.e. 5 centimeters.
+          description: >-
+            A dimension is a measure of spatial extent. It is a physical
+            property, such as mass, length, time, or a combination thereof,
+            regarded as a fundamental measure or as one of a set of fundamental
+            measures of a physical quantity.;
+
+            unitOfMeasure: A unit of measure is the reference value to select the
+            type of dimension being referenced. Sample values could be weight,
+            length, height, depth, etc.
+          required:
+            - unitOfMeasure
+            - value
+        document_ns3:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: string
+          description: Used in the digital representation of documents
+          x-nullable: true
+        referenceDataType_ns5:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: object
+          properties:
+            identifier:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3'
+            code:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3'
+            name:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/longName_ns3'
+            description:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/description_ns3'
+          description: >-
+            The reference data class gives a common structure which will be
+            adopted for all generic reference data. Reference data tends to be
+            'Qualifier' data (referenced in the data standards document on
+            Sharepoint). For example the expression Product Short Name; 'Short'
+            in this instance is the qualifier and could have a corresponding set
+            of reference values that could be used.;
+
+            identifier: ~Unique identifier for a Reference Data instance.;
+
+            code: The code is used as an identifier to recognize or establish
+            a particular person or thing. It is used to verify the identity of
+            the bearer of an identity.;
+
+            name: Name assorted with the code i.e. Name - United States for Code
+            - US.;
+
+            description: A description or the reference data item.
+        applicationId_ns2:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+            prefix: ns2
+          type: string
+          description: 'For a request, this is the ID of the Service Requester calling the service, unique when combined with the TransactionId. For the response, this is the ID of the Service Provider, unique when combined with the TransactionId.'
+          pattern: "[a-zA-Z0-9/\\-]*"
+          maxLength: 50
+          minLength: 1
+        errorDetail_ns2:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+            prefix: ns2
+          type: object
+          properties:
+            errorCode:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/errorCode_ns2'
+            errorDescription:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/description_ns3'
+            errorCause:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/description_ns3'
+            errorResolution:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/description_ns3'
+            errorContext:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/description_ns3_nil'
+          description: >-
+            errorCode: Code associated with the error condition;
+
+            errorDescription: Description of the error condition;
+
+            errorCause: Cause of the business error (if known);
+
+            errorResolution: Description of the resolution and action required to
+            correct the error;
+
+            errorContext: Context of the business error, e.g. client or server
+          required:
+            - errorCode
+            - errorDescription
+        warningDetail_ns2:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+            prefix: ns2
+          type: object
+          properties:
+            warningCode:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/warningCode_ns2'
+            warningDescription:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/description_ns3'
+            warningCause:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/description_ns3'
+            warningResolution:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/description_ns3'
+            warningContext:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/description_ns3_nil'
+          description: >-
+            warningCode: Code associated with the warning;
+
+            warningDescription: Description of the warning;
+
+            warningCause: Cause of the warning (if known);
+
+            warningResolution: Description of the resolution and action required
+            to correct the warning;
+
+            warningContext: Context of the warning, e.g. client or server
+          required:
+            - warningCode
+            - warningDescription
+        unitOfMeasureType_ns5:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: object
+          properties:
+            unitOfMeasureCode:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/referenceDataType_ns5'
+          description: >-
+            A unitOfMeasure represents is a definite magnitude of a physical
+            quantity, defined and adopted by convention or by law, that is used
+            as a standard for measurement of the same physical quantity. Any
+            other value of the physical quantity can be expressed as a simple
+            multiple of the unit of measure. For example, length is a physical
+            quantity. The metre is a unit of length that represents a definite
+            predetermined length. When we say 10 metres, we actually mean 10
+            times the definite predetermined length called “metre”.;
+
+            unitOfMeasureCode: A unitOfMeasure represents is a definite magnitude
+            of a physical quantity, defined and adopted by convention or by law,
+            that is used as a standard for measurement of the same physical
+            quantity. Any other value of the physical quantity can be expressed
+            as a simple multiple of the unit of measure. For example, length is
+            a physical quantity. The metre is a unit of length that represents
+            a definite predetermined length. When we say 10 metres, we actually
+            mean 10 times the definite predetermined length called “metre”.
+          required:
+            - unitOfMeasureCode
+        longName_ns3:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: string
+          description: 'A long name is a sub-type of string and is word or a combination of words by which an organization, place, or thing, a body or class, or any object of thought is designated, called, or known.'
+          maxLength: 128
+        warningCode_ns2:
+          xml:
+            namespace: 'http://www.royalmailgroup.com/integration/core/V1'
+            prefix: ns2
+          type: string
+          description: Code associated with the warning condition in the form WNNNN
+          pattern: '[W]{1}[0-9]{4}'
+        identifier_ns3_nil:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: string
+          description: An identifier is a sub-type of string which serves as a means of identification for a particular thing; An identifier can be associated with a name.
+          maxLength: 128
+          x-nullable: true
+        dateTime_ns3_nil:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: string
+          description: 'dateTime represents a period in time which could be a particular month, day, and year at which some event happened or will happen but also includes a breakdown of time using hours, minutes, seconds and milliseconds. A dateTime stamp is a common use for this data type so that a precise record of an event can be captured.'
+          format: date-time
+          x-nullable: true
+        referenceDataType_ns5_nil:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: object
+          properties:
+            identifier:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3'
+            code:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/identifier_ns3'
+            name:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/longName_ns3'
+            description:
+              $ref: '#/x-ibm-configuration/targets/TrackingAPIService/definitions/description_ns3'
+          description: >-
+            The reference data class gives a common structure which will be
+            adopted for all generic reference data. Reference data tends to be
+            'Qualifier' data (referenced in the data standards document on
+            Sharepoint). For example the expression Product Short Name; 'Short'
+            in this instance is the qualifier and could have a corresponding set
+            of reference values that could be used.;
+
+            identifier: ~Unique identifier for a Reference Data instance.;
+
+            code: The code is used as an identifier to recognize or establish
+            a particular person or thing. It is used to verify the identity of
+            the bearer of an identity.;
+
+            name: Name assorted with the code i.e. Name - United States for Code
+            - US.;
+
+            description: A description or the reference data item.
+          x-nullable: true
+        description_ns3_nil:
+          xml:
+            namespace: ''
+            prefix: ''
+          type: string
+          description: A description is a sub-type of string and is statement in words that gives an account or descriptive representation of a thing. Descriptions are only editable via an admin function and are for display and information purposes only for end users.
+          maxLength: 256
+          x-nullable: true
+tags: []
+definitions: {}
+securityDefinitions:
+  Client ID:
+    description: ''
+    in: header
+    name: X-IBM-Client-Id
+    type: apiKey
+  Client Secret:
+    type: apiKey
+    name: X-IBM-Client-Secret
+    in: header
+    description: ''
+consumes:
+  - application/xml
+  - text/xml
+  - application/soap+xml
+produces:
+  - application/xml
+  - text/xml
+  - application/soap+xml
+paths:
+  /getSingleItemSummary:
+    post:
+      description: Provides the latest track for a mail item.
+      tags: []
+      operationId: getSingleItemSummary
+      summary: ''
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            example: >-
+              <soapenv:Envelope
+              xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+              xmlns:v1="http://www.royalmailgroup.com/api/track/V1"
+              xmlns:v11="http://www.royalmailgroup.com/integration/core/V1">
+
+
+
+                 <soapenv:Header/>
+
+
+
+                 <soapenv:Body>
+
+
+
+                    <v1:getSingleItemSummaryRequest>
+
+
+
+                       <v1:integrationHeader>
+
+
+
+                          <v11:version>1.0</v11:version>
+
+
+
+                          <v11:identification>
+
+
+
+                             <v11:applicationId>111111113</v11:applicationId>
+
+
+
+                             <v11:transactionId>9876543210</v11:transactionId>
+
+
+
+                          </v11:identification>
+
+
+
+                       </v1:integrationHeader>
+
+
+
+                       <v1:trackingNumber>FJ111111111GB</v1:trackingNumber>
+
+
+
+                    </v1:getSingleItemSummaryRequest>
+
+
+
+                 </soapenv:Body>
+
+
+
+              </soapenv:Envelope>
+      x-ibm-soap:
+        soap-action: 'urn:getSingleItemSummary'
+        soap-operation: null
+      responses:
+        '200':
+          description: Generated Response Description
+          examples:
+            application/xml: "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n   <soapenv:Body>\n      <NS1:getSingleItemSummaryResponse xmlns:NS1=\"http://www.royalmailgroup.com/api/track/V1\">\n         <NS1:integrationHeader>\n            <NS3:version xmlns:NS3=\"http://www.royalmailgroup.com/integration/core/V1\">1.0</NS3:version>\n            <NS4:identification xmlns:NS4=\"http://www.royalmailgroup.com/integration/core/V1\">\n               <NS4:applicationId>111111113</NS4:applicationId>\n               <NS4:transactionId>9876543210</NS4:transactionId>\n            </NS4:identification>\n         </NS1:integrationHeader>\n         <NS1:itemSummary>\n            <NS1:eventDate>2013-12-26</NS1:eventDate>\n            <NS1:eventTime>14:48:00</NS1:eventTime>\n            <NS1:statusCode>\n               <code>EVAPA</code>\n            </NS1:statusCode>\n            <NS1:summaryLine>The sender has advised us that item FJ108115259GB will be posted into the Royal Mail network on the 2013-12-27.</NS1:summaryLine>\n            <NS1:trackingNumber>FJ111111111GB</NS1:trackingNumber>\n            <NS1:header>Please come back later</NS1:header>\n\t\t<NS1:footer/>\n         </NS1:itemSummary>\n         <NS1:integrationFooter>\n            <NS7:errors xmlns:NS7=\"http://www.royalmailgroup.com/integration/core/V1\"/>\n            <NS8:warnings xmlns:NS8=\"http://www.royalmailgroup.com/integration/core/V1\"/>\n         </NS1:integrationFooter>\n      </NS1:getSingleItemSummaryResponse>\n   </soapenv:Body>\n</soapenv:Envelope>"
+      security:
+        - Client ID: []
+          Client Secret: []
+  /getMultiItemSummary:
+    post:
+      description: Provides the latest summary level tracking event data for up to 5 mail items at the same time.
+      tags: []
+      operationId: getMultiItemSummary
+      summary: ''
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            example: >-
+              <soapenv:Envelope
+              xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+              xmlns:v1="http://www.royalmailgroup.com/api/track/V1"
+              xmlns:v11="http://www.royalmailgroup.com/integration/core/V1">
+
+
+
+                 <soapenv:Header/>
+
+
+
+                 <soapenv:Body>
+
+
+
+                    <v1:getMultiItemSummaryRequest>
+
+
+
+                       <v1:integrationHeader>
+
+
+
+                          <v11:dateTime>2013-12-28T02:49:45</v11:dateTime>
+
+
+
+                          <v11:version>1.0</v11:version>
+
+
+
+                          <v11:identification>
+
+
+
+                             <v11:applicationId>111111113</v11:applicationId>
+
+
+
+                             <v11:transactionId>9876543210</v11:transactionId>
+
+
+
+                          </v11:identification>
+
+
+
+                       </v1:integrationHeader>
+
+
+
+                       <v1:trackingNumbers>
+
+
+
+                          <v1:trackingNumber>FJ111111111GB</v1:trackingNumber>
+
+
+
+                          <v1:trackingNumber>JA222222222GB</v1:trackingNumber>
+
+
+
+                          <v1:trackingNumber>FJ333333333GB</v1:trackingNumber>
+
+
+
+                          <v1:trackingNumber>FJ444444444GB</v1:trackingNumber>
+
+
+
+                          <v1:trackingNumber>FL555555555GB</v1:trackingNumber>
+
+
+
+                       </v1:trackingNumbers>
+
+
+
+                    </v1:getMultiItemSummaryRequest>
+
+
+
+                 </soapenv:Body>
+
+
+
+              </soapenv:Envelope>
+      x-ibm-soap:
+        soap-action: 'urn:getMultiItemSummary'
+        soap-operation: null
+      responses:
+        '200':
+          description: Generated Response Description
+          examples:
+            application/xml: >-
+              <soapenv:Envelope
+              xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+
+
+
+                 <soapenv:Body>
+
+
+
+                    <NS1:getMultiItemSummaryResponse
+
+              xmlns:NS1="http://www.royalmailgroup.com/api/track/V1">
+
+
+
+                       <NS1:integrationHeader>
+
+
+
+                          <NS2:dateTime
+
+              xmlns:NS2="http://www.royalmailgroup.com/integration/core/V1">2013-12-28T02:49:45</NS2:dateTime>
+
+
+
+                          <NS3:version
+
+              xmlns:NS3="http://www.royalmailgroup.com/integration/core/V1">1.0</NS3:version>
+
+
+
+                          <NS4:identification
+
+              xmlns:NS4="http://www.royalmailgroup.com/integration/core/V1">
+
+
+
+                          <NS4:applicationId>111111113</NS4:applicationId>
+
+
+
+                          <NS4:transactionId>9876543210</NS4:transactionId>
+
+
+
+                          </NS4:identification>
+
+
+
+                       </NS1:integrationHeader>
+
+
+
+                       <NS1:itemSummaries>
+
+
+
+                          <NS1:itemSummary>
+
+
+
+                             <NS1:eventDate>2013-12-20</NS1:eventDate>
+
+
+
+                             <NS1:eventTime>12:03:00</NS1:eventTime>
+
+
+
+                             <NS1:statusCode>
+
+
+
+                                <code>EVKSP</code>
+
+
+
+                             </NS1:statusCode>
+
+
+
+                             <NS1:summaryLine>We have a record of item
+
+              FJ111111111GB as being delivered from London East Mail Centre on
+              2013-12-20.</NS1:summaryLine>
+
+
+
+                             <NS1:trackingNumber>FJ111111111GB</NS1:trackingNumber>
+
+
+
+                             <NS1:header>Delivered</NS1:header>
+
+
+
+                          </NS1:itemSummary>
+
+
+
+                          <NS1:itemSummary>
+
+
+
+                             <NS1:eventDate>2013-12-20</NS1:eventDate>
+
+
+
+                             <NS1:eventTime>11:59:00</NS1:eventTime>
+
+
+
+                             <NS1:statusCode>
+
+
+
+                                <code>EVKSP</code>
+
+
+
+                             </NS1:statusCode>
+
+
+
+                             <NS1:summaryLine>We have a record of item
+
+              JA222222222GB as being delivered from London East Mail Centre on
+              2013-12-20.</NS1:summaryLine>
+
+
+
+                             <NS1:trackingNumber>JA222222222GB</NS1:trackingNumber>
+
+
+
+                             <NS1:header>Delivered</NS1:header>
+
+
+
+                          </NS1:itemSummary>
+
+
+
+                          <NS1:itemSummary>
+
+
+
+                             <NS1:eventDate>2013-12-12</NS1:eventDate>
+
+
+
+                             <NS1:eventTime>14:48:00</NS1:eventTime>
+
+
+
+                             <NS1:statusCode>
+
+
+
+                                <code>EVAPA</code>
+
+
+
+                             </NS1:statusCode>
+
+
+
+                             <NS1:summaryLine>The sender has advised us that
+              item
+
+              FJ333333333GB will be posted into the Royal Mail network on the
+              2013-12-29.</NS1:summaryLine>
+
+
+
+                             <NS1:trackingNumber>FJ333333333GB</NS1:trackingNumber>
+
+
+
+                             <NS1:header>Please come back later</NS1:header>
+
+
+
+                          </NS1:itemSummary>
+
+
+
+                          <NS1:itemSummary>
+
+
+
+                             <NS1:eventDate>2013-12-12</NS1:eventDate>
+
+
+
+                             <NS1:eventTime>14:48:00</NS1:eventTime>
+
+
+
+                             <NS1:statusCode>
+
+
+
+                                <code>EVAPA</code>
+
+
+
+                             </NS1:statusCode>
+
+
+
+                             <NS1:summaryLine>The sender has advised us that
+              item
+
+              FJ444444444GB will be posted into the Royal Mail network on the
+              2013-12-29.</NS1:summaryLine>
+
+
+
+                             <NS1:trackingNumber>FJ444444444GB</NS1:trackingNumber>
+
+
+
+                             <NS1:header>Please come back later</NS1:header>
+
+
+
+                          </NS1:itemSummary>
+
+
+
+                          <NS1:itemSummary>
+
+
+
+                             <NS1:eventDate>2013-12-12</NS1:eventDate>
+
+
+
+                             <NS1:eventTime>14:37:00</NS1:eventTime>
+
+
+
+                             <NS1:statusCode>
+
+
+
+                                <code>EVAPA</code>
+
+
+
+                             </NS1:statusCode>
+
+
+
+                             <NS1:summaryLine>The sender has advised us that
+              item
+
+              FL555555555GB will be posted into the Royal Mail network on the
+              2013-12-29.</NS1:summaryLine>
+
+
+
+                             <NS1:trackingNumber>FL555555555GB</NS1:trackingNumber>
+
+
+
+                             <NS1:header>Please come back later</NS1:header>
+
+
+
+                          </NS1:itemSummary>
+
+
+
+                       </NS1:itemSummaries>
+
+
+
+                       <NS1:integrationFooter>
+
+
+
+                          <NS7:errors
+
+              xmlns:NS7="http://www.royalmailgroup.com/integration/core/V1"/>
+
+
+
+                          <NS8:warnings
+
+              xmlns:NS8="http://www.royalmailgroup.com/integration/core/V1"/>
+
+
+
+                       </NS1:integrationFooter>
+
+
+
+                    </NS1:getMultiItemSummaryResponse>
+
+
+
+                 </soapenv:Body>
+
+
+
+              </soapenv:Envelope>
+      security:
+        - Client ID: []
+          Client Secret: []
+  /getSingleItemHistory:
+    post:
+      description: Provides a history of tracks for a single mail item.
+      tags: []
+      operationId: getSingleItemHistory
+      summary: ''
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            example: >-
+              <soapenv:Envelope
+              xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+              xmlns:v1="http://www.royalmailgroup.com/api/track/V1"
+              xmlns:v11="http://www.royalmailgroup.com/integration/core/V1">
+
+
+
+                 <soapenv:Header/>
+
+
+
+                 <soapenv:Body>
+
+
+
+                    <v1:getSingleItemHistoryRequest>
+
+
+
+                       <v1:integrationHeader>
+
+
+
+                          <v11:dateTime>2014-01-06T02:49:45</v11:dateTime>
+
+
+
+                          <v11:version>1.0</v11:version>
+
+
+
+                          <v11:identification>
+
+
+
+                             <v11:applicationId>0123456789</v11:applicationId>
+
+
+
+                             <v11:transactionId>12</v11:transactionId>
+
+
+
+                          </v11:identification>
+
+
+
+                       </v1:integrationHeader>
+
+
+
+                       <v1:trackingNumber>FJ111111111GB</v1:trackingNumber>
+
+
+
+                    </v1:getSingleItemHistoryRequest>
+
+
+
+                 </soapenv:Body>
+
+
+
+              </soapenv:Envelope>
+      x-ibm-soap:
+        soap-action: 'urn:getSingleItemHistory'
+        soap-operation: null
+      responses:
+        '200':
+          description: Generated Response Description
+          examples:
+            application/xml: "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\">\n   <soapenv:Body>\n      <NS1:getSingleItemHistoryResponse xmlns:NS1=\"http://www.royalmailgroup.com/api/track/V1\">\n         <NS1:integrationHeader>\n            <NS2:dateTime xmlns:NS2=\"http://www.royalmailgroup.com/integration/core/V1\">2008-09-29T02:49:45</NS2:dateTime>\n            <NS3:version xmlns:NS3=\"http://www.royalmailgroup.com/integration/core/V1\">1</NS3:version>\n            <NS4:identification xmlns:NS4=\"http://www.royalmailgroup.com/integration/core/V1\">\n               <NS4:dateTime>2014-01-06T02:49:45</NS4:dateTime>\n               <NS4:version>1.0</NS4:version>\n               <NS4:applicationId>0123456789</NS4:applicationId>\n               <NS4:transactionId>12</NS4:transactionId>\n            </NS4:identification>\n         </NS1:integrationHeader>\n         <NS1:trackDetail>\n            <NS1:trackDate>2013-12-26</NS1:trackDate>\n\t\t<NS1:trackPoint>London East Mail Centre</NS1:trackPoint>\n            <NS1:trackTime>14:48:45</NS1:trackTime>\n            <NS1:header>Delivered</NS1:header>\n\t\t<NS1:footer>\n\t\t\t<NS1:footerID>1024</NS1:footerID>\n\t\t\t<NS1:footerText>Thank you for using this service</NS1:footerText>\n\t\t</NS1:footer>\n         </NS1:trackDetail>\n         <NS1:integrationFooter>\n            <NS7:errors xmlns:NS7=\"http://www.royalmailgroup.com/integration/core/V1\"/>\n            <NS8:warnings xmlns:NS8=\"http://www.royalmailgroup.com/integration/core/V1\"/>\n         </NS1:integrationFooter>\n      </NS1:getSingleItemHistoryResponse>\n   </soapenv:Body>\n</soapenv:Envelope>"
+      security:
+        - Client ID: []
+          Client Secret: []
+  /getProofOfDelivery:
+    post:
+      description: Provides the details captured at the point of delivery as proof that delivery has occurred. Note that a proof of delivery is only captured by the delivery track for those service offerings that require a signature on delivery. Please also note that for data protection reasons the API does not currently supply the signature image captured at the point of delivery.
+      tags: []
+      operationId: getProofOfDelivery
+      summary: ''
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            type: object
+            example: >-
+              <soapenv:Envelope
+              xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+              xmlns:v1="http://www.royalmailgroup.com/api/track/V1"
+              xmlns:v11="http://www.royalmailgroup.com/integration/core/V1">
+
+
+
+                 <soapenv:Header/>
+
+
+
+                 <soapenv:Body>
+
+
+
+                    <v1:getProofOfDeliveryRequest>
+
+
+
+                       <v1:integrationHeader>
+
+
+
+                          <v11:version>1.0</v11:version>
+
+
+
+                          <v11:identification>
+
+
+
+                             <v11:applicationId>111111113</v11:applicationId>
+
+
+
+                             <v11:transactionId>9876543210</v11:transactionId>
+
+
+
+                          </v11:identification>
+
+
+
+                       </v1:integrationHeader>
+
+
+
+                       <v1:trackingNumber>JW034599725GB</v1:trackingNumber>
+
+
+
+                    </v1:getProofOfDeliveryRequest>
+
+
+
+                 </soapenv:Body>
+
+
+
+              </soapenv:Envelope>
+      x-ibm-soap:
+        soap-action: 'urn:getProofOfDelivery'
+        soap-operation: null
+      responses:
+        '200':
+          description: Generated Response Description
+          examples:
+            application/xml: >-
+              <soapenv:Envelope
+              xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+
+
+
+                 <soapenv:Body>
+
+
+
+                    <NS1:getProofOfDeliveryResponse
+
+              xmlns:NS1="http://www.royalmailgroup.com/api/track/V1">
+
+
+
+                       <NS1:integrationHeader>
+
+
+
+                          <NS2:dateTime
+
+              xmlns:NS2="http://www.royalmailgroup.com/integration/core/V1">2015-11-24T10:30:04</NS2:dateTime>
+
+
+
+                          <NS3:version
+
+              xmlns:NS3="http://www.royalmailgroup.com/integration/core/V1">1</NS3:version>
+
+
+
+                          <NS4:identification
+
+              xmlns:NS4="http://www.royalmailgroup.com/integration/core/V1">
+
+
+
+                             <NS4:applicationId>0127229000</NS4:applicationId>
+
+
+
+                             <NS4:transactionId>12</NS4:transactionId>
+
+
+
+                          </NS4:identification>
+
+
+
+                       </NS1:integrationHeader>
+
+
+
+                       <NS1:wSImageResponse>
+
+
+
+                          <NS1:height>
+
+
+
+                             <unitOfMeasure>
+
+
+
+                                <unitOfMeasureCode>
+
+
+
+                                   <code>px</code>
+
+
+
+                                   <name>pixel</name>
+
+
+
+                                </unitOfMeasureCode>
+
+
+
+                             </unitOfMeasure>
+
+
+
+                             <value>129</value>
+
+
+
+                          </NS1:height>
+
+
+
+                          <NS1:printedName>GAMMY</NS1:printedName>
+
+
+
+                          <NS1:signatureTime>2015-11-09T00:00:00</NS1:signatureTime>
+
+
+
+                          <NS1:trackingNumber>JA011550729GB</NS1:trackingNumber>
+
+
+
+                          <NS1:width>
+
+
+
+                             <unitOfMeasure>
+
+
+
+                                <unitOfMeasureCode>
+
+
+
+                                   <code>px</code>
+
+
+
+                                   <name>pixel</name>
+
+
+
+                                </unitOfMeasureCode>
+
+
+
+                             </unitOfMeasure>
+
+
+
+                             <value>231</value>
+
+
+
+                          </NS1:width>
+
+
+
+                       </NS1:wSImageResponse>
+
+
+
+                       <NS1:integrationFooter>
+
+
+
+                          <NS5:errors
+
+              xmlns:NS5="http://www.royalmailgroup.com/integration/core/V1"/>
+
+
+
+                          <NS6:warnings
+
+              xmlns:NS6="http://www.royalmailgroup.com/integration/core/V1"/>
+
+
+
+                       </NS1:integrationFooter>
+
+
+
+                    </NS1:getProofOfDeliveryResponse>
+
+
+
+                 </soapenv:Body>
+
+
+
+              </soapenv:Envelope>
+      security:
+        - Client ID: []
+          Client Secret: []
+security: []

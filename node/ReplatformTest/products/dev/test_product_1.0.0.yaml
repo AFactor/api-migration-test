@@ -1,0 +1,33 @@
+product: 1.0.0
+info:
+  name: test
+  title: Test Product
+  version: 1.0.0
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  javascript:
+    $ref: javascript_1.0.0.yaml
+  jwtapi:
+    $ref: jwtapi_1.0.0.yaml
+plans:
+  gold:
+    title: gold
+    approval: true
+    apis: {}
+  silver:
+    title: silver
+    description: Default Plan
+    approval: false
+    rate-limit:
+      hard-limit: true
+      value: 10/1second

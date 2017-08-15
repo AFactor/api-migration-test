@@ -1,0 +1,103 @@
+swagger: '2.0'
+info:
+  x-ibm-name: rmgpocstubbed
+  title: RMG_POC_STUBBED
+  version: Jack
+schemes:
+  - https
+host: $(catalog.host)
+basePath: /rmgpocstubbedjack
+consumes:
+  - application/xml
+  - application/json
+produces:
+  - application/xml
+  - application/json
+securityDefinitions:
+  clientIdHeader:
+    type: apiKey
+    in: header
+    name: X-IBM-Client-Id
+security:
+  - clientIdHeader: []
+x-ibm-configuration:
+  testable: true
+  enforced: true
+  cors:
+    enabled: true
+  assembly:
+    execute:
+      - operation-switch:
+          title: operation-switch
+          case:
+            - operations:
+                - verb: post
+                  path: /jack
+              execute:
+                - xml-to-json:
+                    title: xml-to-json
+                    version: 1.0.0
+                    description: a
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "var apim = require('./apim.custom.js');\n\napim.readInputAsJSON(function (error, json) {\n\tif(error) {\n\t\tconsole.error(\"An error occured reading the input as JSON: \" + error);\n\t} else {\n\t\tapim.setvariable('jacktest.TrackingNumber', json.AmazonTrackingRequest.TrackingNumber.$);\n\t}\n});\n\n//\t\tconsole.error(apim.getvariable('jacktest.TrackingNumber'));\n"
+                - invoke:
+                    title: invoke
+                    timeout: 60
+                    verb: GET
+                    cache-response: protocol
+                    cache-ttl: 900
+                    stop-on-error: []
+                    version: 1.0.0
+                    target-url: 'https://jacktest.eu-gb.mybluemix.net/mappingfilefull'
+                    output: dictionary
+                - invoke:
+                    title: invoke
+                    timeout: 60
+                    verb: GET
+                    cache-response: protocol
+                    cache-ttl: 900
+                    stop-on-error: []
+                    version: 1.0.0
+                    target-url: 'https://jacktest.eu-gb.mybluemix.net/eventsuccess?trackingnumber=$(jacktest.TrackingNumber)'
+                    output: eventsresponse
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "var apim = require('./apim.custom.js');\nvar dictionary = apim.getvariable('dictionary');\nvar eventsResponse = apim.getvariable('eventsresponse.body');\nvar errorDictionary = {\n\t\"E0007\": {\n\t\t\"ErrorDetailCode\": \"201\",\n\t\t\"ErrorDetailCodeDesc\": \"INVALID USERID/PASSWORD\"\n\t},\n\t\"E0000\": {\n\t\t\"ErrorDetailCode\": \"301\",\n\t\t\"ErrorDetailCodeDesc\": \"TRACKING SERVICE NOT AVAILABLE\"\n\t},\n\t\"E0010\": {\n\t\t\"ErrorDetailCode\": \"301\",\n\t\t\"ErrorDetailCodeDesc\": \"TRACKING SERVICE NOT AVAILABLE\"\n\t},\n\t\"E0004\": {\n\t\t\"ErrorDetailCode\": \"204\",\n\t\t\"ErrorDetailCodeDesc\": \"XML DOCUMENT NOT VALID\"\n\t},\n\t\"E0005\": {\n\t\t\"ErrorDetailCode\": \"301\",\n\t\t\"ErrorDetailCodeDesc\": \"TRACKING SERVICE NOT AVAILABLE\"\n\t},\n\t\"E1144\": {\n\t\t\"ErrorDetailCode\": \"102\",\n\t\t\"ErrorDetailCodeDesc\": \"NO TRACKING INFO FOUND\"\n\t},\n\t\"E1145\": {\n\t\t\"ErrorDetailCode\": \"102\",\n\t\t\"ErrorDetailCodeDesc\": \"NO TRACKING INFO FOUND\"\n\t},\n\t\"E1283\": {\n\t\t\"ErrorDetailCode\": \"102\",\n\t\t\"ErrorDetailCodeDesc\": \"NO TRACKING INFO FOUND\"\n\t},\n\t\"E1284\": {\n\t\t\"ErrorDetailCode\": \"102\",\n\t\t\"ErrorDetailCodeDesc\": \"NO TRACKING INFO FOUND\"\n\t},\n\t\"E1142\": {\n\t\t\"ErrorDetailCode\": \"101\",\n\t\t\"ErrorDetailCodeDesc\": \"INVALID TRACKING NUMBER\"\n\t}\n};\n\nif(eventsResponse.integrationFooter) {\n\tbuildOutputErrorMessage(eventsResponse, function (errorResponse) {\n\t\tsession.output.write(errorResponse);\n\t\tapim.output('application/json');\n\t});\n} else {\n\tbuildOutputMessage(eventsResponse, function (response) {\n\t\tsession.output.write(response);\n\t\tapim.output('application/json');\n\t});\n}\n\nfunction buildOutputErrorMessage(response, callback) {\n\tvar errorTrackingNo = apim.getvariable('jacktest.TrackingNumber');\n\tlookupErrorCode(response.integrationFooter.errors.error[0].errorCode, function (errorObject) {\n\t\tif(errorObject.lookupfailed) {\n\t\t\tconsole.log(\"Failed to find corresponding error detail for code: \" + response.integrationFooter.errors.error[0].errorCode);\n\t\t\treturn callback({\n\t\t\t\t\"Error\": \"Could not find error\"\n\t\t\t});\n\t\t}\n\t\tvar errorTemplate = {\n\t\t\t\"AmazonTrackingResponse\": {\n\t\t\t\t\"APIVersion\": \"4.0\",\n\t\t\t\t\"TrackingErrorInfo\": {\n\t\t\t\t\t\"TrackingNumber\": errorTrackingNo,\n\t\t\t\t\t\"TrackingErrorDetail\": {\n\t\t\t\t\t\t\"ErrorDetailCode\": errorObject.ErrorDetailCode,\n\t\t\t\t\t\t\"ErrorDetailCodeDesc\": errorObject.ErrorDetailCodeDesc\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t}\n\t\t};\n\t\tconsole.error(errorTemplate);\n\t\treturn callback(errorTemplate);\n\t});\n}\n\nfunction buildOutputMessage(response, callback) {\n\tvar template = {\n\t\t\"AmazonTrackingResponse\": {\n\t\t\t\"APIVersion\": \"4.0\",\n\t\t\t\"PackageTrackingInfo\": {\n\t\t\t\t\"TrackingNumber\": \"\",\n\t\t\t\t\"PackageDestinationLocation\": {\n\t\t\t\t\t\"City\": \"\",\n\t\t\t\t\t\"CountryCode\": \"\"\n\t\t\t\t},\n\t\t\t\t\"TrackingEventHistory\": []\n\t\t\t}\n\t\t}\n\t};\n\tif(response.mailPieces.summary.oneDBarcode) {\n\t\ttemplate.AmazonTrackingResponse.PackageTrackingInfo.TrackingNumber = response.mailPieces.summary.oneDBarcode;\n\t}\n\t// IF THERE IS AN EVENTS ARRAY, POPULATE THE EVENT DETAILS FROM THIS\n\tif(response.mailPieces.events) {\n\t\tresponse.mailPieces.events.forEach(function (element, index) {\n\t\t\tlookupCode(element.eventCode, function (lookupResult) {\n\t\t\t\tif(!element.CountryCode) {\n\t\t\t\t\telement.CountryCode = '';\n\t\t\t\t}\n\t\t\t\tif(!element.locationName) {\n\t\t\t\t\telement.locationName = '';\n\t\t\t\t}\n\t\t\t\tif(lookupResult.lookupfailed) {\n\t\t\t\t\tconsole.log(\"Failed to find corresponding event status and reason for code: \" + element.eventCode);\n\t\t\t\t\treturn;\n\t\t\t\t}\n\t\t\t\tconsole.log(lookupResult);\n\t\t\t\tvar trackingEventDetail = {\n\t\t\t\t\tTrackingEventDetail: {\n\t\t\t\t\t\t\"EventStatus\": lookupResult[\"Event Status\"],\n\t\t\t\t\t\t\"EventReason\": lookupResult[\"Event Reason\"],\n\t\t\t\t\t\t\"EventDateTime\": element.eventDateTime,\n\t\t\t\t\t\t\"EventLocation\": {\n\t\t\t\t\t\t\t\"City\": element.locationName,\n\t\t\t\t\t\t\t\"CountryCode\": element.CountryCode\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t};\n\t\t\t\ttemplate.AmazonTrackingResponse.PackageTrackingInfo.TrackingEventHistory.push(trackingEventDetail);\n\t\t\t\treturn callback(template);\n\t\t\t});\n\t\t});\n\t\tconsole.log(JSON.stringify(template, null, 2));\n\t\t// IF THERE IS NO EVENTS ARRAY BUT THERE IS A SUMMARY, POPULATE THE EVENT DETAIL FROM THIS\n\t} else if(!response.mailPieces.events && response.mailPieces.summary) {\n\t\tlookupCode(response.mailPieces.summary.lastEventCode, function (lookupResult) {\n\t\t\tif(!response.mailPieces.summary.lastEventCountryCode) {\n\t\t\t\tresponse.mailPieces.summary.lastEventCountryCode = \"\";\n\t\t\t}\n\t\t\tif(!response.mailPieces.summary.lastEventLocationName) {\n\t\t\t\tresponse.mailPieces.summary.lastEventLocationName = \"\";\n\t\t\t}\n\t\t\tif(lookupResult.lookupfailed) {\n\t\t\t\tconsole.log(\"Failed to find corresponding event status and reason for code: \" + response.mailPieces.summary.lastEventCode);\n\t\t\t\treturn;\n\t\t\t}\n\t\t\tvar trackingEventDetail = {\n\t\t\t\tTrackingEventDetail: {\n\t\t\t\t\t\"EventStatus\": lookupResult[\"Event Status\"],\n\t\t\t\t\t\"EventReason\": lookupResult[\"Event Reason\"],\n\t\t\t\t\t\"EventDateTime\": response.mailPieces.summary.lastEventDateTime,\n\t\t\t\t\t\"EventLocation\": {\n\t\t\t\t\t\t\"City\": response.mailPieces.summary.lastEventLocationName,\n\t\t\t\t\t\t\"CountryCode\": response.mailPieces.summary.lastEventCountryCode\n\t\t\t\t\t}\n\t\t\t\t}\n\t\t\t};\n\t\t\ttemplate.AmazonTrackingResponse.PackageTrackingInfo.TrackingEventHistory.push(trackingEventDetail);\n\t\t\treturn callback(template);\n\t\t});\n\t\t// IF THERE IS NO EVENTS ARRAY AND NO SUMMARY, SOMETHING HAS PROBABLY GONE WRONG\n\t} else {\n\t\tconsole.log('no events');\n\t\treturn callback({\n\t\t\t\"Error\": \"Could not find event history\"\n\t\t});\n\t}\n}\n\nfunction lookupCode(eventCode, callback) {\n\tvar eventObject;\n\tif(dictionary.body[eventCode]) {\n\t\teventObject = dictionary.body[eventCode];\n\t} else if(eventCode.match(/RM[a-zA-Z0-9]A/)) {\n\t\teventObject = dictionary.body[\"RM*A\"];\n\t} else if(eventCode.match(/RM[a-zA-Z0-9]I/)) {\n\t\teventObject = dictionary.body[\"RM*I\"];\n\t} else if(eventCode.match(/RM[a-zA-Z0-9]P/)) {\n\t\teventObject = dictionary.body[\"RM*P\"];\n\t} else {\n\t\t// Return Stock response / error\n\t\treturn callback({\n\t\t\t\"lookupfailed\": true\n\t\t});\n\t}\n\treturn callback(eventObject);\n}\n\nfunction lookupErrorCode(errorCode, callback) {\n\tvar eventObject;\n\tif(errorDictionary[errorCode]) {\n\t\teventObject = errorDictionary[errorCode];\n\t} else {\n\t\treturn callback({\n\t\t\t\"lookupfailed\": true\n\t\t});\n\t}\n\treturn callback(eventObject);\n}\n"
+                - json-to-xml:
+                    title: json-to-xml
+                    root-element-name: json
+                    always-output-root-element: false
+                    version: 1.0.0
+          otherwise: []
+          version: 1.0.0
+    catch: []
+  phase: realized
+paths:
+  /namespaces:
+    post:
+      responses:
+        '200':
+          description: 200 OK
+      parameters:
+        - name: body
+          required: true
+          in: body
+          schema:
+            type: object
+  /jack:
+    post:
+      responses:
+        '200':
+          description: 200 OK
+      parameters:
+        - name: amazonRequest
+          required: true
+          in: body
+          description: The request that would come from amazon
+          schema:
+            type: object
+definitions: {}
+tags: []

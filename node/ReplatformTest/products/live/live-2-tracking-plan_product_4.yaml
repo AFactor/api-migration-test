@@ -1,0 +1,35 @@
+product: 1.0.0
+info:
+  title: Live-2 Tracking Plan
+  version: '4'
+  description: Plan to be used for restricting customer access to API
+  name: live-2-tracking-plan
+apis:
+  tracking-api-live-soap:
+    $ref: tracking-api-live-soap_1-rev7.yaml
+  tracking-api-live-rest:
+    $ref: tracking-api-live-rest_1-rev12.yaml
+plans:
+  live-2-tracking-plan:
+    title: Live-2 Tracking Plan
+    description: Plan to be used for restricting customer access to API
+    approval: false
+    apis:
+      tracking-api-live-soap:
+        operations:
+          - path: /getMultiItemSummary
+            operation: post
+          - path: /getProofOfDelivery
+            operation: post
+          - path: /getSingleItemHistory
+            operation: post
+          - path: /getSingleItemSummary
+            operation: post
+      tracking-api-live-rest:
+        operations:
+          - path: '/{trackingNumber}/proofOfDelivery'
+            operation: get
+          - path: '/{trackingNumber}/history'
+            operation: get
+          - path: '/{trackingNumber}/summary'
+            operation: get

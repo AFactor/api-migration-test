@@ -1,0 +1,1850 @@
+swagger: '2.0'
+info:
+  x-ibm-name: rmg-tracking-api-v2-rest-b2b-browser
+  title: RMG Tracking API V2 (REST) B2B Browser
+  version: 1.0.42-sit
+  description: "The Royal Mail Tracking API V2 B2B Browser exposes a web service that allows account customers to receive track-and-trace information for their mail items. \n\nThe API is backend for ebusiness and Post Office track and trace webapps of the Royal Mail website (http://www.royalmail.com/track-trace) For  B2B logged in users , this API providing summary for latest mailPieceIds , options to get details of a mailPiecesId and proof of image."
+  contact: {}
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  Client-Id-Query:
+    type: apiKey
+    description: ''
+    in: query
+    name: client_id
+  Client-Id-Header:
+    type: apiKey
+    description: ''
+    in: header
+    name: X-IBM-Client-Id
+x-ibm-configuration:
+  testable: true
+  enforced: true
+  cors:
+    enabled: false
+  assembly:
+    execute:
+      - set-variable:
+          title: set-variable
+          actions:
+            - value: '{ "alg": "HS256",   "kty": "oct",   "use": "sig",   "k": "ycsjclSb2dcdnJ-VobQLWeXBYUsFsPS8MddhqQ9N0d1CWWMms0FQH70SJQX2RcrTamhzyNniXtbLf47qDLJ6JI75oU-uUTHstpyzON1FQtpHIGajMaScIn4ZdT9pzgVwR7Ll1y_9wGBLeLW5Pqy0MhQDUO62BTB8hJ6CE8S9y4WwwrPD5Zj-jNDlSeZyAFnaa573SyITxwgDuMHgmIuKkt02ByWhS2mrTKCSOfdPIP_QdUPqbyixOji8A5fsoO65gAxzxvVfZNN4JgwHGRfllj5lH1nljL0MYlWGJ7i5iqvxp0-EAKgiHf8QsRWNXbpp03mGCXsz2XpnO6P9Kx7abw",   "kid": "hs256-key" }'
+              add: hs256-key
+          version: 1.0.0
+      - gatewayscript:
+          title: gatewayscript
+          version: 1.0.0
+          source: "var inHeaders = apim.getvariable('request.headers');\r\nvar isError = false;\r\nvar origin = inHeaders.origin;\r\n\r\nif(testDomain(origin)===false){\r\n    var errResp = {\"httpCode\":\"401\",\r\n    \"httpMessage\":\"Unauthorized\",\r\n    \"moreInformation\":\"Not authorized to invoke\"};\r\n    apim.setvariable('errResp',errResp);\r\n    apim.setvariable(\"httpCode\",'401');\r\n    isError = true;\r\n    apim.setvariable('isError',isError);\r\n}\r\n\r\n//Check for limit\r\nvar limit = apim.getvariable('request.parameters.limit');\r\nvar schemaFail = false;\r\nif(limit){\r\n    apim.setvariable('limit',limit);\r\n    if(!(isInt(limit))){\r\n        schemaFail = true;\r\n    }else if(limit<1 || limit > 30){\r\n        schemaFail = true;\r\n    }\r\n}else{\r\n    apim.setvariable('limit','30');\r\n}\r\n\r\n\r\n\r\nif(schemaFail===true){\r\n\tvar errResp = {           \r\n         \"httpCode\": \"400\",\r\n         \"httpMessage\": \"Bad Request\",  \r\n         \"errors\": \r\n                 {\r\n                          \"errorCode\": \"E0004\",\r\n                          \"errorDescription\": \"Failed schema validation\", \r\n                          \"errorCause\": \"The submitted request was not valid against the published schema definition\",\r\n                          \"errorResolution\": \"Please check the API request against the schema definition and re-submit\"\r\n                 } \r\n         };\r\n        apim.setvariable('errResp',errResp);\r\n        apim.setvariable(\"httpCode\",'400');\r\n        isError = true;\r\n        apim.setvariable('isError',isError);\r\n}\r\n\r\napim.setvariable('request.headers.access-control-allow-headers',\"x-ibm-client-id,x-recaptcha-response,X-RMG-Language,x-recaptcha-session,origin,X-Requested-With,Content-Type,Accept\");\r\nfunction testDomain(url){\r\n\t//Check if url contains a //\r\n\tvar domain;\r\n\tif(url.match(new RegExp(\"//(.*)/\"))){\r\n\t\t//Extract the rest of the string after // to /\r\n\t\tdomain = url.match(new RegExp(\"//(.*)/\"))[1];\r\n\t}else if(url.match(new RegExp(\"//(.*)\"))){\r\n\t\t//Extract the rest of the string after // to /\r\n\t\tdomain = url.match(new RegExp(\"//(.*)\"))[1];\r\n\t}else if(url.match(new RegExp(\"(.*)/\"))){\r\n\t\t//Extract from the starting of the string till a /\r\n\t\tdomain = url.match(new RegExp(\"(.*)/\"))[1];\r\n\t}else{\r\n\t    domain = url;\r\n\t}\r\n\treturn endsWith(domain);\r\n};\r\n\r\nfunction endsWith(str) {\r\n\tvar allowedDomains = [\"postoffice.co.uk\",\"royalmail.com\",\"ibmcloud.com\",\"royalmail.net\",\"maglocal.com\",\"int-hf.environment.app.vdc\",\"ipt-dev.environment.app.vdc\",\"localhost\"];\r\n\tfor(var i =0;i<allowedDomains.length;i++){\r\n\t\tvar suffix = allowedDomains[i];\r\n\t\tif(str.indexOf(suffix, str.length - suffix.length) !== -1){\r\n\t\t\treturn true;\r\n\t\t}\r\n\t}\r\n    return false;\r\n};\r\nfunction isInt(value) {\r\n  var strx = value.toString();\r\n  return !isNaN(value) && !containsSpaces(value) && !isDecimal(value);\r\n};\r\nfunction isDecimal(string){\r\n    var isDecimal = string.match(/^[+-]?\\d+(\\.\\d+)?$/);\r\n\tif(isDecimal[1]){\r\n\t\treturn true;\r\n\t}else{\r\n\t\treturn false;\r\n\t}\r\n};\r\nfunction containsSpaces(str){\r\n\tif (!replaceAll(str,' ', '').length) {\r\n    \t\treturn true;\r\n\t}\r\n};\r\nfunction replaceAll(str, find, replace) {\r\n    return str.replace(new RegExp(find, 'g'), replace);\r\n};"
+      - operation-switch:
+          title: operation-switch
+          case:
+            - operations:
+                - verb: get
+                  path: '/user/{userId}/history/{siteId}'
+              execute:
+                - gatewayscript:
+                    title: schemavalidation
+                    version: 1.0.0
+                    source: "var authToken = apim.getvariable('request.headers.x-rmg-auth-token');\r\nvar userId = apim.getvariable('request.parameters.userId');\r\nvar siteId = apim.getvariable('request.parameters.siteId');\r\nvar schemaFail = false;\r\nvar isError = false;\r\nif(userId===undefined){\r\n    schemaFail = true;\r\n}else{\r\n    if(userId.length=='0'){\r\n        schemaFail=true;\r\n    }\r\n}\r\nif(siteId===undefined){\r\n    schemaFail = true;\r\n}else{\r\n    if(siteId.length=='0'){\r\n        schemaFail=true;\r\n    }\r\n}\r\nif(authToken===undefined){\r\n    schemaFail = true;\r\n}else{\r\n    if(authToken.length=='0'){\r\n        schemaFail=true;\r\n    }\r\n}\r\nif(schemaFail===true){\r\n\tvar errResp = {           \r\n         \"httpCode\": \"400\",\r\n         \"httpMessage\": \"Bad Request\",  \r\n         \"errors\": \r\n                 {\r\n                          \"errorCode\": \"E0004\",\r\n                          \"errorDescription\": \"Failed schema validation\", \r\n                          \"errorCause\": \"The submitted request was not valid against the published schema definition\",\r\n                          \"errorResolution\": \"Please check the API request against the schema definition and re-submit\"\r\n                 } \r\n         };\r\n        apim.setvariable('errResp',errResp);\r\n        apim.setvariable(\"httpCode\",'400');\r\n        isError = true;\r\n        apim.setvariable('isError',isError);\r\n}"
+                - switch:
+                    title: switch
+                    case:
+                      - condition: "apim.getvariable('isError')==true"
+                        execute:
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: >-
+                                var errResp = apim.getvariable('errResp');
+
+                                var httpCode = apim.getvariable('httpCode');
+
+                                apim.setvariable('message.status.code',httpCode);
+
+                                apim.setvariable('message.body', errResp);
+
+                                apim.output('application/json');
+
+                                apim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));
+                      - otherwise:
+                          - jwt-validate:
+                              title: jwt-validate
+                              jwt: request.headers.x-rmg-auth-token
+                              output-claims: decoded.claims
+                              version: 1.0.0
+                              iss-claim: eBusiness
+                              aud-claim: TAPIv2
+                              jws-jwk: hs256-key
+                          - invoke:
+                              title: invoke
+                              timeout: 60
+                              verb: GET
+                              cache-response: time-to-live
+                              version: 1.0.0
+                              target-url: 'https://$(cloudantUsername):$(cloudantSecret)@$(cloudantDomain)/$(cloudantDB)/_design/mailPieceId/_search/getMailPieceIds?q=userId:"$(request.parameters.userId)" AND siteId:"$(request.parameters.siteId)"&sort="-lastUpdateDateTime"&limit=$(limit)&include_docs=true'
+                              output: cloudantGetResponse
+                              cache-ttl: 60
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: "var mailPieceIds = [];\r\nvar inBody = apim.getvariable('cloudantGetResponse.body');\r\nvar inRows = inBody.rows;\r\nvar i=0;\r\nfor(i=0; i<inRows.length; i++){\r\n    mailPieceIds.push(inRows[i].doc.mailPieceId);\r\n}\r\nvar rtiOrderedList={\r\n\trtiOrderedList:[]\r\n}; \r\nrtiOrderedList.rtiOrderedList=mailPieceIds;\r\napim.setvariable('rtiOrderedList',JSON.stringify(rtiOrderedList));\r\napim.setvariable('apiconnect','apiconnect');\r\nvar claims = apim.getvariable('decoded.claims');\r\nvar jsonClaims = JSON.parse(claims);\r\napim.setvariable('aud',jsonClaims.aud);\r\nvar exp = parseInt(jsonClaims.exp);\r\nvar curr = (Date.now()/1000);\r\nvar currS = curr.toString();\r\nvar currStr = currS.substr(0, currS.indexOf('.')); \r\nvar outexp = exp - parseInt(currStr);\r\napim.setvariable('exp',outexp);\r\napim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));"
+                          - jwt-generate:
+                              title: jwt-generate
+                              iss-claim: apiconnect
+                              exp-claim: $(exp)
+                              version: 1.0.0
+                              description: ''
+                              jwt: generatedJWT
+                              aud-claim: aud
+                              sub-claim: request.parameters.userId
+                              jws-jwk: hs256-key
+                              jws-alg: HS256
+                              private-claims: rtiOrderedList
+                          - map:
+                              title: map
+                              inputs:
+                                input:
+                                  schema:
+                                    description: ''
+                                    type: object
+                                    properties:
+                                      total_rows:
+                                        type: number
+                                        name: total_rows
+                                      bookmark:
+                                        type: string
+                                        name: bookmark
+                                      rows:
+                                        type: array
+                                        items:
+                                          properties:
+                                            id:
+                                              type: string
+                                              name: id
+                                            order:
+                                              type: array
+                                              items:
+                                                type: number
+                                              name: order
+                                            fields:
+                                              type: object
+                                              properties: {}
+                                              name: fields
+                                            doc:
+                                              type: object
+                                              properties:
+                                                _id:
+                                                  type: string
+                                                  name: _id
+                                                _rev:
+                                                  type: string
+                                                  name: _rev
+                                                userId:
+                                                  type: string
+                                                  name: userId
+                                                siteId:
+                                                  type: string
+                                                  name: siteId
+                                                mailPieceId:
+                                                  type: string
+                                                  name: mailPieceId
+                                                lastUpdateDateTime:
+                                                  type: string
+                                                  name: lastUpdateDateTime
+                                              name: doc
+                                          type: object
+                                        name: rows
+                                    example: "{\r\n   \"total_rows\": 2,\r\n   \"bookmark\": \"g2wAAAABaANkACNkYmNvcmVAZGI2LmJtLWNjLXVrLTAxLmNsb3VkYW50Lm5ldGwAAAACbgQAAAAA8G4EAP____9qbAAAAAJGQrJYUGQKTQBhAmpq\",\r\n   \"rows\":    [\r\n            {\r\n         \"id\": \"c5761db30c0443aa858e1d2dffb29cc5\",\r\n         \"order\":          [\r\n            2.0170515155635E13,\r\n            4\r\n         ],\r\n         \"fields\": {},\r\n         \"doc\":          {\r\n            \"_id\": \"c5761db30c0443aa858e1d2dffb29cc5\",\r\n            \"_rev\": \"2-463656de83044052096b80f0b1b7aa72\",\r\n            \"userId\": \"mohiddin\",\r\n            \"siteId\": \"royalmail\",\r\n            \"mailPieceId\": \"AB12345678AD\",\r\n            \"lastUpdateDateTime\": \"20170515155635\"\r\n         }\r\n      },\r\n            {\r\n         \"id\": \"5f7e70bf45a98119b6dcd89bc6de5f82\",\r\n         \"order\":          [\r\n            2.0170515155533E13,\r\n            2\r\n         ],\r\n         \"fields\": {},\r\n         \"doc\":          {\r\n            \"_id\": \"5f7e70bf45a98119b6dcd89bc6de5f82\",\r\n            \"_rev\": \"1-deb9fa1b3a5355e3e4a55044baf05802\",\r\n            \"userId\": \"mohiddin\",\r\n            \"siteId\": \"royalmail\",\r\n            \"mailPieceId\": \"AB12345678AC\",\r\n            \"lastUpdateDateTime\": \"20170515155533\"\r\n         }\r\n      }\r\n   ]\r\n}"
+                                  variable: cloudantGetResponse.body
+                                  content: application/json
+                              outputs:
+                                output:
+                                  schema:
+                                    $ref: '#/definitions/rtiResponse'
+                                  variable: message.body
+                                  content: application/json
+                              actions:
+                                - create: output.mpDetails
+                                  foreach: input.rows
+                                  from: input.rows
+                                  actions:
+                                    - set: lastAccessedTimestamp
+                                      from: doc.lastUpdateDateTime
+                                    - set: mailPieceId
+                                      from: doc.mailPieceId
+                                - set: output.jwt
+                                  default: $(generatedJWT)
+                              version: 1.0.0
+                    version: 1.0.0
+            - operations:
+                - verb: delete
+                  path: '/user/{userId}/history/{siteId}'
+              execute:
+                - gatewayscript:
+                    title: schemavalidation
+                    version: 1.0.0
+                    source: "var authToken = apim.getvariable('request.headers.x-rmg-auth-token');\r\nvar userId = apim.getvariable('request.parameters.userId');\r\nvar siteId = apim.getvariable('request.parameters.siteId');\r\nvar mailPieceId = apim.getvariable('request.parameters.mailPieceId');\r\nvar schemaFail = false;\r\nvar isError = false;\r\nif(userId===undefined){\r\n\tschemaFail = true;\r\n}else{\r\n    if(userId.length=='0'){\r\n        schemaFail=true;\r\n    }\r\n}\r\nif(siteId===undefined){\r\n\tschemaFail = true;\r\n}else{\r\n    if(siteId.length=='0'){\r\n        schemaFail=true;\r\n    }\r\n}\r\nif(authToken===undefined){\r\n\tschemaFail = true;\r\n}else{\r\n    if(authToken.length=='0'){\r\n        schemaFail=true;\r\n    }\r\n}\r\nif(mailPieceId===undefined){\r\n\tschemaFail = true;\r\n}else{\r\n    if(mailPieceId.length=='0'){\r\n        schemaFail=true;\r\n    }\r\n}\r\n\r\nif(schemaFail===true){\r\n\tvar errResp = {           \r\n         \"httpCode\": \"400\",\r\n         \"httpMessage\": \"Bad Request\",  \r\n         \"errors\": \r\n                 {\r\n                          \"errorCode\": \"E0004\",\r\n                          \"errorDescription\": \"Failed schema validation\", \r\n                          \"errorCause\": \"The submitted request was not valid against the published schema definition\",\r\n                          \"errorResolution\": \"Please check the API request against the schema definition and re-submit\"\r\n                 } \r\n         };\r\n        apim.setvariable('errResp',errResp);\r\n        apim.setvariable(\"httpCode\",'400');\r\n        isError = true;\r\n        apim.setvariable('isError',isError);\r\n}\r\n"
+                - switch:
+                    title: switch
+                    case:
+                      - condition: "apim.getvariable('isError')==true"
+                        execute:
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: >-
+                                var errResp = apim.getvariable('errResp');
+
+                                var httpCode = apim.getvariable('httpCode');
+
+                                apim.setvariable('message.status.code',httpCode);
+
+                                apim.setvariable('message.body', errResp);
+
+                                apim.output('application/json');
+
+                                apim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));
+                      - otherwise:
+                          - jwt-validate:
+                              title: jwt-validate
+                              jwt: request.headers.x-rmg-auth-token
+                              output-claims: decoded.claims
+                              version: 1.0.0
+                              iss-claim: eBusiness
+                              aud-claim: TAPIv2
+                              jws-jwk: hs256-key
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: "var mpIdIn = apim.getvariable('request.parameters.mailPieceId');\nvar mpId;\n//trim all spaces from the mailPieceId\nmpIdIn = replaceAll(mpIdIn, \" \", \"\");\nif(mpIdIn.includes(\",\")){\n    mpId = \"'\"+mpIdIn+\"'\";\n\tmpId = replaceAll(mpId,\",\",\"','\");\n}else{\n    mpId = \"'\"+mpIdIn+\"'\";\n}\napim.setvariable(\"mpId\",mpId);\nfunction replaceAll(str, find, replace) {\n    return str.replace(new RegExp(find, 'g'), replace);\n}"
+                          - invoke:
+                              title: invokeGet
+                              timeout: 60
+                              verb: GET
+                              cache-response: time-to-live
+                              cache-ttl: 60
+                              version: 1.0.0
+                              target-url: 'https://$(cloudantUsername):$(cloudantSecret)@$(cloudantDomain)/$(cloudantDB)/_design/mailPieceId/_search/getMailPieceIds?q=userId:"$(request.parameters.userId)" AND siteId:"$(request.parameters.siteId)" AND mailPieceId:$(mpId)&limit=30&sort="-lastUpdateDateTime"&include_docs=true'
+                              output: cloudantGetResponse
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: "var inBody = apim.getvariable('cloudantGetResponse.body');\r\nvar inRows = inBody.rows;\r\nvar i=0;\r\nvar found = false;\r\nif(0<inRows.length){\r\n\tfound = true;\r\n}\r\napim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));\r\napim.setvariable('found',found);"
+                          - switch:
+                              title: switch
+                              case:
+                                - condition: "apim.getvariable('found')===true"
+                                  execute:
+                                    - map:
+                                        title: map
+                                        inputs:
+                                          input:
+                                            schema:
+                                              description: ''
+                                              type: object
+                                              properties:
+                                                total_rows:
+                                                  type: number
+                                                  name: total_rows
+                                                bookmark:
+                                                  type: string
+                                                  name: bookmark
+                                                rows:
+                                                  type: array
+                                                  items:
+                                                    properties:
+                                                      id:
+                                                        type: string
+                                                        name: id
+                                                      order:
+                                                        type: array
+                                                        items:
+                                                          type: number
+                                                        name: order
+                                                      fields:
+                                                        type: object
+                                                        properties: {}
+                                                        name: fields
+                                                      doc:
+                                                        type: object
+                                                        properties:
+                                                          _id:
+                                                            type: string
+                                                            name: _id
+                                                          _rev:
+                                                            type: string
+                                                            name: _rev
+                                                          userId:
+                                                            type: string
+                                                            name: userId
+                                                          siteId:
+                                                            type: string
+                                                            name: siteId
+                                                          mailPieceId:
+                                                            type: string
+                                                            name: mailPieceId
+                                                          lastUpdateDateTime:
+                                                            type: string
+                                                            name: lastUpdateDateTime
+                                                        name: doc
+                                                    type: object
+                                                  name: rows
+                                              example: "{\r\n   \"total_rows\": 2,\r\n   \"bookmark\": \"g2wAAAABaANkACNkYmNvcmVAZGI2LmJtLWNjLXVrLTAxLmNsb3VkYW50Lm5ldGwAAAACbgQAAAAA8G4EAP____9qbAAAAAJGQrJYUGQKTQBhAmpq\",\r\n   \"rows\":    [\r\n            {\r\n         \"id\": \"c5761db30c0443aa858e1d2dffb29cc5\",\r\n         \"order\":          [\r\n            2.0170515155635E13,\r\n            4\r\n         ],\r\n         \"fields\": {},\r\n         \"doc\":          {\r\n            \"_id\": \"c5761db30c0443aa858e1d2dffb29cc5\",\r\n            \"_rev\": \"2-463656de83044052096b80f0b1b7aa72\",\r\n            \"userId\": \"mohiddin\",\r\n            \"siteId\": \"royalmail\",\r\n            \"mailPieceId\": \"AB12345678AD\",\r\n            \"lastUpdateDateTime\": \"20170515155635\"\r\n         }\r\n      },\r\n            {\r\n         \"id\": \"5f7e70bf45a98119b6dcd89bc6de5f82\",\r\n         \"order\":          [\r\n            2.0170515155533E13,\r\n            2\r\n         ],\r\n         \"fields\": {},\r\n         \"doc\":          {\r\n            \"_id\": \"5f7e70bf45a98119b6dcd89bc6de5f82\",\r\n            \"_rev\": \"1-deb9fa1b3a5355e3e4a55044baf05802\",\r\n            \"userId\": \"mohiddin\",\r\n            \"siteId\": \"royalmail\",\r\n            \"mailPieceId\": \"AB12345678AC\",\r\n            \"lastUpdateDateTime\": \"20170515155533\"\r\n         }\r\n      }\r\n   ]\r\n}"
+                                            variable: cloudantGetResponse.body
+                                            content: application/json
+                                        outputs:
+                                          output:
+                                            schema:
+                                              description: ''
+                                              type: object
+                                              properties:
+                                                docs:
+                                                  type: array
+                                                  items:
+                                                    properties:
+                                                      _id:
+                                                        type: string
+                                                        name: _id
+                                                      _rev:
+                                                        type: string
+                                                        name: _rev
+                                                      _deleted:
+                                                        type: boolean
+                                                        name: _deleted
+                                                    type: object
+                                                  name: docs
+                                              example: "{\r\n  \"docs\": [\r\n    {\r\n      \"_id\": \"d1f61e66-7708-4da6-aa05-7cbc33b44b7e\",\r\n      \"_rev\": \"1-a2b6e5dac4e0447e7049c8c540b309d6\",\r\n      \"_deleted\": true\r\n    },{\r\n      \"_id\": \"d1f61e66-7708-4da6-aa05-7cbc33b44b7e\",\r\n      \"_rev\": \"1-a2b6e5dac4e0447e7049c8c540b309d6\",\r\n      \"_deleted\": true\r\n    },{\r\n      \"_id\": \"d1f61e66-7708-4da6-aa05-7cbc33b44b7e\",\r\n      \"_rev\": \"1-a2b6e5dac4e0447e7049c8c540b309d6\",\r\n      \"_deleted\": true\r\n    }\r\n  ]\r\n}"
+                                            variable: message.body
+                                            content: application/json
+                                        actions:
+                                          - create: output.docs
+                                            foreach: input.rows
+                                            from: input.rows
+                                            actions:
+                                              - set: _id
+                                                from: doc._id
+                                              - set: _rev
+                                                from: doc._rev
+                                              - set: _deleted
+                                                default: true
+                                        version: 1.0.0
+                                    - invoke:
+                                        title: invokeDelete
+                                        timeout: 60
+                                        verb: POST
+                                        cache-response: time-to-live
+                                        version: 1.0.0
+                                        target-url: 'https://$(cloudantUsername):$(cloudantSecret)@$(cloudantDomain)/$(cloudantDB)/_bulk_docs'
+                                        output: cloudantDeleteResponse
+                                        cache-ttl: 60
+                                    - invoke:
+                                        title: invokeReGet
+                                        timeout: 60
+                                        verb: GET
+                                        cache-response: time-to-live
+                                        version: 1.0.0
+                                        target-url: 'https://$(cloudantUsername):$(cloudantSecret)@$(cloudantDomain)/$(cloudantDB)/_design/mailPieceId/_search/getMailPieceIds?q=userId:"$(request.parameters.userId)" AND siteId:"$(request.parameters.siteId)"&sort="-lastUpdateDateTime"&limit=30&include_docs=true'
+                                        output: cloudantReGetResponse
+                                        cache-ttl: 60
+                                    - gatewayscript:
+                                        title: gatewayscript
+                                        version: 1.0.0
+                                        source: "var mailPieceIds = [];\nvar inBody = apim.getvariable('cloudantReGetResponse.body'); \nvar inRows = inBody.rows;\nvar i=0;\nfor(i=0; i<inRows.length; i++){\n    mailPieceIds.push(inRows[i].doc.mailPieceId);\n}\nvar rtiOrderedList={\n\trtiOrderedList:[]\n};\nrtiOrderedList.rtiOrderedList=mailPieceIds;\napim.setvariable('rtiOrderedList',JSON.stringify(rtiOrderedList));\napim.setvariable('apiconnect','apiconnect');\nvar claims = apim.getvariable('decoded.claims');\nvar jsonClaims = JSON.parse(claims);\napim.setvariable('aud',jsonClaims.aud);\nvar exp = parseInt(jsonClaims.exp);\nvar curr = (Date.now()/1000);\nvar currS = curr.toString();\nvar currStr = currS.substr(0, currS.indexOf('.')); \nvar outexp = exp - parseInt(currStr);\napim.setvariable('exp',outexp);\napim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));"
+                                    - jwt-generate:
+                                        title: jwt-generate
+                                        iss-claim: apiconnect
+                                        exp-claim: $(exp)
+                                        version: 1.0.0
+                                        jwt: generatedJWT
+                                        aud-claim: aud
+                                        sub-claim: request.parameters.userId
+                                        jws-jwk: hs256-key
+                                        jws-alg: HS256
+                                        private-claims: rtiOrderedList
+                                    - map:
+                                        title: map
+                                        inputs:
+                                          input:
+                                            schema:
+                                              description: ''
+                                              type: object
+                                              properties:
+                                                total_rows:
+                                                  type: number
+                                                bookmark:
+                                                  type: string
+                                                rows:
+                                                  type: array
+                                                  items:
+                                                    properties:
+                                                      id:
+                                                        type: string
+                                                      order:
+                                                        type: array
+                                                        items:
+                                                          type: number
+                                                      fields:
+                                                        type: object
+                                                        properties: {}
+                                                      doc:
+                                                        type: object
+                                                        properties:
+                                                          _id:
+                                                            type: string
+                                                          _rev:
+                                                            type: string
+                                                          userId:
+                                                            type: string
+                                                          siteId:
+                                                            type: string
+                                                          mailPieceId:
+                                                            type: string
+                                                          lastUpdateDateTime:
+                                                            type: string
+                                                    type: object
+                                              example: "{\r\n   \"total_rows\": 2,\r\n   \"bookmark\": \"g2wAAAABaANkACNkYmNvcmVAZGI2LmJtLWNjLXVrLTAxLmNsb3VkYW50Lm5ldGwAAAACbgQAAAAA8G4EAP____9qbAAAAAJGQrJYUGQKTQBhAmpq\",\r\n   \"rows\":    [\r\n            {\r\n         \"id\": \"c5761db30c0443aa858e1d2dffb29cc5\",\r\n         \"order\":          [\r\n            2.0170515155635E13,\r\n            4\r\n         ],\r\n         \"fields\": {},\r\n         \"doc\":          {\r\n            \"_id\": \"c5761db30c0443aa858e1d2dffb29cc5\",\r\n            \"_rev\": \"2-463656de83044052096b80f0b1b7aa72\",\r\n            \"userId\": \"mohiddin\",\r\n            \"siteId\": \"royalmail\",\r\n            \"mailPieceId\": \"AB12345678AD\",\r\n            \"lastUpdateDateTime\": \"20170515155635\"\r\n         }\r\n      },\r\n            {\r\n         \"id\": \"5f7e70bf45a98119b6dcd89bc6de5f82\",\r\n         \"order\":          [\r\n            2.0170515155533E13,\r\n            2\r\n         ],\r\n         \"fields\": {},\r\n         \"doc\":          {\r\n            \"_id\": \"5f7e70bf45a98119b6dcd89bc6de5f82\",\r\n            \"_rev\": \"1-deb9fa1b3a5355e3e4a55044baf05802\",\r\n            \"userId\": \"mohiddin\",\r\n            \"siteId\": \"royalmail\",\r\n            \"mailPieceId\": \"AB12345678AC\",\r\n            \"lastUpdateDateTime\": \"20170515155533\"\r\n         }\r\n      }\r\n   ]\r\n}"
+                                            variable: cloudantReGetResponse.body
+                                            content: application/json
+                                        outputs:
+                                          output:
+                                            schema:
+                                              $ref: '#/definitions/rtiResponse'
+                                            variable: message.body
+                                            content: application/json
+                                        actions:
+                                          - create: output.mpDetails
+                                            foreach: input.rows
+                                            from: input.rows
+                                            actions:
+                                              - set: mailPieceId
+                                                from: doc.mailPieceId
+                                              - set: lastAccessedTimestamp
+                                                from: doc.lastUpdateDateTime
+                                          - set: output.jwt
+                                            default: $(generatedJWT)
+                                        version: 1.0.0
+                                - otherwise:
+                                    - gatewayscript:
+                                        title: gatewayscript
+                                        version: 1.0.0
+                                        source: "var errResp = {           \r\n         \"httpCode\": \"404\",\r\n         \"httpMessage\": \"Not Found\",  \r\n         \"errors\": \r\n                 {\r\n                          \"errorCode\": \"E0004\",\r\n                          \"errorDescription\": \"Data not found\", \r\n                          \"errorCause\": \"No data found for the submitted request\",\r\n                          \"errorResolution\": \"Please check the API request and re-submit\"\r\n                 } \r\n         };\r\napim.setvariable('message.status.code','404');\r\napim.setvariable('message.body', errResp);\r\napim.output('application/json');\r\napim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));"
+                              version: 1.0.0
+                    version: 1.0.0
+            - operations:
+                - summary
+              execute:
+                - gatewayscript:
+                    title: schemavalidation
+                    version: 1.0.0
+                    source: "var authToken = apim.getvariable('request.headers.x-rmg-auth-token');\r\nvar mailPieceId = apim.getvariable('request.parameters.mailPieceId');\r\nvar schemaFail = false;\r\nvar isError = false;\r\nif(authToken===undefined){\r\n\tschemaFail = true;\r\n}else{\r\n    if(authToken.length=='0'){\r\n        schemaFail=true;\r\n    }\r\n}\r\nif(mailPieceId===undefined){\r\n\tschemaFail = true;\r\n}else{\r\n    if(mailPieceId.length=='0'){\r\n        schemaFail=true;\r\n    }\r\n}\r\n\r\nif(schemaFail===true){\r\n\tvar errResp = {           \r\n         \"httpCode\": \"400\",\r\n         \"httpMessage\": \"Bad Request\",  \r\n         \"errors\": \r\n                 {\r\n                          \"errorCode\": \"E0004\",\r\n                          \"errorDescription\": \"Failed schema validation\", \r\n                          \"errorCause\": \"The submitted request was not valid against the published schema definition\",\r\n                          \"errorResolution\": \"Please check the API request against the schema definition and re-submit\"\r\n                 } \r\n         };\r\n        apim.setvariable('errResp',errResp);\r\n        apim.setvariable(\"httpCode\",'400');\r\n        isError = true;\r\n        apim.setvariable('isError',isError);\r\n}\r\n"
+                - switch:
+                    title: switch
+                    case:
+                      - condition: "apim.getvariable('isError')==true"
+                        execute:
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: >-
+                                var errResp = apim.getvariable('errResp');
+
+                                var httpCode = apim.getvariable('httpCode');
+
+                                apim.setvariable('message.status.code',httpCode);
+
+                                apim.setvariable('message.body', errResp);
+
+                                apim.output('application/json');
+
+                                apim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));
+                      - otherwise:
+                          - jwt-validate:
+                              title: jwt-validate
+                              jwt: request.headers.x-rmg-auth-token
+                              output-claims: decoded.claims
+                              version: 1.0.0
+                              iss-claim: eBusiness
+                              aud-claim: TAPIv2
+                              jws-jwk: hs256-key
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: "apim.setvariable('err','mailPiece');"
+                          - jwt-validate:
+                              title: jwt-validate
+                              jwt: request.parameters.mailPieceId
+                              output-claims: request.claims
+                              version: 1.0.0
+                              iss-claim: apiconnect
+                              aud-claim: TAPIv2
+                              jws-jwk: hs256-key
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: >
+                                var claims = apim.getvariable('request.claims');
+
+                                var claimsJSON = JSON.parse(claims);
+
+                                var rtiOrderedList = claimsJSON.rtiOrderedList;
+
+                                var mailPieceIds = [];
+
+                                for(var i=0;i<
+
+                                rtiOrderedList.length;i++){
+
+                                        mailPieceIds.push(rtiOrderedList[i]);
+
+                                }
+
+                                apim.setvariable('mailPieceId',
+                                mailPieceIds.toString());
+                          - switch:
+                              title: switch
+                              case:
+                                - condition: "apim.getvariable('mailPieceId')==undefined;"
+                                  execute:
+                                    - gatewayscript:
+                                        title: gatewayscript
+                                        version: 1.0.0
+                                        source: " var error= {           \r\n         \"httpCode\": \"400\",\r\n         \"httpMessage\": \"Bad Request\",  \r\n         \"errors\": \r\n                 {\r\n                          \"errorCode\": \"E1142\",\r\n                          \"errorDescription\": \"Please enter the 1D or 2D barcode tracking number\", \r\n                          \"errorResolution\": \"Check barcode and resubmit\"\r\n                 }\r\n         } \r\n         apim.setvariable('message.status.code','400');\r\n         session.output.write(error);\r\n         apim.output('application/json');\r\n         apim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));\r\n         \r\n //default error when no mailpieceId is quired"
+                                - otherwise:
+                                    - gatewayscript:
+                                        title: gatewayscript
+                                        version: 1.0.0
+                                        source: "var mpIds = apim.getvariable('mailPieceId');  //comma separated queried MailPieceIds\r\nvar mpIdsArr = mpIds.split(\",\");                                 //array generatef from string of MailPieceIds\r\nvar mpIdsValid = [];                                             //blank array to store valid MailPieceIds\r\nvar mpIdsInValid = [];                                            //balnk array to store inavlid MailPieceIds\r\n\r\napim.setvariable('mpIdsArr',mpIdsArr);\r\nif(mpIdsArr.length>30)                                           //check number of MailPieceIds quired \r\n{\r\napim.setvariable('mpIdsInValid',mpIdsInValid); \r\n} \r\n\r\nelse{\r\nfor(var i=0; i<mpIdsArr.length; i++){                            //length check for each MailPieceIds\r\n  if (( mpIdsArr[i].length === 9 || mpIdsArr[i].length === 11 || mpIdsArr[i].length === 12 || mpIdsArr[i].length === 13 || mpIdsArr[i].length === 14 || mpIdsArr[i].length === 16 || mpIdsArr[i].length === 21) && (mpIdsArr[i].match(\"^[a-zA-Z0-9]*$\")))\r\n     { \r\n\t mpIdsValid.push(mpIdsArr[i]);\r\n    }\r\n else\r\n    {\r\n\t mpIdsInValid.push(mpIdsArr[i]);\r\n    }   \r\n};  \r\napim.setvariable('mpIdsValid[0]',mpIdsValid[0]); \r\n\r\nvar strMpIds = mpIdsValid.toString();                              //creating string from array\r\napim.setvariable('strMpIds',strMpIds);\r\napim.setvariable('mpIdsInValid',mpIdsInValid);\r\n}\r\napim.setvariable('message.headers.X-RMG-Client-Id',apim.getvariable('client.app.id'));\r\napim.setvariable('message.headers.X-RMG-Auth-Token',undefined);"
+                                    - switch:
+                                        title: switch
+                                        case:
+                                          - condition: "apim.getvariable('request.parameters.mailPieceId')==undefined;"
+                                            execute:
+                                              - gatewayscript:
+                                                  title: gatewayscript
+                                                  version: 1.0.0
+                                                  source: "var mpIdsInValid = apim.getvariable('mpIdsInValid'); \r\nvar errorResponse = [];                                            \r\nif(mpIdsInValid[0]==undefined){                                   //if MailPieceIds quired is more than 30\r\n   var error= {\r\n         \"httpCode\": \"400\",\r\n         \"httpMessage\": \"Bad Request\", \r\n         \"errors\": \r\n                 {\r\n                          \"errorCode\": \"E0013\",\r\n                          \"errorDescription\": \"Maximum parameters permitted in URL exceeded\",\r\n                          \"errorResolution\": \"Check barcodes and resubmit\"\r\n                 }\r\n         } \r\n         apim.setvariable('message.status.code','400');\r\n         session.output.write(error);\r\n}\r\nelse{\r\nfor(var i=0; i<mpIdsInValid.length; i++){                         \r\nvar error= {\r\n         \"httpCode\": \"400\",\r\n         \"httpMessage\": \"Bad Request\",\r\n         \"errors\": \r\n                 {\r\n                          \"errorCode\": \"E1142\", \r\n                          \"errorDescription\": \"Barcode reference \"+ mpIdsInValid[i] + \" isn't recognised\",\r\n                          \"errorResolution\": \"Check barcode and resubmit\"\r\n                 }\r\n         } \r\n         errorResponse.push(error);\r\n        };\r\n  \r\nsession.output.write(errorResponse);                  //generated errorResponse for invalid MailPieceIds\r\napim.setvariable('message.status.code','400');\r\n}\r\napim.output('application/json');\r\napim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));"
+                                          - otherwise:
+                                              - invoke:
+                                                  title: invokeSummary
+                                                  timeout: 60
+                                                  verb: GET
+                                                  cache-response: time-to-live
+                                                  version: 1.0.0
+                                                  target-url: $(endpoint)/summary?mailPieceId=$(strMpIds)
+                                                  output: responseSummary
+                                                  cache-ttl: 600
+                                                  tls-profile: $(tlsProfile)
+                                                  cache-key: $(request.headers.x-rmg-language)
+                                              - gatewayscript:
+                                                  title: gatewayscript
+                                                  version: 1.0.0
+                                                  source: "var responseSummary = apim.getvariable('responseSummary');\r\nvar bodyResp = responseSummary.body;   //response body from backend\r\nvar mpIdsInValid = apim.getvariable('mpIdsInValid');                    //inValid mailPieceIds array\r\nvar mpIdsArr = apim.getvariable('mpIdsArr');                            //mailPieceIds quired \r\nvar errorResponse = [];                                                 //errorResponse to be generated on APIM\r\nvar errorStatusResponse = [];                                \r\nvar errorIntFooter = [];                                                \r\nvar x = 0;\r\nvar Response = []; \r\n\r\nif(bodyResp.integrationFooter==undefined){                                       //if no integration footer is coming from BIG\r\nfor(var i=0; i<mpIdsInValid.length; i++){\r\nvar errorResp = {\r\n           \"mailPieceId\":mpIdsInValid[i],\r\n           \"status\":\"400\",\r\n           \"errors\": \r\n                 {\r\n                          \"errorCode\": \"E1142\",\r\n                          \"errorDescription\": \"Barcode reference \"+ mpIdsInValid[i] + \" is not valid\",\r\n                          \"errorCause\": \"A mail item with that barcode cannot be located\",\r\n                          \"errorResolution\": \"Check barcode and resubmit\"\r\n                 }\r\n         }\r\n           \r\n            errorResponse.push(errorResp);\r\n} \r\n\r\nwhile(x<mpIdsArr.length){                                     //for sequencing of valid response from backend and invalid error of APIM\r\n  var y=0;\r\n  \r\n  var found = false;\r\n  \r\n  while(y<bodyResp.mailPieces.length){\r\n    \r\n\tif(mpIdsArr[x]==bodyResp.mailPieces[y].mailPieceId){\r\n\t   if(bodyResp.mailPieces[y].summary){\r\n\t    if(bodyResp.mailPieces[y].summary.messages){\r\n\t        delete bodyResp.mailPieces[y].summary.messages;\r\n\t    }}\r\n\t    Response.push(bodyResp.mailPieces[y]);\r\n\t     \r\n\t\tfound = true;\r\n\t\tbreak;\r\n\t}else if(bodyResp.mailPieces[y].summary) {\r\n\t    if(mpIdsArr[x]==bodyResp.mailPieces[y].summary.oneDBarcode){\r\n\t     \r\n\t     if(bodyResp.mailPieces[y].summary.messages){\r\n\t        delete bodyResp.mailPieces[y].summary.messages;\r\n\t     }\r\n\t    Response.push(bodyResp.mailPieces[y]);\r\n\t     \r\n\t\tfound = true;\r\n\t\tbreak; \r\n\t    }\r\n\t}\r\n\ty++;\r\n  }\r\n  var z = 0;\r\n  if(found == false){\r\n   while(z<errorResponse.length){\r\n\tif(mpIdsArr[x]==errorResponse[z].mailPieceId){\r\n\t    Response.push(errorResponse[z]);\r\n\t\tbreak;\r\n\t}\r\n\tz++;\r\n  }\r\n  }\r\n  x++;\r\n }\r\n\r\nvar responseFinal={                                          //for mapping integrationFooter error and APIM response \r\n\t\"mailPieces\": Response\r\n}\r\napim.setvariable('message.body',responseFinal);\r\n}\r\n\r\n else{\r\n\r\n   for(var i=0; i<mpIdsInValid.length; i++){\r\n      var errorResp = {\r\n                      \"mailPieceId\":mpIdsInValid[i],\r\n                      \"status\":\"400\"\r\n                      };\r\n           var erroR = {\r\n                          \"errorCode\": \"E1142\",\r\n                          \"errorDescription\": \"Barcode reference \"+ mpIdsInValid[i] + \" is not valid\",\r\n                          \"errorCause\": \"A mail item with that barcode cannot be located\",\r\n                          \"errorResolution\": \"Check barcode and resubmit\"\r\n                 };\r\n            errorStatusResponse.push(errorResp);\r\n            errorIntFooter.push(erroR);\r\n     } \r\nwhile(x<mpIdsArr.length){\r\n  var y=0;\r\n  \r\n  var found = false;\r\n  \r\n  while(y<bodyResp.mailPieces.length){\r\n    \r\n\tif(mpIdsArr[x]==bodyResp.mailPieces[y].mailPieceId){\r\n\t    Response.push(bodyResp.mailPieces[y]);\r\n\t\r\n\t\tfound = true;\r\n\t\tbreak;\r\n\t}\r\n\ty++;\r\n  }\r\n  var z = 0;\r\n  if(found == false){\r\n   while(z<errorStatusResponse.length){\r\n\tif(mpIdsArr[x]==errorStatusResponse[z].mailPieceId){\r\n\t    Response.push(errorStatusResponse[z]);\r\n\t\tbreak;\r\n\t}\r\n\tz++;\r\n  }\r\n  }\r\n  x++;\r\n }\r\nvar responseFinal={                                          //for mapping integrationFooter error and APIM response \r\n\t\"mailPieces\": Response,\r\n\t\"httpCode\": responseSummary.status.code,\r\n\t\"httpMessage\": responseSummary.status.reason,\r\n\t\t\"errors\": bodyResp.integrationFooter.errors\r\n\t}\r\n\t\r\n\r\napim.setvariable('message.body',responseFinal);\r\n}\r\napim.output('application/json');\r\napim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));"
+                                        version: 1.0.0
+                              version: 1.0.0
+                    version: 1.0.0
+            - operations:
+                - events
+              execute:
+                - gatewayscript:
+                    title: schemavalidation
+                    version: 1.0.0
+                    source: "var mailPieceId = apim.getvariable('request.parameters.mailPieceId');\r\nvar recaptchaResponse = apim.getvariable('request.headers.x-recaptcha-response');\r\nvar recaptchaSession = apim.getvariable('request.headers.x-recaptcha-session');\r\nvar cookie = apim.getvariable('request.headers.cookie');\r\nvar recaptchaSessionCookie;\r\nif(cookie===undefined){\r\n}else{\r\n\trecaptchaSessionCookie = readCookie('recaptcha-session',cookie);\r\n}\r\n \r\n\r\nvar schemaFail = false;\r\nvar isError = false;\r\nif(mailPieceId===undefined){\r\n\tschemaFail = true;\r\n}else{\r\n    if(mailPieceId.length=='0'){\r\n        schemaFail=true;\r\n    }\r\n}\r\nif(recaptchaResponse===undefined){\r\n}else{\r\n\t//recaptcha-response exists\r\n\tif(recaptchaResponse.length=='0'){\r\n        schemaFail=true;\r\n    }else{\r\n\t\t//recaptcha-response looks to be a valid one, check if recaptcha-session and recaptchaSessionCookie exists\r\n\t\tif(recaptchaSession===undefined && recaptchaSessionCookie===null){\r\n\t\t\t//valid\r\n\t\t}else{\r\n\t\t\tschemaFail=true;\r\n\t\t}\r\n\t\t\r\n\t}\r\n}\r\nif(recaptchaSession===undefined || recaptchaSessionCookie===null){\r\n}else{\r\n\t//recaptcha-session exists\r\n\tif(recaptchaSession.length=='0' || recaptchaSessionCookie.length=='0'){\r\n        schemaFail=true;\r\n    }else{\r\n\t\t//recaptcha-session looks to be a valid one, check if response exists\r\n\t\tif(recaptchaResponse===undefined){\r\n\t\t\t//valid\r\n\t\t}else{\r\n\t\t\tschemaFail=true;\r\n\t\t}\r\n\t\t\r\n\t}\r\n}\r\nif(schemaFail===true){\r\n\tvar errResp = {           \r\n         \"httpCode\": \"400\",\r\n         \"httpMessage\": \"Bad Request\",  \r\n         \"errors\": \r\n                 {\r\n                          \"errorCode\": \"E0004\",\r\n                          \"errorDescription\": \"Failed schema validation\", \r\n                          \"errorCause\": \"The submitted request was not valid against the published schema definition\",\r\n                          \"errorResolution\": \"Please check the API request against the schema definition and re-submit\"\r\n                 } \r\n         };\r\n        apim.setvariable('errResp',errResp);\r\n        apim.setvariable(\"httpCode\",'400');\r\n        isError = true;\r\n        apim.setvariable('isError',isError);\r\n}\r\nfunction readCookie(key,cookie)\r\n{\r\n    var result;\r\n    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(cookie)) ? (result[1]) : null;\r\n};"
+                - switch:
+                    title: switch
+                    case:
+                      - condition: "apim.getvariable('request.headers.x-rmg-auth-token')"
+                        execute:
+                          - jwt-validate:
+                              title: jwt-validate
+                              jwt: request.headers.x-rmg-auth-token
+                              output-claims: decoded.claims
+                              version: 1.0.0
+                              iss-claim: eBusiness
+                              aud-claim: TAPIv2
+                              jws-jwk: hs256-key
+                      - otherwise: []
+                    version: 1.0.0
+                - switch:
+                    title: switch
+                    case:
+                      - condition: "apim.getvariable('request.headers.x-recaptcha-response')"
+                        execute:
+                          - invoke:
+                              title: invokeGoogleCaptcha
+                              timeout: 60
+                              verb: GET
+                              cache-response: protocol
+                              cache-ttl: 900
+                              version: 1.0.0
+                              target-url: 'https://www.google.com/recaptcha/api/siteverify?secret=6LckfyMUAAAAACHHXV7I3XLPej-n6nl_9HyCxr6y&response=$(request.headers.x-recaptcha-response)'
+                              output: googleCaptchaResp
+                          - switch:
+                              title: switch
+                              case:
+                                - condition: "apim.getvariable('googleCaptchaResp').body.success ==true;"
+                                  execute:
+                                    - gatewayscript:
+                                        title: gatewayscript
+                                        version: 1.0.0
+                                        source: "var mpId = apim.getvariable('request.parameters.mailPieceId');       //quired mailPieceId\r\nmpId = replaceAll(mpId, \" \", \"\");\r\nvar mpIdArr = mpId.split(\",\");   \r\napim.setvariable('mpIdArr',mpIdArr);                          \r\nvar bodyResp = {                                              //bodyResp of APIM incase of bad request\r\n         \"httpCode\": \"400\",\r\n         \"httpMessage\": \"Bad Request\", \r\n         \"errors\": [\r\n                 {\r\n                          \"errorCode\": \"E1142\",\r\n                          \"errorDescription\": \"Barcode reference \"+ mpId+ \" isn't recognised\", \r\n                          \"errorResolution\": \"Check barcode and resubmit\"\r\n                 }\r\n         ]\r\n};\r\nif(mpIdArr.length>1){\r\n    apim.setvariable('bodyResp',bodyResp);\r\n} \r\n\r\nelse{                                                               //length check\r\n \r\n  if (( mpId.length === 9  || mpId.length === 11 || mpId.length === 12 || mpId.length === 13 || mpId.length === 14 || mpId.length === 16 || mpId.length === 21 ) && (mpId.match(\"^[a-zA-Z0-9]*$\"))) {\r\n\r\n    apim.setvariable('mpId',mpId);\r\n\r\n    } \r\n    \r\n  else {\r\n  \r\n  apim.setvariable('bodyResp',bodyResp);\r\n  \r\n  }  \r\n}\r\napim.setvariable('message.headers.X-RMG-Client-Id',apim.getvariable('client.app.id'));\r\nfunction replaceAll(str, find, replace) {\r\n    return str.replace(new RegExp(find, 'g'), replace);\r\n};"
+                                    - switch:
+                                        title: switch
+                                        case:
+                                          - condition: "apim.getvariable('bodyResp')"
+                                            execute:
+                                              - gatewayscript:
+                                                  title: gatewayscript
+                                                  version: 1.0.0
+                                                  source: "var mpIdArr = apim.getvariable('mpIdArr');  \nvar bodyResp = apim.getvariable('bodyResp');\nvar statusCode;\nif(mpIdArr[1]){\n   var error= {\n         \"httpCode\": \"400\",\n         \"httpMessage\": \"Bad Request\", \n         \"errors\": \n                 {\n                          \"errorCode\": \"E0013\",\n                          \"errorDescription\": \"Maximum parameters permitted in URL exceeded\",\n                          \"errorResolution\": \"Check barcode and resubmit\"\n                 }\n         }\n         apim.setvariable('bodyResp','error');\n         apim.setvariable('statusCode','400');\n         apim.setvariable('errorCode','E0013');\n}\nelse{\napim.setvariable('bodyResp',bodyResp);\napim.setvariable('statusCode','400');\napim.setvariable('errorCode','');\n}\n"
+                                          - otherwise:
+                                              - invoke:
+                                                  title: invokeEvents
+                                                  timeout: 60
+                                                  verb: GET
+                                                  cache-response: time-to-live
+                                                  cache-ttl: 600
+                                                  version: 1.0.0
+                                                  cache-key: $(request.headers.x-rmg-language)
+                                                  target-url: $(endpoint)/$(mpId)/events
+                                                  output: eventsResponse
+                                                  tls-profile: $(tlsProfile)
+                                              - gatewayscript:
+                                                  title: gatewayscript
+                                                  version: 1.0.0
+                                                  source: >-
+                                                    var eventsResponse
+                                                    = apim.getvariable('eventsResponse');
+
+                                                    var responseBody = eventsResponse.body;
+
+                                                    var response;
+
+
+
+                                                    if(responseBody.integrationFooter){
+
+                                                       var integrationFooter
+
+                                                    = responseBody.integrationFooter;
+
+                                                       response={
+
+                                                        "httpCode":
+
+                                                    eventsResponse.status.code,
+
+                                                        "httpMessage":
+
+                                                    eventsResponse.status.reason,
+
+                                                        "errors": integrationFooter.errors
+
+                                                      };
+
+                                                     }else {
+
+                                                        response = responseBody;
+
+                                                    }
+
+
+
+
+
+
+
+                                                     var statusCode
+
+                                                    = eventsResponse.status.code;
+
+                                                     var errorCode = '';
+
+                                                     if (statusCode=='200'){
+
+                                                     }else{
+
+                                                         //Fetch the error code
+
+                                                         errorCode
+
+                                                    =
+                                                    responseBody.integrationFooter.errors[0].errorCode;
+
+                                                     }
+
+                                                     apim.setvariable('errorCode',
+
+                                                    errorCode);
+
+                                                     apim.setvariable('bodyResp',response);
+
+
+
+                                                     apim.setvariable('statusCode',
+
+                                                    statusCode);
+
+                                                    apim.output('application/json');
+                                        version: 1.0.0
+                                    - gatewayscript:
+                                        title: gatewayscript
+                                        version: 1.0.0
+                                        source: >-
+                                          apim.setvariable('apiconnect',"apiconnect");
+
+                                          apim.setvariable('TAPIv2',"TAPIv2");
+                                    - jwt-generate:
+                                        title: jwt-generate
+                                        iss-claim: apiconnect
+                                        exp-claim: '902'
+                                        version: 1.0.0
+                                        jwt: x-recaptcha-session
+                                        aud-claim: TAPIv2
+                                        jws-jwk: hs256-key
+                                        jws-alg: HS256
+                                - otherwise:
+                                    - gatewayscript:
+                                        title: gatewayscript
+                                        version: 1.0.0
+                                        source: |
+                                          var verified = 'false';
+                                          apim.setvariable('verified',verified);
+                              version: 1.0.0
+                      - condition: "apim.getvariable('request.headers.x-recaptcha-session')"
+                        execute:
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: "var cookie = apim.getvariable('request.headers.cookie');\r\nvar recaptchaSession = apim.getvariable('request.headers.x-recaptcha-session');\r\n\r\nvar cookieGet = readCookie('recaptcha-session',cookie);\r\n\r\nfunction readCookie(key,cookie)\r\n{\r\n    var result;\r\n    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(cookie)) ? (result[1]) : null;\r\n};\r\n\r\nif(cookieGet==recaptchaSession){\r\n    \r\n}else{\r\n    apim.setvariable('verified','false');\r\n}"
+                          - jwt-validate:
+                              title: jwt-validate
+                              jwt: request.headers.x-recaptcha-session
+                              output-claims: session.claims
+                              version: 1.0.0
+                              iss-claim: apiconnect
+                              jws-jwk: hs256-key
+                              aud-claim: TAPIv2
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: "var mpId = apim.getvariable('request.parameters.mailPieceId');       //quired mailPieceId\r\nmpId = replaceAll(mpId, \" \", \"\");\r\nvar mpIdArr = mpId.split(\",\");   \r\napim.setvariable('mpIdArr',mpIdArr);                          \r\nvar bodyResp = {                                              //bodyResp of APIM incase of bad request\r\n         \"httpCode\": \"400\",\r\n         \"httpMessage\": \"Bad Request\", \r\n         \"errors\": [\r\n                 {\r\n                          \"errorCode\": \"E1142\",\r\n                          \"errorDescription\": \"Barcode reference \"+ mpId+ \" isn't recognised\", \r\n                          \"errorResolution\": \"Check barcode and resubmit\"\r\n                 }\r\n         ]\r\n};\r\nif(mpIdArr.length>1){\r\n    apim.setvariable('bodyResp',bodyResp);\r\n} \r\n\r\nelse{                                                               //length check\r\n \r\n  if (( mpId.length === 9  || mpId.length === 11 || mpId.length === 12 || mpId.length === 13 || mpId.length === 14 || mpId.length === 16 || mpId.length === 21 ) && (mpId.match(\"^[a-zA-Z0-9]*$\"))) {\r\n\r\n    apim.setvariable('mpId',mpId);\r\n\r\n    } \r\n    \r\n  else {\r\n  \r\n  apim.setvariable('bodyResp',bodyResp);\r\n  \r\n  }  \r\n}\r\napim.setvariable('message.headers.X-RMG-Client-Id',apim.getvariable('client.app.id'));\r\nfunction replaceAll(str, find, replace) {\r\n    return str.replace(new RegExp(find, 'g'), replace);\r\n};"
+                          - switch:
+                              title: switch
+                              case:
+                                - condition: "apim.getvariable('bodyResp')"
+                                  execute:
+                                    - gatewayscript:
+                                        title: gatewayscript
+                                        version: 1.0.0
+                                        source: "var mpIdArr = apim.getvariable('mpIdArr');  \nvar bodyResp = apim.getvariable('bodyResp');\nvar statusCode;\nif(mpIdArr[1]){\n   var error= {\n         \"httpCode\": \"400\",\n         \"httpMessage\": \"Bad Request\", \n         \"errors\": \n                 {\n                          \"errorCode\": \"E0013\",\n                          \"errorDescription\": \"Maximum parameters permitted in URL exceeded\",\n                          \"errorResolution\": \"Check barcode and resubmit\"\n                 }\n         }\n         apim.setvariable('bodyResp','error');\n         apim.setvariable('statusCode','400');\n         apim.setvariable('errorCode','E0013');\n}\nelse{\napim.setvariable('bodyResp',bodyResp);\napim.setvariable('statusCode','400');\napim.setvariable('errorCode','');\n}\n"
+                                - otherwise:
+                                    - invoke:
+                                        title: invokeEvents
+                                        timeout: 60
+                                        verb: GET
+                                        cache-response: time-to-live
+                                        cache-ttl: 600
+                                        version: 1.0.0
+                                        cache-key: $(request.headers.x-rmg-language)
+                                        target-url: $(endpoint)/$(mpId)/events
+                                        output: eventsResponse
+                                        tls-profile: $(tlsProfile)
+                                    - gatewayscript:
+                                        title: gatewayscript
+                                        version: 1.0.0
+                                        source: >-
+                                          var eventsResponse
+                                          = apim.getvariable('eventsResponse');
+
+                                          var responseBody = eventsResponse.body;
+
+                                          var response;
+
+
+
+                                          if(responseBody.integrationFooter){
+
+                                             var integrationFooter
+
+                                          = responseBody.integrationFooter;
+
+                                             response={
+
+                                              "httpCode":
+
+                                          eventsResponse.status.code,
+
+                                              "httpMessage":
+
+                                          eventsResponse.status.reason,
+
+                                              "errors": integrationFooter.errors
+
+                                            };
+
+                                           }else {
+
+                                              response = responseBody;
+
+                                          }
+
+
+
+
+
+
+
+                                           var statusCode
+
+                                          = eventsResponse.status.code;
+
+                                           var errorCode = '';
+
+                                           if (statusCode=='200'){
+
+                                           }else{
+
+                                               //Fetch the error code
+
+                                               errorCode
+
+                                          =
+                                          responseBody.integrationFooter.errors[0].errorCode;
+
+                                           }
+
+                                           apim.setvariable('errorCode',
+
+                                          errorCode);
+
+                                           apim.setvariable('bodyResp',response);
+
+
+
+                                           apim.setvariable('statusCode',
+
+                                          statusCode);
+
+                                          apim.output('application/json');
+                              version: 1.0.0
+                      - otherwise:
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: |
+                                var verified = 'false';
+                                apim.setvariable('verified',verified);
+                    version: 1.0.0
+                - switch:
+                    title: switch
+                    case:
+                      - condition: "apim.getvariable('request.headers.x-rmg-auth-token') && ((apim.getvariable('statusCode')=='200') || (apim.getvariable('errorCode')=='E1284'))"
+                        execute:
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: >
+                                var claims = apim.getvariable('decoded.claims');
+
+                                var claimsJSON = JSON.parse(claims);
+
+                                var userId = claimsJSON.sub;
+
+
+
+                                apim.setvariable('userId',userId);
+                          - invoke:
+                              title: invokeGet
+                              timeout: 60
+                              verb: GET
+                              cache-response: protocol
+                              cache-ttl: 900
+                              version: 1.0.0
+                              target-url: 'https://$(cloudantUsername):$(cloudantSecret)@$(cloudantDomain)/$(cloudantDB)/_design/mailPieceId/_search/getMailPieceIds?q=userId:"$(userId)" AND siteId:"$(client.app.id)"&sort="-lastUpdateDateTime"&limit=30&include_docs=true'
+                              output: cloudantGetResponse
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: "var msg = apim.getvariable('cloudantGetResponse.body');  \r\nvar len = msg.rows.length;\r\nvar action = 'insert';\r\nvar updateIndex = 0;\r\nvar outJson;\r\n//Check if the mailPieceid exists\r\nfor(var i=0;i<len;i++){\r\n    var mpId= msg.rows[i].doc.mailPieceId;\r\n    var inMpId = apim.getvariable('mpId');\r\n    if(mpId==inMpId){\r\n        action = 'update';\r\n        updateIndex = i;\r\n    }\r\n}\r\nif(action == 'insert'){\r\n  outJson = {\r\n      docs: []\r\n  } ;\r\n  outJson.docs.push({\"userId\" : apim.getvariable('userId'),   \r\n  \"siteId\" : apim.getvariable('client.app.id'), \r\n  \"mailPieceId\" : apim.getvariable('mpId'), \r\n  \"lastUpdateDateTime\" : Date.now()}); \r\n  var lastIndex = msg.rows.length - 1;\r\n  //check if length is more than 30\r\n  if(msg.total_rows >= 30){\r\n      outJson.docs.push({\"_id\" : msg.rows[lastIndex].doc._id,\r\n      \"_rev\" :  msg.rows[lastIndex].doc._rev,\r\n      \"_deleted\" : true});\r\n  }\r\n}\r\nelse{\r\n  var id = msg.rows[updateIndex].doc._id;\r\n  var rev = msg.rows[updateIndex].doc._rev;\r\n  outJson = {} ;\r\n  outJson.userId = msg.rows[updateIndex].doc.userId;   \r\n  outJson.siteId = msg.rows[updateIndex].doc.siteId; \r\n  outJson.mailPieceId = msg.rows[updateIndex].doc.mailPieceId; \r\n  outJson.lastUpdateDateTime = Date.now(); \r\n  apim.setvariable('id',id);\r\n  apim.setvariable('rev',rev);\r\n}\r\n\r\napim.setvariable('action',action);\r\nsession.output.write(outJson);\r\napim.setvariable('outJson', outJson);\r\napim.output('application/json');\r\n"
+                          - switch:
+                              title: switch
+                              case:
+                                - condition: "apim.getvariable('action')=='insert'"
+                                  execute:
+                                    - invoke:
+                                        title: invokeInsert
+                                        timeout: 60
+                                        verb: POST
+                                        cache-response: protocol
+                                        cache-ttl: 900
+                                        version: 1.0.0
+                                        target-url: 'https://$(cloudantUsername):$(cloudantSecret)@$(cloudantDomain)/$(cloudantDB)/_bulk_docs'
+                                        output: cloudantInsertResponse
+                                - otherwise:
+                                    - invoke:
+                                        title: invokeUpdate
+                                        timeout: 60
+                                        verb: PUT
+                                        cache-response: protocol
+                                        cache-ttl: 900
+                                        version: 1.0.0
+                                        target-url: 'https://$(cloudantUsername):$(cloudantSecret)@$(cloudantDomain)/$(cloudantDB)/$(id)/?rev=$(rev)'
+                                        output: cloudantUpdateResponse
+                              version: 1.0.0
+                      - otherwise: []
+                    version: 1.0.0
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "if(apim.getvariable('isError')==true){\r\n    var errResp = apim.getvariable('errResp');\r\n    var httpCode = apim.getvariable('httpCode');\r\n    apim.setvariable('message.status.code',httpCode);\r\n    apim.setvariable('message.body', errResp);\r\n    apim.output('application/json');\r\n    apim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));\r\n}else{\r\nvar eventsResponse = apim.getvariable('bodyResp');          \r\nvar status = apim.getvariable('statusCode');   \r\nvar recaptcha;\r\nvar response;\r\nif(apim.getvariable('verified')){\r\n     response={\r\n         \"httpCode\": \"401\",\r\n         \"httpMessage\": \"Unauthorized\",\r\n         \"moreInformation\": \"captcha validation failed\",\r\n         \"errors\": [\r\n                 {\r\n                          \"errorCode\": \"E0015\",\r\n                          \"errorDescription\": \"Access denied\",\r\n                          \"errorCause\": \"Invalid or expired captcha token\",\r\n                          \"errorResolution\": \"Please request for a new captcha token\"\r\n                 }\r\n         ]\r\n  };\r\n  apim.setvariable('message.status.code','401');\r\n}\r\nelse if(status != 200){\r\n    response = eventsResponse;\r\n    apim.setvariable('message.status.code',status)\r\n}\r\nelse {\r\n    response = eventsResponse;\r\n    apim.setvariable('message.status.code','200');\r\n}\r\napim.setvariable('message.body',response); \r\napim.output('application/json');\r\n\r\nif(apim.getvariable('request.headers.x-recaptcha-response')){\r\n   apim.setvariable('message.headers.x-recaptcha-response',undefined);\r\n   if(apim.getvariable('x-recaptcha-session')){\r\n    recaptcha = apim.getvariable('x-recaptcha-session');\r\n    apim.setvariable('message.headers.x-recaptcha-session',recaptcha);\r\n    createCookie('recaptcha-session',recaptcha,900); \r\n   }\r\n}\r\napim.setvariable('message.headers.Access-Control-Expose-Headers', \"x-recaptcha-session\");\r\napim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));\r\n}\r\nfunction createCookie(name,value,secs) {\r\n    var expires = \"\";\r\n    if (secs) {\r\n        var date = new Date();\r\n        date.setTime(date.getTime() + (secs*1000));\r\n        expires = \"; expires=\" + date.toUTCString();\r\n    }\r\n    var cookie = name + \"=\" + value + expires + \"; path=/\";\r\n    apim.setvariable('message.headers.Set-Cookie',cookie);\r\n};\r\nfunction readCookie(key,cookie)\r\n{\r\n    var result;\r\n    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(cookie)) ? (result[1]) : null;\r\n};\r\n\r\nfunction eraseCookie(name) {\r\n    createCookie(name,\"\",-1);\r\n};\r\n\r\n"
+            - operations:
+                - signatureimage
+              execute:
+                - gatewayscript:
+                    title: schemavalidation
+                    version: 1.0.0
+                    source: "var mailPieceId = apim.getvariable('request.parameters.mailPieceId');\r\nvar cookie = apim.getvariable('request.headers.cookie');\r\nvar schemaFail = false;\r\nvar isError = false;\r\nif(mailPieceId===undefined){\r\n\tschemaFail = true;\r\n}else{\r\n    if(mailPieceId.length=='0'){\r\n        schemaFail=true;\r\n    }\r\n}\r\nif(cookie===undefined){\r\n\tcookie = true;\r\n}else{\r\n    if(cookie.length=='0'){\r\n        schemaFail=true;\r\n    }\r\n}\r\nif(schemaFail===true){\r\n\tvar errResp = {           \r\n         \"httpCode\": \"400\",\r\n         \"httpMessage\": \"Bad Request\",  \r\n         \"errors\": \r\n                 {\r\n                          \"errorCode\": \"E0004\",\r\n                          \"errorDescription\": \"Failed schema validation\", \r\n                          \"errorCause\": \"The submitted request was not valid against the published schema definition\",\r\n                          \"errorResolution\": \"Please check the API request against the schema definition and re-submit\"\r\n                 } \r\n         };\r\n        apim.setvariable('errResp',errResp);\r\n        apim.setvariable(\"httpCode\",'400');\r\n        isError = true;\r\n        apim.setvariable('isError',isError);\r\n}\r\n"
+                - switch:
+                    title: switch
+                    case:
+                      - condition: "apim.getvariable('isError')==true"
+                        execute:
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: >-
+                                var errResp = apim.getvariable('errResp');
+
+                                var httpCode = apim.getvariable('httpCode');
+
+                                apim.setvariable('message.status.code',httpCode);
+
+                                apim.setvariable('message.body', errResp);
+
+                                apim.output('application/json');
+
+                                apim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));
+                      - otherwise:
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: "var cookie = apim.getvariable('request.headers.cookie'); \r\nvar cookieGet = readCookie('recaptcha-session',cookie);\r\n\r\nfunction readCookie(key,cookie)\r\n{\r\n    var result;\r\n    return (result = new RegExp('(?:^|; )' + encodeURIComponent(key) + '=([^;]*)').exec(cookie)) ? (result[1]) : null;\r\n};\r\n\r\napim.setvariable('cookieGet',cookieGet);\r\n"
+                          - jwt-validate:
+                              title: jwt-validate
+                              jwt: cookieGet
+                              output-claims: ''
+                              version: 1.0.0
+                              iss-claim: apiconnect
+                              jws-jwk: hs256-key
+                              aud-claim: TAPIv2
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: "apim.setvariable('message.headers.X-RMG-Client-Id',apim.getvariable('client.app.id'));"
+                          - invoke:
+                              title: invokeSignatureImage
+                              timeout: 60
+                              verb: GET
+                              cache-response: time-to-live
+                              version: 1.0.0
+                              target-url: $(endpoint)/$(request.parameters.mailPieceId)/signatureimage
+                              cache-ttl: 600
+                              tls-profile: $(tlsProfile)
+                          - gatewayscript:
+                              title: gatewayscript
+                              version: 1.0.0
+                              source: "var signatureImage = apim.getvariable('message');\r\nvar responseBody = signatureImage.body;\r\nvar response;\r\nif(responseBody.integrationFooter){\r\n   var integrationFooter = responseBody.integrationFooter;\r\n   response={\r\n    \"httpCode\": signatureImage.status.code,\r\n    \"httpMessage\": signatureImage.status.reason,\r\n    \"errors\": integrationFooter.errors\r\n  };\r\n  apim.setvariable('message.body',response);\r\n  apim.output('application/json');\r\n }else {\r\n    //apim.setvariable('message',signatureImage);\r\n}\r\n\r\n\r\napim.setvariable('message.headers.Cache-Control','max-age=300');\r\napim.setvariable('message.headers.access-control-allow-methods',apim.getvariable('request.verb'));"
+                    version: 1.0.0
+            - operations:
+                - verb: options
+                  path: '/user/{userId}/history/{siteId}'
+              execute:
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "apim.setvariable('message.headers.access-control-allow-methods','GET,DELETE');"
+            - operations:
+                - verb: options
+                  path: '/{mailPieceId}/events'
+              execute:
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "apim.setvariable('message.headers.access-control-allow-methods','GET');"
+            - operations:
+                - verb: options
+                  path: /summary
+              execute:
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "apim.setvariable('message.headers.access-control-allow-methods','GET');"
+            - operations:
+                - verb: options
+                  path: '/{mailPieceId}/signatureimage'
+              execute:
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "apim.setvariable('message.headers.access-control-allow-methods','GET');"
+          otherwise: []
+          version: 1.0.0
+      - gatewayscript:
+          title: gatewayscript
+          version: 1.0.0
+          source: "apim.setvariable('message.headers.access-control-allow-origin',apim.getvariable('request.headers.origin'));\r\napim.setvariable('message.headers.access-control-allow-credentials','true');\r\napim.setvariable('message.headers.access-control-allow-headers',\"x-ibm-client-id,x-recaptcha-response,X-RMG-Language,x-recaptcha-session,Origin,X-Requested-With,Content-Type,Accept,X-RMG-Auth-Token\");\r\napim.setvariable('message.headers.Access-Control-Expose-Headers',\"APIm-Debug-Trans-Id, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-Global-Transaction-ID,x-recaptcha-session\");"
+      - activity-log:
+          title: activity-log
+          content: payload
+          error-content: payload
+          version: 1.0.0
+    catch:
+      - errors:
+          - RuntimeError
+        execute:
+          - gatewayscript:
+              title: gatewayscript
+              version: 1.0.0
+              source: "\r\nvar err = apim.getvariable('err');\r\n\r\nvar response={};\r\nswitch(err) {\r\n    case \"mailPiece\":\r\n       response={\r\n         \"httpCode\": \"401\",\r\n         \"httpMessage\": \"Unauthorized\",\r\n         \"moreInformation\": \"MailPiece JWT validation failed\",\r\n         \"errors\": [\r\n                 {\r\n                          \"errorCode\": \"E0015\",\r\n                          \"errorDescription\": \"Access denied\",\r\n                          \"errorCause\": \"Invalid or expired MailPiece JWT token\",\r\n                          \"errorResolution\": \"Please request for a new MailPiece JWT token\"\r\n                 }\r\n         ]\r\n        };\r\n        apim.setvariable('message.status.code','401');\r\n        break;\r\n    default:\r\n        response={\r\n         \"httpCode\": \"401\",\r\n         \"httpMessage\": \"Unauthorized\",\r\n         \"moreInformation\": \"JWT validation failed\",\r\n         \"errors\": [\r\n                 {\r\n                          \"errorCode\": \"E0015\",\r\n                          \"errorDescription\": \"Access denied\",\r\n                          \"errorCause\": \"Invalid or expired JWT token\",\r\n                          \"errorResolution\": \"Please request for a new JWT token\"\r\n                 }\r\n         ]\r\n        };\r\n        apim.setvariable('message.status.code','401');\r\n        \r\n}\r\napim.setvariable('message.headers.access-control-allow-origin',apim.getvariable('request.headers.origin'));\r\napim.setvariable('message.headers.access-control-allow-credentials','true');\r\napim.setvariable('message.headers.access-control-allow-headers',\"x-ibm-client-id,x-recaptcha-response,X-RMG-Language,x-recaptcha-session,Origin,X-Requested-With,Content-Type,Accept,X-RMG-Auth-Token\");\r\napim.setvariable('message.headers.Access-Control-Expose-Headers',\"APIm-Debug-Trans-Id, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-Global-Transaction-ID,x-recaptcha-session\");\r\nsession.output.write(response);\r\napim.output('application/json');"
+      - default:
+          - gatewayscript:
+              title: gatewayscript
+              version: 1.0.0
+              source: "var response={\r\n         \"httpCode\": \"500\",\r\n         \"httpMessage\": \"Internal Server Error\",\r\n         \"errors\": [\r\n                 {\r\n                          \"errorCode\": \"E0009\",\r\n                          \"errorDescription\": \"Internal server error\",\r\n                          \"errorCause\": \"Business fulfilment system returned an error response\",\r\n                          \"errorResolution\": \"Please try again later\"\r\n                 }\r\n         ]\r\n};\r\napim.setvariable('message.headers.access-control-allow-origin',apim.getvariable('request.headers.origin'));\r\napim.setvariable('message.headers.access-control-allow-credentials','true');\r\napim.setvariable('message.headers.access-control-allow-headers',\"x-ibm-client-id,x-recaptcha-response,X-RMG-Language,x-recaptcha-session,Origin,X-Requested-With,Content-Type,Accept,X-RMG-Auth-Token\");\r\napim.setvariable('message.headers.Access-Control-Expose-Headers',\"APIm-Debug-Trans-Id, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-Global-Transaction-ID,x-recaptcha-session\");\r\napim.setvariable('message.status.code','500');\r\nsession.output.write(response);\r\napim.output('application/json');"
+  phase: realized
+  catalogs: {}
+  properties:
+    tlsProfile:
+      value: onboarding-pre-prod-test-ca2
+      description: ''
+      encoded: false
+    cloudantDB:
+      value: mail_piece_id
+      description: Cloudant Database name
+      encoded: false
+    cloudantDomain:
+      value: 0fc50620-e2e4-41f5-8ccf-f50e088c35e6-bluemix.cloudant.com
+      description: Domain of the Cloudant Domain
+      encoded: false
+    cloudantSecret:
+      value: f8c5d0aedee17e9844aaa167dd824d75a0ba6ee77fa37d7eacd886677a07b3d7
+      description: Secret of the Cloudant Database Instance
+      encoded: false
+    cloudantUsername:
+      value: 0fc50620-e2e4-41f5-8ccf-f50e088c35e6-bluemix
+      description: Username of the cloudant database instance
+      encoded: false
+    backsideClientSecret:
+      value: H3tM5vC6hX6wD0bV4aH0aM6iU1xQ6gI8xR1iJ6sA6bJ2sG6oA1
+      description: ''
+      encoded: false
+    backsideClientId:
+      value: 2bfb8422-ac9c-46d2-88cf-3846c63e9985
+      description: ''
+      encoded: false
+    endpoint:
+      value: 'https://sit-api.royalmail.com/mailpieces/v2'
+      description: End point for invoking Tracking API V2 B2B edition.
+      encoded: false
+  gateway: datapower-gateway
+paths:
+  '/user/{userId}/history/{siteId}':
+    get:
+      responses:
+        '200':
+          description: 200 OK
+          headers:
+            Content-Type:
+              type: string
+          schema:
+            $ref: '#/definitions/rtiResponse'
+        '400':
+          description: 4XX and 5XX All client and server errors
+          schema:
+            $ref: '#/definitions/errorResponse'
+      parameters:
+        - name: userId
+          type: string
+          required: true
+          in: path
+          description: User identity
+        - name: limit
+          type: number
+          required: false
+          in: query
+          description: number of latest mailPieceIds
+          format: double
+        - $ref: '#/parameters/X-RMG-Auth-Token'
+        - $ref: '#/parameters/X-RMG-Language'
+        - name: siteId
+          type: string
+          required: true
+          in: path
+          description: siteid is X-IBM-Client-Id
+        - $ref: '#/parameters/Origin'
+      description: Get list of recently tracked mailPieceIds for a specific user
+      summary: Get  mailPieceIds for a given user
+      security:
+        - Client-Id-Header: []
+    delete:
+      responses:
+        '200':
+          description: 200 OK
+          headers:
+            Content-Type:
+              type: string
+          schema:
+            $ref: '#/definitions/rtiResponse'
+        '400':
+          description: 4XX and 5XX All client and server errors
+          schema:
+            $ref: '#/definitions/errorResponse'
+      parameters:
+        - name: userId
+          type: string
+          required: true
+          in: path
+          description: User identity
+        - name: mailPieceId
+          type: array
+          required: true
+          in: query
+          description: 1D or 2D barcode tracking number of the mail item being queried.
+          items:
+            type: string
+        - name: siteId
+          type: string
+          required: true
+          in: path
+          description: siteid is X-IBM-Client-Id
+        - $ref: '#/parameters/X-RMG-Language'
+        - $ref: '#/parameters/X-RMG-Auth-Token'
+        - $ref: '#/parameters/Origin'
+      description: Delete from the list of recently tracked mailPieceIds for a specific user
+      security:
+        - Client-Id-Header: []
+      summary: delete mailPieceIds for a given user
+    options:
+      responses:
+        '200':
+          description: 200 OK
+      parameters:
+        - name: userId
+          type: string
+          required: true
+          in: path
+        - name: siteId
+          type: string
+          required: true
+          in: path
+      security:
+        - {}
+  '/{mailPieceId}/events':
+    get:
+      summary: get events details for a queried mailPieceId
+      description: "The behaviour of the events operation is to provide a history of tracks for a single mail item.\_This operation returns the summary, signature metadata, estimated delivery window and events for a supplied tracking number."
+      operationId: events
+      parameters:
+        - name: mailPieceId
+          in: path
+          required: true
+          description: 1D or 2D barcode tracking number of the mail item being queried.
+          type: string
+        - $ref: '#/parameters/X-RMG-Language'
+        - $ref: '#/parameters/X-RMG-Auth-Token'
+        - $ref: '#/parameters/X-recaptcha-response'
+        - $ref: '#/parameters/X-recaptcha-session'
+        - $ref: '#/parameters/Origin'
+        - $ref: '#/parameters/Cookie'
+        - $ref: '#/parameters/Accept'
+      responses:
+        '200':
+          description: 200 OK
+          headers:
+            Content-Type:
+              type: string
+          schema:
+            $ref: '#/definitions/eventsSuccessResponse'
+        '400':
+          description: 4XX and 5XX All client and server errors
+          schema:
+            $ref: '#/definitions/errorResponse'
+      security:
+        - Client-Id-Header: []
+    options:
+      responses:
+        '200':
+          description: 200 OK
+      parameters:
+        - name: mailPieceId
+          type: string
+          required: true
+          in: path
+      security:
+        - {}
+  /summary:
+    get:
+      summary: get summary for queried  mailPieceIds
+      description: The behaviour of the summary operation is to allow customers to obtain the latest tracking data for a mail item. This operation returns the summary of one or more tracking numbers provided in the request. This operation only allows a maximum of 30 tracking numbers to be provided in the mailPieceId query parameter via a comma separated list.
+      operationId: summary
+      parameters:
+        - name: mailPieceId
+          in: query
+          required: true
+          description: Java Web Token generated by API connect provided as RTI response
+          type: string
+        - $ref: '#/parameters/X-RMG-Language'
+        - $ref: '#/parameters/X-RMG-Auth-Token'
+        - $ref: '#/parameters/Origin'
+        - $ref: '#/parameters/Cookie'
+        - $ref: '#/parameters/Accept'
+      responses:
+        '200':
+          description: 200 OK
+          headers:
+            Content-Type:
+              type: string
+          schema:
+            $ref: '#/definitions/summarySuccessResponse'
+        '400':
+          description: 4XX and 5XX All client and server errors
+          schema:
+            $ref: '#/definitions/summaryErrorResponse'
+      security:
+        - Client-Id-Header: []
+    options:
+      responses:
+        '200':
+          description: 200 OK
+      security:
+        - {}
+  '/{mailPieceId}/signatureimage':
+    get:
+      summary: get signatureimage for a queried mailPieceId
+      description: The signature operation provides the details captured at the point of delivery as proof that delivery has occurred. Note that a proof of delivery is only captured by the delivery track for those service offerings that require a signature on delivery.
+      operationId: signatureimage
+      parameters:
+        - name: mailPieceId
+          in: path
+          required: true
+          description: 1D or 2D barcode tracking number of the mail item being queried.
+          type: string
+        - $ref: '#/parameters/Origin'
+        - $ref: '#/parameters/Cookie'
+      responses:
+        '200':
+          description: 200 OK
+          headers:
+            Content-Type:
+              type: string
+            Cache-Control:
+              type: string
+          schema:
+            type: object
+        '400':
+          description: 4XX and 5XX All client and server errors
+          schema:
+            $ref: '#/definitions/errorResponse'
+      consumes:
+        - application/json
+      produces:
+        - application/json
+        - image/png
+        - image/svg+xml
+      security:
+        - Client-Id-Query: []
+    options:
+      responses:
+        '200':
+          description: 200 OK
+      parameters:
+        - name: mailPieceId
+          type: string
+          required: true
+          in: path
+      security:
+        - {}
+definitions:
+  eventsSuccessOutput:
+    properties:
+      mailPieces:
+        $ref: '#/definitions/eventsMailPiecesDef'
+      integrationFooter:
+        $ref: '#/definitions/integrationFooterDef'
+    additionalProperties: false
+  jwtInvalidError:
+    properties:
+      message:
+        type: string
+        description: The error message
+    additionalProperties: false
+    required:
+      - message
+  integrationFooterDef:
+    properties:
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/errorsDef'
+        description: Repeating node of Error messages
+    additionalProperties: false
+  summarySuccessOutput:
+    properties:
+      mailPieces:
+        type: array
+        items:
+          $ref: '#/definitions/summaryMailPiecesDef'
+      integrationFooter:
+        $ref: '#/definitions/integrationFooterDef'
+    additionalProperties: false
+  X-RMG-Auth-TokenDef:
+    properties:
+      sub:
+        type: string
+        description: userId
+      iss:
+        type: string
+        description: eBusiness
+      audience:
+        type: string
+        description: TAPIv2
+      exp:
+        type: string
+        description: '{exp} is in the future'
+    additionalProperties: false
+  subLinksSignatureimageDef:
+    properties:
+      href:
+        type: string
+        description: URL link to redelivery API
+        example: /mailpieces/v2/JX009814815GB/signatureimage
+      title:
+        type: string
+        description: Title of the link
+        example: Signature Image
+      description:
+        type: string
+        description: Description of the link
+        example: Get Signature image
+    additionalProperties: false
+    required:
+      - href
+      - title
+      - description
+  mymailPiecesJWTDef:
+    properties:
+      rtiOrderedList:
+        type: array
+        items:
+          $ref: '#/definitions/mymailPiecesDef'
+        description: list of mailPieceIds
+      sub:
+        type: string
+        description: X-RMG-Auth-Token.userid
+      iss:
+        type: string
+        description: apiconnect
+      audience:
+        type: string
+        description: TAPIv2
+      exp:
+        type: string
+        description: X-RMG-Auth-Token.exp
+    additionalProperties: false
+    description: JWT generated by api connect returned as part RTI GET response operation.
+  mymailPiecesDef:
+    properties:
+      mailPieceId:
+        type: string
+    additionalProperties: false
+    description: Latest Mail Piece Ids for given user retrieved from cloudantDB
+  rtiDef:
+    properties:
+      lastAccessedTimestamp:
+        type: string
+      mailPieceId:
+        type: string
+    additionalProperties: false
+  rtiResponse:
+    properties:
+      mpDetails:
+        type: array
+        items:
+          $ref: '#/definitions/rtiDef'
+        description: array of mailPieceIds and last accessed time stamp
+      jwt:
+        type: string
+        description: API connect generated jwt encoded(mymailpiecesJWTDef)
+    additionalProperties: false
+  summaryErrorResponse:
+    properties:
+      mailPieces:
+        type: array
+        items:
+          $ref: '#/definitions/mailPieceIdDef'
+      httpCode:
+        type: string
+        description: HTTP status code associated with the error condition
+        example: '404'
+      httpMessage:
+        type: string
+        description: HTTP status description associated with the error condition
+        example: Not Found
+      moreinformation:
+        type: string
+        description: Description of the error condition
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/errorsDef'
+    additionalProperties: false
+    required:
+      - httpCode
+      - httpMessage
+  errorResponse:
+    properties:
+      httpCode:
+        type: string
+        description: HTTP error code.  Please note that this will only be populated in the event of an error condition.
+        example: ''
+      httpMessage:
+        type: string
+        description: HTTP error code description. Please note that this will only be populated in the event of an error condition.
+        example: ''
+      moreInformation:
+        type: string
+        description: Information relating to the error condition.
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/errorsDef'
+    additionalProperties: false
+    required:
+      - httpCode
+      - httpMessage
+  subLinksEventsDef:
+    properties:
+      href:
+        type: string
+        description: Relative URL link for event information
+        example: /mailpieces/v2/FQ087430672GB/events
+      title:
+        type: string
+        description: Title of the link
+        example: Events
+      description:
+        type: string
+        description: Description of the link
+        example: Get events
+    additionalProperties: false
+    description: Container for events link information
+    required:
+      - href
+      - title
+      - description
+  subLinksRedeliveryDef:
+    properties:
+      href:
+        type: string
+        description: Relative URL link for redelivery
+        example: /personal/receiving-mail/redelivery
+      title:
+        type: string
+        description: Title of the link
+        example: Redelivery
+      description:
+        type: string
+        description: Description of the link
+        example: Book a redelivery
+    additionalProperties: false
+    description: Container for redelivery link information
+    required:
+      - href
+      - title
+      - description
+  subLinksSignatureDef:
+    properties:
+      href:
+        type: string
+        example: /mailpieces/v2/090367574000000FE1E1B/signature
+        description: Relative URL link for signature information
+      title:
+        type: string
+        example: Signature
+        description: Title of the link
+      description:
+        type: string
+        example: Get signature
+        description: Description of the link
+    additionalProperties: false
+    required:
+      - href
+      - title
+      - description
+    description: Container for signature link information
+  mailPieceIdDef:
+    properties:
+      mailPieceId:
+        type: string
+        description: 1D or 2D Barcode
+        example: 090367574000000FE1E1B
+      status:
+        type: string
+        description: HTTP status code specific to the item
+        example: '404'
+    additionalProperties: false
+  summarySuccessResponse:
+    properties:
+      mailPieces:
+        type: array
+        items:
+          $ref: '#/definitions/summaryMailPiecesDef'
+        description: Repeating Node of Mail Piece Data
+    additionalProperties: true
+    description: 200 OK response for summary Operation
+  errorsDef:
+    properties:
+      errorCode:
+        type: string
+        description: Code associated with the error condition
+        example: E1142
+      errorDescription:
+        type: string
+        description: Description of the error condition
+        example: "Barcode reference $mailPieceId isn't recognised"
+      errorCause:
+        type: string
+        description: Cause of the error (if known)
+        example: A mail item with that barcode cannot be located
+      errorResolution:
+        type: string
+        description: Description of the resolution and action required to correct the error
+        example: Check barcode and resubmit
+    additionalProperties: false
+    description: Array containing error information.
+  summaryLinksDef:
+    properties:
+      events:
+        $ref: '#/definitions/subLinksEventsDef'
+    additionalProperties: false
+    description: Object containing API links
+  summaryMailPiecesDef:
+    additionalProperties: false
+    description: ''
+    properties:
+      mailPieceId:
+        type: string
+        description: 1D or 2D barcode provided in the API request
+        example: 090367574000000FE1E1B
+      status:
+        type: string
+        description: HTTP status code associated with the provision of mail piece summary information
+        example: '200'
+      carrierShortName:
+        type: string
+        description: Short name of the carrier
+        example: RM
+      carrierFullName:
+        type: string
+        description: Full name of the carrier
+        example: Royal Mail Group Ltd
+      summary:
+        $ref: '#/definitions/allSummaryDef'
+      links:
+        $ref: '#/definitions/summaryLinksDef'
+      error:
+        $ref: '#/definitions/errorsDef'
+    required:
+      - mailPieceId
+      - status
+  eventsSuccessResponse:
+    properties:
+      mailPieces:
+        $ref: '#/definitions/eventsMailPiecesDef'
+    additionalProperties: true
+    description: 200 OK Response for events Operation
+    required:
+      - mailPieces
+  eventsMailPiecesDef:
+    additionalProperties: false
+    properties:
+      mailPieceId:
+        type: string
+        description: 1D or 2D barcode provided in the API request
+        example: 090367574000000FE1E1B
+      carrierShortName:
+        type: string
+        description: Short name of the carrier
+        example: RM
+      carrierFullName:
+        type: string
+        description: Full name of the carrier
+        example: Royal Mail Group Ltd
+      summary:
+        $ref: '#/definitions/allSummaryDef'
+      signature:
+        $ref: '#/definitions/eventsSignatureDef'
+      estimatedDelivery:
+        $ref: '#/definitions/eventsEstimatedDeliveryDef'
+      events:
+        type: array
+        items:
+          $ref: '#/definitions/eventsEventsDef'
+        description: Array containing mail piece event information
+      links:
+        $ref: '#/definitions/eventsLinksDef'
+    required:
+      - mailPieceId
+    description: Object containing tracking information for the requested mail item. This will only be provided in the event that no error information is returned.
+  eventsLinksDef:
+    properties:
+      summary:
+        $ref: '#/definitions/subLinksSummaryDef'
+      signature:
+        $ref: '#/definitions/subLinksSignatureDef'
+      signatureimage:
+        $ref: '#/definitions/subLinksSignatureimageDef'
+      redelivery:
+        $ref: '#/definitions/subLinksRedeliveryDef'
+    additionalProperties: false
+    description: Object containing API links
+  subLinksSummaryDef:
+    properties:
+      href:
+        type: string
+        description: Relative URL link for operation information
+        example: /mailpieces/v2/summary?mailPieceId=090367574000000FE1E1B
+      title:
+        type: string
+        description: Title of the link
+        example: Summary
+      description:
+        type: string
+        description: Description of the link
+        example: Get summary
+    required:
+      - href
+      - title
+      - description
+    additionalProperties: false
+  allInternationalPostalProviderDef:
+    properties:
+      url:
+        type: string
+        description: URL link to website of delivery provider for international parcels
+        example: 'https://www.royalmail.com/track-your-item'
+      title:
+        type: string
+        description: Name of the international postal organisation
+        example: Royal Mail Group Ltd
+      description:
+        type: string
+        description: Description of the international postal organisation
+        example: Royal Mail Group Ltd
+    required:
+      - url
+      - title
+      - description
+    description: Object containing details of  international postal organisation
+    additionalProperties: false
+  eventsEventsDef:
+    type: object
+    properties:
+      eventCode:
+        type: string
+        description: Code associated with the mail piece event
+        example: EVNMI
+      eventName:
+        type: string
+        description: Name of the event
+        example: Forwarded - Mis-sort
+      eventDateTime:
+        type: string
+        description: 'Date and time of the event in the format: ISO8601  -   YYYY-MM-DDThh:mm:ss±hh:mm'
+        example: '2016-10-20T10:04:00+01:00'
+        format: date-time
+      locationName:
+        type: string
+        description: Location name associated with the mail piece event
+        example: Stafford DO
+    required:
+      - eventDateTime
+    description: Repeating node of events
+    additionalProperties: false
+  eventsEstimatedDeliveryDef:
+    properties:
+      date:
+        type: string
+        description: 'Date of the estimated delivery window in the format: ISO8601 YYYY-MM-DD.'
+        example: '2017-02-20'
+        format: date-time
+      startOfEstimatedWindow:
+        type: string
+        description: 'Start time of the estimated delivery window in the format: hh:mm:ss±hh:mm'
+        example: '08:00:00+01:00'
+      endOfEstimatedWindow:
+        type: string
+        description: 'End time of the estimated delivery window in the format: hh:mm:ss±hh:mm'
+        example: '11:00:00+01:00'
+    description: Object containing the estimated delivery data
+    additionalProperties: false
+  eventsSignatureDef:
+    properties:
+      recipientName:
+        type: string
+        description: Name of the person who provided the signature
+        example: Simon
+      signatureDateTime:
+        type: string
+        description: 'Date and time the signature was captured in the following format: ISO8601  YYYY-MM-DDThh:mm:ss±hh:mm'
+        example: '2016-10-20T10:04:00+01:00'
+        format: date-time
+      imageId:
+        type: string
+        description: Identifier associated with the signature image
+        example: '001234'
+    description: Object containing signature metadata data
+    additionalProperties: false
+  allSummaryDef:
+    properties:
+      uniqueItemId:
+        type: string
+        description: 2D barcode for the mail piece
+        example: 090367574000000FE1E1B
+      oneDBarcode:
+        type: string
+        description: 1D barcode for the mail piece
+        example: FQ087430672GB
+      productId:
+        type: string
+        description: Identifier for the tracked product
+        example: SD2
+      productName:
+        type: string
+        description: Name of the tracked product
+        example: Special Delivery Guaranteed
+      productDescription:
+        type: string
+        description: Description of tracked product
+        example: Our guaranteed next working day service with tracking and a signature on delivery
+      productCategory:
+        type: string
+        description: Category for tracked product
+        example: NON-INTERNATIONAL
+      destinationCountryCode:
+        type: string
+        description: Destination country code
+        example: GBR
+      destinationCountryName:
+        type: string
+        description: Destination country name
+        example: United Kingdom of Great Britain and Northern Ireland
+      originCountryCode:
+        type: string
+        description: Origin Country Code
+        example: GBR
+      originCountryName:
+        type: string
+        description: Origin Country Name
+        example: United Kingdom of Great Britain and Northern Ireland
+      lastEventCode:
+        type: string
+        description: Code associated with the latest mail piece event
+        example: EVNMI
+      lastEventName:
+        type: string
+        description: Name of the latest mail piece event
+        example: Forwarded - Mis-sort
+      lastEventDateTime:
+        type: string
+        description: 'Date timestamp associated with the latest mail piece event in the following format: ISO8601  YYYY-MM-DDThh:mm:ss±hh:mm'
+        example: '2016-10-20T10:04:00+01:00'
+        format: date-time
+      lastEventLocationName:
+        type: string
+        description: Location name associated with the latest mail piece event
+        example: Stafford DO
+      statusDescription:
+        type: string
+        description: Status description associated with the latest mail piece event
+        example: "It's being redirected"
+      statusCategory:
+        type: string
+        description: Status category associated with the latest mail piece event
+        example: IN TRANSIT
+      statusHelpText:
+        type: string
+        description: Status help text associated with the latest mail piece event
+        example: 'The item is in transit and a confirmation will be provided on delivery. For more information on levels of tracking by service, please see Sending Mail.'
+      summaryLine:
+        type: string
+        description: Summary message for mail item’s last tracking scan
+        example: Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.
+      internationalPostalProvider:
+        $ref: '#/definitions/allInternationalPostalProviderDef'
+    description: Object containing mail piece summary data
+    additionalProperties: false
+tags: []
+security:
+  - Client-Id-Query: []
+  - Client-Id-Header: []
+parameters:
+  X-RMG-Language:
+    name: X-RMG-Language
+    type: string
+    required: false
+    in: header
+    description: Optional default english
+  X-RMG-Auth-Token:
+    name: X-RMG-Auth-Token
+    type: string
+    required: false
+    in: header
+    description: 'Java Web Token generated by eBusiness and passed in header, when a user successfully authenticated'
+  X-recaptcha-response:
+    name: X-recaptcha-response
+    type: string
+    required: false
+    in: header
+    description: Google recaptcha response
+  X-recaptcha-session:
+    name: X-recaptcha-session
+    type: string
+    required: false
+    in: header
+    description: 'Google Catpcha session Token, post successfull validation'
+  Origin:
+    name: Origin
+    type: string
+    required: true
+    in: header
+    description: 'Check value matches permitted web sites *.royalmail.com and *.postoffice.co.uk'
+  Cookie:
+    name: Cookie
+    type: string
+    required: false
+    in: header
+    description: 'Check Cookie:recaptcha-session == Header:X-recaptcha-session'
+  Accept:
+    name: Accept
+    type: string
+    required: false
+    in: header
+    description: Pass though; used for markdown
+  Cache-Control:
+    name: Cache-Control
+    type: string
+    required: false
+    in: header
+    description: Response header
+  Content-Type:
+    name: Content-Type
+    type: string
+    required: true
+    in: header
+    description: Response header
+basePath: /mailpieces/v2

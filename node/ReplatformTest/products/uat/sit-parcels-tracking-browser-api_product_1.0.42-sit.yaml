@@ -1,0 +1,24 @@
+product: 1.0.0
+info:
+  name: sit-parcels-tracking-browser-api
+  title: SIT Parcels Tracking Browser API
+  version: 1.0.42-sit
+visibility:
+  view:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  rmg-tracking-api-v2-rest-b2b-browser:
+    $ref: rmg-tracking-api-v2-rest-b2b-browser_1.0.42-sit.yaml
+plans:
+  sit-tracking-v2-browser-plan:
+    title: SIT Tracking v2 Browser Plan
+    approval: true
+    apis: {}

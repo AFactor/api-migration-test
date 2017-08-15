@@ -1,0 +1,120 @@
+swagger: '2.0'
+info:
+  x-ibm-name: rmgpocstubbed
+  title: RMG_POC_STUBBED
+  version: Abhishek
+schemes:
+  - https
+host: $(catalog.host)
+basePath: /poc1
+consumes:
+  - application/xml
+  - application/json
+produces:
+  - application/xml
+  - application/json
+securityDefinitions:
+  clientIdHeader:
+    type: apiKey
+    in: header
+    name: X-IBM-Client-Id
+security:
+  - clientIdHeader: []
+x-ibm-configuration:
+  testable: true
+  enforced: true
+  cors:
+    enabled: true
+  assembly:
+    execute:
+      - operation-switch:
+          title: operation-switch
+          case:
+            - operations:
+                - verb: post
+                  path: /namespaces
+              execute:
+                - json-to-xml:
+                    title: json-to-xml
+                    root-element-name: json
+                    always-output-root-element: false
+                    version: 1.0.0
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "var dictionary = apim.getvariable('dictionary');\nvar endPoint = dictionary.endPoint;\n\nString.prototype.format = function() {\n    var s = this,\n        i = arguments.length;\n    while (i--) {\n        s = s.replace(new RegExp('\\\\{' + i + '\\\\}', 'gm'), arguments[i]);\n    }\n    return s;\n};\n\nendPoint = endPoint.format('mpId',\"121213\");\n"
+            - operations:
+                - verb: post
+                  path: /jack
+              execute:
+                - xml-to-json:
+                    title: xml-to-json
+                    version: 1.0.0
+                    description: a
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "\n\napim.readInputAsJSON(function (error, json) {\n\tif(error) {\n\t\tconsole.error(\"An error occured reading the input as JSON: \" + error);\n\t} else {\n\t\tapim.setvariable('mpId', json.AmazonTrackingRequest.TrackingNumber.$); \n\t}\n});\n\n"
+                - invoke:
+                    title: invoke
+                    timeout: 60
+                    verb: GET
+                    cache-response: time-to-live
+                    cache-ttl: 60
+                    version: 1.0.0
+                    target-url: 'https://0a16cbcf-ea89-475d-861a-4b4245404bda-bluemix.cloudant.com/config/shipTrack_1'
+                    output: config
+                    username: 0a16cbcf-ea89-475d-861a-4b4245404bda-bluemix
+                    password: 3ce292febfe64b6b34ec66b8a80cc2107e689fa7c75b971114a38770be61457c
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "\nvar config = apim.getvariable('config')\nvar endPoint = config.body.endPoint;\nvar mpId = apim.getvariable('mpId');\nvar url = endPoint.replace(\"\\{0\\}\",  mpId);\nurl = url.replace(\"\\\\:\", \"\\\\\\\\:\");\napim.setvariable('endPoint', url);\n\n\n\n"
+                - invoke:
+                    title: invoke-ESB
+                    timeout: 60
+                    verb: GET
+                    cache-response: time-to-live
+                    cache-ttl: 60
+                    version: 1.0.0
+                    target-url: $(endPoint)
+                    output: eventResponse
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "//var config = apim.getvariable('config');\r\n//var eventsResponse = apim.getvariable('eventsresponse.body');\r\n\r\nvar test = {\"test\" : apim.getvariable('endPoint')};\r\nvar events = apim.getvariable('events')\r\nsession.output.write(test);\r\n\t\tapim.output('application/json');\r\n\t\t\r\n"
+                - json-to-xml:
+                    title: json-to-xml
+                    root-element-name: json
+                    always-output-root-element: false
+                    version: 1.0.0
+          otherwise: []
+          version: 1.0.0
+    catch: []
+  phase: realized
+paths:
+  /namespaces:
+    post:
+      responses:
+        '200':
+          description: 200 OK
+      parameters:
+        - name: body
+          required: true
+          in: body
+          schema:
+            type: object
+  /jack:
+    post:
+      responses:
+        '200':
+          description: 200 OK
+      parameters:
+        - name: amazonRequest
+          required: true
+          in: body
+          description: The request that would come from amazon
+          schema:
+            type: object
+definitions: {}
+tags: []

@@ -1,0 +1,26 @@
+product: 1.0.0
+info:
+  title: Test eCustoms Plan
+  version: '7'
+  description: This plan will be shared to the the Projects team where they will review the API and Portal Configurations in APIM UAT environment
+  name: test-ecustoms-plan
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  customs-declaration-api-soap:
+    $ref: customs-declaration-api-soap_1-rev7.yaml
+plans:
+  test-ecustoms-plan:
+    title: Test eCustoms Plan
+    description: This plan will be shared to the the Projects team where they will review the API and Portal Configurations in APIM UAT environment
+    approval: true
+    apis: {}

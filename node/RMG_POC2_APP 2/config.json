@@ -1,8 +1,9 @@
 {
     "jwt_token_generation" : "root",    
-    "google_captcha_url" : "https://apimdev2019.hursley.ibm.com/rmg-org/sb/rmgpoc2captchatest/googleVerify",
+    
     "capcha_secret" : "6LchQRoUAAAAAJ6ds_3EQgqkPwruv9Gr_MgvfJMX",
-    "client_id" : "62d93843-ac19-4e11-9711-a29ea325de8d",
+    "client_id" : "f3c1bad5-5db5-4722-948a-d9947dc60b9d",
     "generate_jwt_token_url" : "https://api.eu.apiconnect.ibmcloud.com/royalmailcom-release-zero/sb/rmgpocjwt/generateJWT?testclaims=",
-    "api_url" : "https://api.eu.apiconnect.ibmcloud.com/royalmailcom-release-zero/sb/rmgpoc2retrievetrackingdetails/getTrackingDetails?client_id=62d93843-ac19-4e11-9711-a29ea325de8d&trackingNumber="
+    "api_url" : "https://api.eu.apiconnect.ibmcloud.com/royalmail/dev/capchavalidation?trackingNumber=",
+    "short_api_url" : "https://api.eu.apiconnect.ibmcloud.com/royalmail/dev/capchavalidation?"
 }

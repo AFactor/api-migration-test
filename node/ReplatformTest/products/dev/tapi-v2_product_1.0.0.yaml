@@ -1,0 +1,46 @@
+product: 1.0.0
+info:
+  name: tapi-v2
+  title: TAPI V2
+  version: 1.0.0
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  jwtapi:
+    $ref: jwtapi_1.0.0.yaml
+  javascript:
+    $ref: javascript_1.0.0.yaml
+  rmg-tracking-api-v2-rest-b2b-shiptrack_2:
+    $ref: rmg-tracking-api-v2-rest-b2b-shiptrack_1.0.10-dev.yaml
+  rmg-tracking-api-v2-rest-server_4:
+    $ref: rmg-tracking-api-v2-rest-server_1.0.10-sitLang.yaml
+  authorization-api:
+    $ref: authorization-api_1.0.3-dev.yaml
+  shipservice:
+    $ref: shipservice_1.0.0.yaml
+  rmg-tracking-api-v2-rest-server:
+    $ref: rmg-tracking-api-v2-rest-server_1.0.1-pp.yaml
+  rmg-tracking-api-v2-rest-b2b-shiptrack:
+    $ref: rmg-tracking-api-v2-rest-b2b-shiptrack_1.0.11-dev.yaml
+  rmg-tracking-api-v2-rest-server_1:
+    $ref: rmg-tracking-api-v2-rest-server_1.0.8-dev.yaml
+  online-postage-service-v2-soap:
+    $ref: online-postage-service-v2-soap_1.0.0.yaml
+  rmg-tracking-api-v2-rest-server_2:
+    $ref: rmg-tracking-api-v2-rest-server_1.0.12-sit.yaml
+  rmg-tracking-api-v2-rest-server_3:
+    $ref: rmg-tracking-api-v2-rest-server_1.0.13-sit.yaml
+  shipping-api-v2-soap:
+    $ref: shipping-api-v2-soap_2.0.9-rev32.yaml
+plans:
+  Default:
+    title: Default Plan

@@ -1,0 +1,19 @@
+{
+    "url": "https://eu.apiconnect.ibmcloud.com/v1/idps/55ed50710cf2554a85f86d41",
+    "id": "55ed50710cf2554a85f86d41",
+    "orgId": "55a900b10cf272a4b3015a7a",
+    "createdAt": "2015-09-07T08:53:05.646+0000",
+    "updatedAt": "2015-09-07T08:53:05.646+0000",
+    "createdBy": "Sarah.Saunders@capgemini.com",
+    "updatedBy": "Sarah.Saunders@capgemini.com",
+    "name": "rmgliveenv",
+    "type": "apim",
+    "scope": [
+        "portal"
+    ],
+    "writable": true,
+    "title": "RMGLiveEnv",
+    "realm": "RMGLiveEnv",
+    "description": "Database for environment",
+    "caseSensitive": true
+}

@@ -1,0 +1,27 @@
+product: 1.0.0
+info:
+  name: live-tracking-plan-16s
+  title: Live Tracking Plan 16S
+  version: 1.0.0
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  tracking-api-live-rest:
+    $ref: tracking-api-live-rest_1-rev14S.yaml
+plans:
+  default:
+    title: Default Plan
+    description: Default Plan
+    approval: false
+    rate-limit:
+      hard-limit: false
+      value: 100/hour

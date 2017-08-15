@@ -1,0 +1,25 @@
+product: 1.0.0
+info:
+  title: Online Postage V1 Plan PP
+  version: '1'
+  description: This plan is for Royal Mail customers to subscribe to the Online Postage APIs in the Live environment
+  name: online-postage-v1-plan-pp
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  online-postage-api-v1-pp-soap:
+    $ref: online-postage-api-v1-pp-soap_1.yaml
+plans:
+  live-v1-online-postage-plan:
+    title: Live V1 Online Postage Plan
+    description: This plan is for Royal Mail customers to subscribe to the Online Postage APIs in the Live environment
+    approval: true

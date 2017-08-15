@@ -1,0 +1,679 @@
+swagger: '2.0'
+info:
+  x-ibm-name: tracking-api-v2-rest
+  title: Tracking API V2 (REST)
+  version: 2.0.0
+  description: >-
+    The Royal Mail Tracking API V2 exposes a web service that allows account
+    customers to receive track-and-trace information for their mail items. Built
+    on industry standards, Tracking API V2 provides a simple and low cost method
+    for customers to integrate with Royal Mail.
+
+    The API provides the latest tracking information, the tracking history, and
+    the proof of delivery information for a single mail item and summary detail
+    for multiple mailpieceids. The API provides an alternative mechanism to using
+    the track and trace function on the Royal Mail website
+    (http://www.royalmail.com/track-trace).
+
+
+
+    There are no costs to customers for using the Tracking API V2, however
+    customers’ own development costs must be covered by the customer developing
+    the solution. Royal Mail will not accept any responsibility for these
+    development, implementation and testing costs.
+
+    Customers should address initial enquiries regarding development of systems
+    for these purposes to their account handler.
+  contact: {}
+schemes:
+  - https
+basePath: /mailpieces/v2/Abhngh
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  Client-Secret:
+    type: apiKey
+    description: ''
+    in: header
+    name: X-IBM-Client-Secret
+  Client-Id:
+    type: apiKey
+    description: ''
+    in: header
+    name: X-IBM-Client-Id
+x-ibm-configuration:
+  testable: true
+  enforced: true
+  cors:
+    enabled: true
+  assembly:
+    execute:
+      - gatewayscript:
+          title: gatewayscript
+          version: 1.0.0
+          source: "var Summary_body = {\r\n   \"mailPieces\":[\r\n      {\r\n         \"mailPieceId\":\"090367574000000FE1E1B\",\r\n         \"status\":\"200\",\r\n         \"carrierShortName\":\"RM\",\r\n         \"carrierFullName\":\"Royal Mail Group Ltd\",\r\n         \"summary\":{\r\n            \"uniqueItemId\":\"090367574000000FE1E1B\",\r\n            \"oneDBarcode\":\"FQ087430672GB\",\r\n            \"productId\":\"SD2\",\r\n            \"productName\":\"Special Delivery Guaranteed\",\r\n            \"productDescription\":\"Our guaranteed next working day service with tracking and a signature on delivery\",\r\n            \"productCategory\":\"NON-INTERNATIONAL\",\r\n            \"destinationCountryCode\":\"GBR\",\r\n            \"destinationCountryName\":\"United Kingdom of Great Britain and Northern Ireland\",\r\n            \"originCountryCode\":\"GBR\",\r\n            \"originCountryName\":\"United Kingdom of Great Britain and Northern Ireland\",\r\n            \"lastEventCode\":\"EVNMI\",\r\n            \"lastEventName\":\"Forwarded - Mis-sort\",\r\n            \"lastEventDateTime\":\"2016-10-20T10:04:00+01:00\",\r\n            \"lastEventLocationName\":\"Stafford DO\",\r\n            \"statusDescription\":\"It's being redirected\",\r\n            \"statusCategory\":\"IN TRANSIT\",\r\n            \"statusHelpText\":\"The item is in transit and a confirmation will be provided on delivery. For more information on levels of tracking by service, please see Sending Mail.\",\r\n            \"summaryLine\":\"Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.\",\r\n            \"internationalPostalProvider\":{\r\n               \"url\":\"https://www.royalmail.com/track-your-item\",\r\n               \"title\":\"Royal Mail Group Ltd\",\r\n               \"description\":\"Royal Mail Group Ltd\"\r\n            },\r\n            \"messages\":[\r\n               {\r\n                  \"id\":\"1123\",\r\n                  \"message\":\"Parcel contains prohibited or restricted items\"\r\n               },\r\n               {\r\n                  \"id\":\"1124\",\r\n                  \"message\":\"Find out more about prohibited goods and restricted goods.\"\r\n               }\r\n            ]\r\n         },\r\n         \"links\":{\r\n            \"events\":{\r\n               \"href\":\"/mailpieces/v2/FQ087430672GB/events\",\r\n               \"title\":\"Events\",\r\n               \"description\":\"Get events\"\r\n            }\r\n         }\r\n      },\r\n      {\r\n         \"mailPieceId\":\"021AAA820229ACC7\",\r\n         \"status\":\"403\",\r\n         \"carrierShortName\":\"RM\",\r\n         \"carrierFullName\":\"Royal Mail Group Ltd\",\r\n         \"error\":{\r\n            \"errorCode\":\"E11xx\",\r\n            \"errorDescription\":\"Tracking information is not available for this service\",\r\n            \"errorCause\":\"The service used doesn’t support tracking\",\r\n            \"errorResolution\":\"The service used doesn’t support tracking\"\r\n         }\r\n      },\r\n      {\r\n         \"mailPieceId\":\"090367575000000FE1E1B\",\r\n         \"status\":\"200\",\r\n         \"carrierShortName\":\"RM\",\r\n         \"carrierFullName\":\"Royal Mail Group Ltd\",\r\n         \"summary\":{\r\n            \"uniqueItemId\":\"090367575000000FE1E1B\",\r\n            \"oneDBarcode\":\"FQ087430672GB\",\r\n            \"productId\":\"SD2\",\r\n            \"productName\":\"Special Delivery Guaranteed\",\r\n            \"productDescription\":\"Our guaranteed next working day service with tracking and a signature on delivery\",\r\n            \"productCategory\":\"NON-INTERNATIONAL\",\r\n            \"destinationCountryCode\":\"GBR\",\r\n            \"destinationCountryName\":\"United Kingdom of Great Britain and Northern Ireland\",\r\n            \"originCountryCode\":\"GBR\",\r\n            \"originCountryName\":\"United Kingdom of Great Britain and Northern Ireland\",\r\n            \"lastEventCode\":\"EVNMI\",\r\n            \"lastEventName\":\"Forwarded - Mis-sort\",\r\n            \"lastEventDateTime\":\"2016-10-20T10:04:00+01:00\",\r\n            \"lastEventLocationName\":\"Stafford DO\",\r\n            \"statusDescription\":\"It's being redirected\",\r\n            \"statusCategory\":\"IN TRANSIT\",\r\n            \"statusHelpText\":\"The item is in transit and a confirmation will be provided on delivery. For more information on levels of tracking by service, please see Sending Mail.\",\r\n            \"summaryLine\":\"Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.\",\r\n            \"internationalPostalProvider\":{\r\n               \"url\":\"https://www.royalmail.com/track-your-item\",\r\n               \"title\":\"Royal Mail Group Ltd\",\r\n               \"description\":\"Continue tracking on royalmail.com\"\r\n            },\r\n            \"messages\":[\r\n               {\r\n                  \"id\":\"1123\",\r\n                  \"message\":\"Parcel contains prohibited or restricted items\"\r\n               },\r\n               {\r\n                  \"id\":\"1124\",\r\n                  \"message\":\"Find out more about prohibited goods and restricted goods.\"\r\n               }\r\n            ]\r\n         },\r\n         \"links\":{\r\n            \"events\":{\r\n               \"href\":\"/mailpieces/v2/FQ087430672GB/events\",\r\n               \"title\":\"Events\",\r\n               \"description\":\"Get events\"\r\n            }\r\n         }\r\n      },\r\n      {\r\n         \"mailPieceId\":\"FQ087430643GB\",\r\n         \"status\":\"404\",\r\n         \"error\":{\r\n            \"errorCode\":\"E1142\",\r\n            \"errorDescription\":\"Barcode reference FQ087430643GB isn't recognised\",\r\n            \"errorCause\":\"A mail item with that barcode cannot be located\",\r\n            \"errorResolution\":\"Check barcode and resubmit\"\r\n         }\r\n      }\r\n   ]\r\n}\r\n\r\napim.setvariable('message.body',Summary_body);"
+      - map:
+          title: map
+          inputs:
+            input:
+              schema:
+                $ref: '#/definitions/summary.SuccessResponse'
+              variable: summary.body
+              content: application/json
+          outputs:
+            output:
+              schema:
+                $ref: '#/definitions/summary.SuccessResponse'
+              variable: message.body
+              content: application/json
+          actions:
+            - create: output.mailPieces
+              foreach: input.mailPieces
+              from: input.mailPieces
+              actions:
+                - set: mailPieceId
+                  from: mailPieceId
+                - set: status
+                  from: status
+                - set: carrierShortName
+                  from: carrierShortName
+                - set: carrierFullName
+                  from: carrierFullName
+                - set: summary.uniqueItemId
+                  from: summary.uniqueItemId
+                - set: summary.oneDBarcode
+                  from: summary.oneDBarcode
+                - set: summary.productId
+                  from: summary.productId
+                - set: summary.productName
+                  from: summary.productName
+                - set: summary.productDescription
+                  from: summary.productDescription
+                - set: summary.productCategory
+                  from: summary.productCategory
+                - set: summary.destinationCountryCode
+                  from: summary.destinationCountryCode
+                - set: summary.destinationCountryName
+                  from: summary.destinationCountryName
+                - set: summary.originCountryCode
+                  from: summary.originCountryCode
+                - set: summary.originCountryName
+                  from: summary.originCountryName
+                - set: summary.lastEventCode
+                  from: summary.lastEventCode
+                - set: summary.lastEventName
+                  from: summary.lastEventName
+                - set: summary.lastEventDateTime
+                  from: summary.lastEventDateTime
+                - set: summary.lastEventLocationName
+                  from: summary.lastEventLocationName
+                - set: summary.statusDescription
+                  from: summary.statusDescription
+                - set: summary.statusCategory
+                  from: summary.statusCategory
+                - set: summary.statusHelpText
+                  from: summary.statusHelpText
+                - set: summary.summaryLine
+                  from: summary.summaryLine
+                - set: summary.internationalPostalProvider.url
+                  from: summary.internationalPostalProvider.url
+                - set: summary.internationalPostalProvider.title
+                  from: summary.internationalPostalProvider.title
+                - set: summary.internationalPostalProvider.description
+                  from: summary.internationalPostalProvider.description
+                - set: links.events.href
+                  from: links.events.href
+                - set: links.events.title
+                  from: links.events.title
+                - set: links.events.description
+                  from: links.events.description
+                - set: errors.errorCode
+                  from: errors.errorCode
+                - set: errors.errorDescription
+                  from: errors.errorDescription
+                - set: errors.errorCause
+                  from: errors.errorCause
+                - set: errors.errorResolution
+                  from: errors.errorResolution
+          version: 1.0.0
+    catch: []
+  phase: realized
+  catalogs:
+    apic-dev:
+      properties:
+        new-property-1: ''
+paths:
+  /summary:
+    get:
+      responses:
+        '200':
+          description: 200 OK
+          schema:
+            $ref: '#/definitions/summary.SuccessResponse'
+        '400':
+          description: Bad Request. Probably malformed request
+          schema:
+            $ref: '#/definitions/summary.ErrorResponse'
+        '401':
+          description: Authorisation failure
+          schema:
+            $ref: '#/definitions/summary.ErrorResponse'
+        '404':
+          description: Resource not found
+          schema:
+            $ref: '#/definitions/summary.ErrorResponse'
+        '429':
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/summary.ErrorResponse'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/summary.ErrorResponse'
+        '503':
+          description: Service Unavailable
+        '504':
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/summary.ErrorResponse'
+      summary: 'GET mailpieces/v2/summary?mailPieceId={mp1,mp2,mp3..mp30}'
+      parameters:
+        - name: mailpieceId
+          type: array
+          required: true
+          in: query
+          items:
+            type: string
+          description: 1D or 2D barcode tracking number
+  '/{mailPieceId}/signature':
+    get:
+      responses:
+        '200':
+          description: 200 OK
+          schema:
+            $ref: '#/definitions/signature.SuccessResponse'
+        '400':
+          description: Bad Request. Probably malformed request
+          schema:
+            $ref: '#/definitions/error.Response'
+        '401':
+          description: Authorisation failure
+          schema:
+            $ref: '#/definitions/error.Response'
+        '404':
+          description: Resource not found
+          schema:
+            $ref: '#/definitions/error.Response'
+        '429':
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/error.Response'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/error.Response'
+        '503':
+          description: Service Unavailable
+          schema:
+            type: object
+        '504':
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/error.Response'
+      summary: 'GET mailpieces/v2/{mailPieceId}/signature'
+      parameters:
+        - name: mailPieceId
+          type: string
+          required: true
+          in: path
+          description: 1D or 2D barcode tracking number
+      description: 'The GET mailpieces/v2/{mailPieceId}/signature operation provides the details captured at the point of delivery as proof that delivery has occurred. Note that a proof of delivery is only captured by the delivery track for those service offerings that require a signature on delivery.'
+  '/{mailPieceId}/events':
+    get:
+      responses:
+        '200':
+          description: 200 OK
+          schema:
+            $ref: '#/definitions/events.SuccessResponse'
+        '400':
+          description: Bad Request. Probably malformed request
+          schema:
+            $ref: '#/definitions/error.Response'
+        '401':
+          description: Authorization Failure
+          schema:
+            $ref: '#/definitions/error.Response'
+        '404':
+          description: Source not found
+          schema:
+            $ref: '#/definitions/error.Response'
+        '429':
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/error.Response'
+        '500':
+          description: Internal Server error
+          schema:
+            $ref: '#/definitions/error.Response'
+        '503':
+          description: Service Unavailable
+          schema:
+            type: object
+        '504':
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/error.Response'
+      summary: 'GET mailpieces/v2/{mailPieceId}/events'
+      parameters:
+        - name: mailPieceId
+          type: string
+          required: true
+          in: path
+          description: 1D or 2D barcode tracking number
+      description: 'The behaviour of the GET mailpieces/v2/{mailPieceId}/events operation is to provide a history of tracks for a single mail item. This method returns the summary, signature metadata, estimated delivery window and events to the request received for a mail piece id'
+definitions:
+  signature.SuccessResponse:
+    properties:
+      mailPieces:
+        $ref: '#/definitions/signature.MailPieces.Def'
+    additionalProperties: false
+    description: 200 OK response for signature Operation
+    required:
+      - mailPieces
+  summary.ErrorResponse:
+    properties:
+      mailPieces:
+        type: array
+        items:
+          $ref: '#/definitions/summaryError'
+        description: Node of Mail Piece Data
+      integrationFooter:
+        $ref: '#/definitions/integrationFooter.Def'
+    additionalProperties: false
+  summaryError:
+    properties:
+      mailPieceId:
+        type: string
+        description: 1D or 2D Barcode
+      status:
+        type: string
+        description: HTTP status code specific to the item
+    additionalProperties: false
+  summary.SuccessResponse:
+    properties:
+      mailPieces:
+        type: array
+        items:
+          $ref: '#/definitions/summary.MailPieces.Def'
+        description: Repeating Node of Mail Piece Data
+    additionalProperties: false
+    description: 200 OK response for summary Operation
+  integrationFooter.Def:
+    properties:
+      errors:
+        type: array
+        items:
+          $ref: '#/definitions/errors.Def'
+        description: Repeating node of Error messages
+    additionalProperties: false
+  error.Response:
+    properties:
+      mailPieceId:
+        type: string
+        description: 1D or 2D barcode
+      integrationFooter:
+        $ref: '#/definitions/integrationFooter.Def'
+  errors.Def:
+    properties:
+      errorCode:
+        type: string
+        description: The RM specified code for the error message
+        example: E1142
+      errorDescription:
+        type: string
+        description: The description associated with the error code
+        example: The reference number has not been recognised. Please check that you‘ve entered it correctly
+      errorCause:
+        type: string
+        description: The cause of the error if known
+        example: The reference number has not been recognised
+      errorResolution:
+        type: string
+        description: The description of the resolution and action required to correct the error if known.The description of the resolution and action required to correct the error if known.
+        example: Please enter the correct reference number
+    additionalProperties: false
+    required:
+      - errorCode
+      - errorDescription
+  summary.Links.Def:
+    properties:
+      events:
+        $ref: '#/definitions/All.LinksSub.Def'
+    additionalProperties: false
+  signature.Links.Def:
+    properties:
+      events:
+        $ref: '#/definitions/All.LinksSub.Def'
+      summary:
+        $ref: '#/definitions/All.LinksSub.Def'
+    additionalProperties: false
+  summary.MailPieces.Def:
+    additionalProperties: false
+    description: Object created for summarySuccessResponse.
+    properties:
+      mailPieceId:
+        type: string
+        description: 1D or 2D barcode
+        example: 090367574000000FE1E1B
+      status:
+        type: string
+        description: HTTP status code specific to the item
+        example: '200'
+      carrierShortName:
+        type: string
+        description: Short name of the carrier
+        example: RM
+      carrierFullName:
+        type: string
+        description: Full name of the carrier
+        example: Royal Mail Group Ltd
+      summary:
+        $ref: '#/definitions/All.Summary.Def'
+      links:
+        $ref: '#/definitions/summary.Links.Def'
+      errors:
+        $ref: '#/definitions/errors.Def'
+    required:
+      - mailPieceId
+      - status
+  signature.MailPieces.Def:
+    properties:
+      mailPieceId:
+        type: string
+        description: '"1D or 2D barcode"'
+        example: 090367574000000FE1E1B
+      carrierShortName:
+        type: string
+        description: '"Short name of the carrier"'
+        example: RM
+      carrierFullName:
+        type: string
+        description: '"Full name of the carrier"'
+        example: Royal Mail Group Ltd
+      signature:
+        $ref: '#/definitions/signature.Signature.Def'
+      links:
+        $ref: '#/definitions/signature.Links.Def'
+    additionalProperties: false
+    required:
+      - mailPieceId
+    description: Object created for signatureSuccessResponse.
+  signature.Signature.Def:
+    properties:
+      uniqueItemId:
+        type: string
+        description: '"Parcel Identifier (2D Barcode)"'
+        example: 090367574000000FE1E1B
+      oneDBarcode:
+        type: string
+        description: '"Parcel Identifier (1D Barcode)"'
+        example: FQ087430672GB
+      recipientName:
+        type: string
+        description: '"Name of the person who provided the signature"'
+        example: Simon
+      signatureDateTime:
+        type: string
+        description: '"Date and time when Signature was captured. Format will follow either of below 2017-03-30T16:15:00+01:00, 2017-02-1430T16:15:00Z"'
+        example: '2017-03-30T16:15:00+01:00'
+      imageFormat:
+        type: string
+        description: '"Format of Image"'
+        example: image/svg+xml
+      imageId:
+        type: string
+        description: '"ID of the Signature Image"'
+        example: '001234'
+      height:
+        type: integer
+        format: int32
+        description: '"Height of the Signature Image"'
+        example: 10
+      width:
+        type: integer
+        format: int32
+        description: '"Width of the Signature Image"'
+        example: 20
+      image:
+        type: string
+        description: '"SVG Image or binary image"'
+        example: "<svg height=\\\"530\\\" width=\\\"660\\\"><polyline style=\\\"fill:none; stroke:#000000; stroke-width:4.0\\\" points=\\\" 372.44107,213.46997 372.44107\\\"/></svg>"
+    required:
+      - signatureDateTime
+      - imageFormat
+    description: Object created for signature of Signature operation.
+  events.SuccessResponse:
+    properties:
+      mailPieces:
+        $ref: '#/definitions/events.MailPieces.Def'
+    additionalProperties: false
+    description: 200 OK Response for events Operation
+    required:
+      - mailPieces
+  events.MailPieces.Def:
+    additionalProperties: false
+    properties:
+      mailPieceId:
+        type: string
+        description: 1D or 2D barcode
+        example: 090367574000000FE1E1B
+      carrierShortName:
+        type: string
+        description: Short name of the carrier
+        example: RM
+      carrierFullName:
+        type: string
+        description: Full name of the carrier
+        example: Royal Mail Group Ltd
+      summary:
+        $ref: '#/definitions/All.Summary.Def'
+      signature:
+        $ref: '#/definitions/events.Signature.Def'
+      estimatedDelivery:
+        $ref: '#/definitions/events.estimatedDelivery.Def'
+      events:
+        type: array
+        items:
+          $ref: '#/definitions/events.Events.Def'
+        description: Repeating node of events
+      links:
+        $ref: '#/definitions/events.Links.Def'
+    required:
+      - mailPieceId
+    description: Object created for eventsSuccessResponse.
+  events.Links.Def:
+    properties:
+      summary:
+        $ref: '#/definitions/All.LinksSub.Def'
+      signature:
+        $ref: '#/definitions/All.LinksSub.Def'
+      redelivery:
+        $ref: '#/definitions/All.LinksSub.Def'
+    additionalProperties: false
+    description: Node of API links
+  All.LinksSub.Def:
+    properties:
+      href:
+        type: string
+        description: URL link to summary API
+        example: /mailpieces/v2/summary?mailPieceId=JX009814815GB
+      title:
+        type: string
+        description: Title of the link
+        example: Summary
+      description:
+        type: string
+        description: Description of the link
+        example: Get summary
+    required:
+      - href
+      - title
+      - description
+  All.internationalPostalProvider.Def:
+    properties:
+      url:
+        type: string
+        description: URL link to website of delivery provider for International parcels
+        example: 'https://www.royalmail.com/track-your-item'
+      title:
+        type: string
+        description: Name of the postal organisation
+        example: Royal Mail Group Ltd
+      description:
+        type: string
+        description: Description of the postal organisation
+        example: Royal Mail Group Ltd
+    required:
+      - url
+      - title
+      - description
+    description: Node for International postal organisation details
+  events.Events.Def:
+    type: object
+    properties:
+      eventCode:
+        type: string
+        description: Code of Mail piece event
+        example: EVNMI
+      eventName:
+        type: string
+        description: Name of the event
+        example: Forwarded - Mis-sort
+      eventDateTime:
+        type: string
+        description: '"Date and time the event. Format will follow either of below 2017-03-30T16:15:00+01:00, 2017-02-1430T16:15:00Z"'
+        example: '2016-02-20T10:04:00+01:00'
+      locationName:
+        type: string
+        description: Name of functional Location
+        example: Stafford DO
+    required:
+      - eventDateTime
+    description: Repeating node of events
+  events.estimatedDelivery.Def:
+    properties:
+      date:
+        type: string
+        description: '"Date of Estimated Delivery Window.Data will follow below format.  2017-02-20"'
+        example: '2017-02-20'
+      startOfEstimatedWindow:
+        type: string
+        description: '"Start time of Estimated Delivery Window. Data will follow either of below format.  15:00:00+01:00, 16:15:00Z"'
+        example: '08:00:00+01:00'
+      endOfEstimatedWindow:
+        type: string
+        description: '"End time of Estimated Delivery Window.Data will follow either of below format.  15:00:00+01:00, 16:15:00Z"'
+        example: '11:00:00+01:00'
+    required:
+      - date
+    description: Node of Estimated Delivery data
+  events.Signature.Def:
+    properties:
+      recipientName:
+        type: string
+        description: Name of the person who provided the signature
+        example: Simon
+      signatureDateTime:
+        type: string
+        description: '"Date and time when the Signature was captured. Format will follow either of below 2017-03-30T16:15:00+01:00, 2017-02-1430T16:15:00Z"'
+        example: '2017-03-30T16:15:00+01:00'
+      imageId:
+        type: string
+        description: ID of the Signature Image
+        example: '001234'
+    required:
+      - signatureDateTime
+    description: Node of Signature data
+  All.Summary.Def:
+    properties:
+      uniqueItemId:
+        type: string
+        description: '"Parcel Identifier (2D Barcode)"'
+        example: 090367574000000FE1E1B
+      oneDBarcode:
+        type: string
+        description: '"Parcel Identifier (1D Barcode)"'
+        example: FQ087430672GB
+      productId:
+        type: string
+        description: '"Reference code for product"'
+        example: SD2
+      productName:
+        type: string
+        description: '"Name of Product"'
+        example: Special Delivery Guaranteed
+      productDescription:
+        type: string
+        description: '"Description of Product"'
+        example: Our guaranteed next working day service with tracking and a signature on delivery
+      productCategory:
+        type: string
+        description: '"Category for product"'
+        example: NON-INTERNATIONAL
+      destinationCountryCode:
+        type: string
+        description: '"Destination Country Code"'
+        example: GBR
+      destinationCountryName:
+        type: string
+        description: '"Destination Country Name"'
+        example: United Kingdom of Great Britain and Northern Ireland
+      originCountryCode:
+        type: string
+        description: '"Origin Country Code"'
+        example: GBR
+      originCountryName:
+        type: string
+        description: '"Origin Country Name"'
+        example: United Kingdom of Great Britain and Northern Ireland
+      lastEventCode:
+        type: string
+        description: '"Code of Mail piece event"'
+        example: EVNMI
+      lastEventName:
+        type: string
+        description: '"Name of the event"'
+        example: Forwarded - Mis-sort
+      lastEventDateTime:
+        type: string
+        description: '"Date and time the event. Format will follow either of below 2017-03-30T16:15:00+01:00, 2017-02-1430T16:15:00Z"'
+        example: '2017-03-30T10:04:00+01:00'
+      lastEventLocationName:
+        type: string
+        description: '"Name of functional Location"'
+        example: Stafford DO
+      statusDescription:
+        type: string
+        description: '"Description of last event Status"'
+        example: "It's being redirected"
+      statusCategory:
+        type: string
+        description: '"Category of last event Code"'
+        example: IN TRANSIT
+      statusHelpText:
+        type: string
+        description: '"Status help text associated to last event Code"'
+        example: 'The item is in transit and a confirmation will be provided on delivery. For more information on levels of tracking by service, please see Sending Mail.'
+      summaryLine:
+        type: string
+        description: '"Summary message for mail item’s last tracking scan"'
+        example: Item FQ087430672GB was forwarded to the Delivery Office on 2016-10-20.
+      internationalPostalProvider:
+        $ref: '#/definitions/All.internationalPostalProvider.Def'
+    description: Node of Mail Piece Summary Data
+tags: []
+security:
+  - Client-Secret: []
+    Client-Id: []

@@ -1,0 +1,28 @@
+product: 1.0.0
+info:
+  name: analytics-monitoring
+  title: Analytics Monitoring
+  version: '1.2'
+  description: This Product will help alertsite to monitor Phissing or DoD API calls
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  analytics:
+    $ref: analytics_1.0.0.yaml
+plans:
+  default:
+    title: Default Plan
+    description: Default Plan
+    approval: false
+    rate-limit:
+      hard-limit: false
+      value: 100/hour

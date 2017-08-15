@@ -1,0 +1,31 @@
+product: 1.0.0
+info:
+  name: banka-services
+  title: BankA Services
+  version: 1.0.0
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  accounts:
+    $ref: accounts_1.0.0.yaml
+  authorization-api:
+    $ref: authorization-api_1.0.2.yaml
+  registration-rest-api-specification:
+    $ref: rmg-registration-api-rest_1.0.1.yaml
+plans:
+  default:
+    title: Default Plan
+    description: Default Plan
+    approval: false
+    rate-limit:
+      hard-limit: false
+      value: 147/1hour

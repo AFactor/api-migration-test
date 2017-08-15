@@ -1,0 +1,224 @@
+swagger: '2.0'
+info:
+  version: 1.0.1
+  title: RMG Registration API REST
+  description: The Registration API provides market places with the ability to register or de-register sellers with Royal Mail billing accounts. Sellers registered by the market place can use their account prices on the market place for Royal Mail postage.
+  x-ibm-name: rmg-registration-api-rest
+basePath: /marketplace/v1/sellers
+schemes:
+  - https
+produces:
+  - application/xml
+paths:
+  '/{accountId}':
+    post:
+      description: |
+        Registers a new seller that is to be supported on the market place
+      consumes:
+        - application/xml
+      parameters:
+        - name: accountId
+          in: path
+          description: The account Id of the market place seller
+          required: true
+          type: string
+        - in: body
+          name: registrationData
+          description: The data required to verify that the seller does indeed possess a RMG seller account
+          schema:
+            $ref: '#/definitions/registrationData'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/registrationResponse'
+        '400':
+          description: Bad Request. Probably malformed request
+          schema:
+            $ref: '#/definitions/errorResponse'
+        '401':
+          description: Authorisation failure
+          schema:
+            $ref: '#/definitions/errorResponse'
+        '404':
+          description: Resource not found
+          schema:
+            $ref: '#/definitions/errorResponse'
+        '429':
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/errorResponse'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorResponse'
+        '503':
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/errorResponse'
+        '504':
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/errorResponse'
+    delete:
+      description: |
+        Un-Registers a seller
+      consumes:
+        - application/xml
+      parameters:
+        - name: accountId
+          in: path
+          description: The account Id of the market place seller
+          required: true
+          type: string
+        - in: body
+          name: registrationData
+          description: The data required to verify that the seller does indeed possess a RMG seller account
+          schema:
+            $ref: '#/definitions/registrationData'
+      responses:
+        '200':
+          description: Successful response
+          schema:
+            $ref: '#/definitions/registrationResponse'
+        '400':
+          description: Bad Request. Probably malformed request
+          schema:
+            $ref: '#/definitions/errorResponse'
+        '401':
+          description: Authorisation failure
+          schema:
+            $ref: '#/definitions/errorResponse'
+        '404':
+          description: Resource not found
+          schema:
+            $ref: '#/definitions/errorResponse'
+        '429':
+          description: Too many requests
+          schema:
+            $ref: '#/definitions/errorResponse'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errorResponse'
+        '503':
+          description: Service Unavailable
+          schema:
+            $ref: '#/definitions/errorResponse'
+        '504':
+          description: Gateway Timeout
+          schema:
+            $ref: '#/definitions/errorResponse'
+securityDefinitions:
+  ClientId:
+    type: apiKey
+    name: X-IBM-Client-Id
+    in: header
+  ClientSecret:
+    type: apiKey
+    name: X-IBM-Client-Secret
+    in: header
+    description: ''
+security:
+  - ClientId: []
+    ClientSecret: []
+definitions:
+  registrationData:
+    type: object
+    properties:
+      externalRef:
+        type: string
+      sellerName:
+        type: string
+      sellerAddress:
+        $ref: '#/definitions/sellerAddress'
+      sellerContact:
+        $ref: '#/definitions/sellerContact'
+      contracts:
+        type: array
+        items:
+          $ref: '#/definitions/contract'
+  sellerAddress:
+    type: object
+    required:
+      - addressLine1
+      - addressLine2
+      - postCode
+    properties:
+      addressLine1:
+        type: string
+      addressLine2:
+        type: string
+      addressLine3:
+        type: string
+      addressLine4:
+        type: string
+      postCode:
+        type: string
+  sellerContact:
+    type: object
+    required:
+      - phone1
+      - email
+    properties:
+      phone1:
+        type: string
+      phone2:
+        type: string
+      email:
+        type: string
+  contract:
+    type: object
+    properties:
+      contractId:
+        type: string
+  registrationResponse:
+    type: object
+    required:
+      - requestTxId
+    properties:
+      requestTxId:
+        type: string
+  errorResponse:
+    type: object
+    properties:
+      code:
+        type: number
+      status:
+        type: number
+      description:
+        type: string
+      cause:
+        type: string
+      resolution:
+        type: string
+x-ibm-configuration:
+  enforced: true
+  testable: true
+  phase: realized
+  cors:
+    enabled: true
+  assembly:
+    execute:
+      - proxy:
+          title: proxy
+          verb: keep
+          cache-response: no-cache
+          version: 1.0.0
+          target-url: $(endpoint)
+          secure-gateway: false
+          timeout: 60
+          tls-profile: $(tlsProfile)
+    catch: []
+  properties:
+    tlsProfile:
+      value: ''
+      description: ''
+      encoded: false
+    endpoint:
+      value: 'http://129.185.160.215:8088/royalmail/dev/marketplace/v1/sellers/$(request.parameters.accountId)'
+      description: ''
+      encoded: false
+  catalogs: {}
+consumes:
+  - application/xml

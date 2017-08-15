@@ -1,0 +1,45 @@
+swagger: '2.0'
+info:
+  x-ibm-name: javascript
+  title: javascript
+  version: 1.0.0
+schemes:
+  - https
+basePath: /sgdccdcee
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  clientIdHeader:
+    type: apiKey
+    in: header
+    name: X-IBM-Client-Id
+security:
+  - clientIdHeader: []
+x-ibm-configuration:
+  testable: true
+  enforced: true
+  cors:
+    enabled: true
+  assembly:
+    execute:
+      - gatewayscript:
+          title: gatewayscript
+          version: 1.0.0
+          source: "var mpId = apim.getvariable('request.parameters.mpId');\r\n\r\nif(mpId.length === 13 && (mpId.match(/^[a-zA-Z0-9]*$/))){\r\nif(mpId.match(/(C[A-Z]|E[A-Z]|B[A-Z]|PA|N[D-S])[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][^GB][^GB]/)){\r\napim.setvariable('message.body',\"error 1 \");\r\n}else if(mpId.match(/(CK|CP|CU|EA|EB|EC|ED|EE|EK|EH|EU)[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][GB][GB]/)){\r\napim.setvariable('message.body',\"error 2\");\r\n}else if(mpId.match(/3S[A-Z][A-Z][A-Z][A-Z][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/)){\r\napim.setvariable('message.body',\"error 3\");\r\n}else if(mpId.match(/9[A-Z][A-Z][A-Z][A-Z][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/)){\r\napim.setvariable('message.body',\"error 4\");\r\n}else if(mpId.match(/8E[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/) ){\r\napim.setvariable('message.body',\"error 5\");\r\n}else if(mpId.match(/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][A-Z][A-Z]/)){\r\napim.setvariable('message.body',\"error 6\");\r\n}else if(mpId.match(/3E[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/)){\r\napim.setvariable('message.body',\"error 7\");\r\n}else if(mpId.match(/[A-Z][A-Z][A-Z][A-Z][0-9][0-9][0-9][0-9][0-9][0-9][0-9]GB/)){\r\napim.setvariable('message.body',\"error 8\");\r\n}else{\r\napim.setvariable('message.body',mpId);\r\n}\r\n}\r\n"
+    catch: []
+  phase: realized
+paths:
+  /path-11:
+    get:
+      responses:
+        '200':
+          description: 200 OK
+      parameters:
+        - name: mpId
+          type: string
+          required: false
+          in: query
+definitions: {}
+tags: []

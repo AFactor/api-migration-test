@@ -1,0 +1,24 @@
+product: 1.0.0
+info:
+  name: sit-registration-api
+  title: SIT Registration API
+  version: 1.0.1
+visibility:
+  view:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  rmg-registration-api-rest:
+    $ref: rmg-registration-api-rest_1.0.1.yaml
+plans:
+  sit-registration-api-plan:
+    title: SIT Registration API Plan
+    approval: true
+    apis: {}

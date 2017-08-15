@@ -1,0 +1,2308 @@
+swagger: '2.0'
+info:
+  version: 1.0.0-rev25L
+  title: International Tracked Direct API
+  description: >-
+    International Tracked Direct API V1 provides the integration method to Royal
+    Mail business customers for using Royal Mail's international tracked direct
+    service. This API offers the capability of creation and cancellation of an
+    international shipment, getting bag label(s) and manifest and tracking
+    international tracked direct shipments.
+
+
+
+    Built on industry standards, International Tracked Direct API V1 provides
+    a simple and low cost method for customers to integrate with Royal Mail, and
+    allows them to get international shipping quickly.
+
+
+
+    There are no costs to customers for using the International Tracked Direct
+    API V1, however customers’ own development costs must be covered by the
+    customer developing the solution. Royal Mail will not accept any
+    responsibility for these development, implementation and testing costs.
+
+
+
+    Customers should address initial enquiries regarding development of systems
+    for these purposes to their account handler.
+  x-ibm-name: international-tracked-direct-api
+basePath: /international/shipment/v2/AAAA
+schemes:
+  - https
+x-ibm-configuration:
+  enforced: true
+  phase: realized
+  testable: true
+  cors:
+    enabled: true
+  properties:
+    ApplicationId:
+      value: '1'
+      description: Application Id For BIG
+      encoded: false
+    Tracking SSL Profile:
+      description: SSL profile of the underlying IEDE API
+      encoded: false
+      value: onboarding-pre-prod-test-ca2
+    activity.log.level:
+      description: What to log for activity logging
+      encoded: false
+      value: payload
+    error.log.level:
+      description: What to log for error logging
+      encoded: false
+      value: payload
+    IEDE Endpoint:
+      description: 'IEDE API endpoint '
+      encoded: false
+      value: 'https://sit-api.royalmail.com/international/shipment/v1'
+  catalogs: {}
+  externalDocs: []
+  attachments:
+    - title: RMG International Tracked Direct API(REST) Technical User Guide
+      description: ''
+      id: 58246cc30cf26ff86d3beed2
+    - title: International Tracked Direct API SampleData
+      description: ''
+      id: 58246cc60cf26ff86d3beed8
+    - title: International Tracked Direct API XSDs
+      description: ''
+      id: 58246cc60cf26ff86d3beede
+  gateway: datapower-gateway
+  assembly:
+    execute:
+      - operation-switch:
+          title: operation-switch
+          case:
+            - operations:
+                - verb: delete
+                  path: '/{trackingNumber}'
+              execute:
+                - map:
+                    inputs:
+                      in1:
+                        variable: request.parameters
+                        schema:
+                          type: object
+                          properties:
+                            trackingNumber:
+                              type: string
+                      rmg_headers:
+                        schema:
+                          type: object
+                          properties:
+                            X-RMG-Password:
+                              type: password
+                            X-RMG-Transaction-Id:
+                              type: string
+                            X-RMG-Date-Time:
+                              type: string
+                            X-RMG-User-Name:
+                              type: string
+                        variable: request.headers
+                    outputs:
+                      out1:
+                        variable: message.body
+                        schema:
+                          type: object
+                          properties:
+                            cancelShipmentRequest:
+                              type: object
+                              properties:
+                                integrationHeader:
+                                  type: object
+                                  properties:
+                                    dateTime:
+                                      type: string
+                                      default: $(system.datetime)
+                                    applicationId:
+                                      type: string
+                                      default: $(api.properties.ApplicationId)
+                                    transactionId:
+                                      type: string
+                                      default: $(request.headers.x-rmg-transaction-id)
+                                cancel:
+                                  type: object
+                                  properties:
+                                    trackingNumber:
+                                      type: string
+                              xml:
+                                namespace: 'http://www.royalmailgroup.com/api/international/shipment/V1'
+                                prefix: p0
+                        content: application/xml
+                    actions:
+                      - set: out1.cancelShipmentRequest.integrationHeader.applicationId
+                        default: $(api.properties.ApplicationId)
+                      - set: out1.cancelShipmentRequest.integrationHeader.transactionId
+                        default: $(request.headers.x-rmg-transaction-id)
+                      - set: out1.cancelShipmentRequest.cancel.trackingNumber
+                        from: '#/in1.trackingNumber'
+                      - set: out1.cancelShipmentRequest.integrationHeader.dateTime
+                        from: rmg_headers.X-RMG-Date-Time
+                        default: $(system.datetime)
+                    options:
+                      inlineNamespaces: false
+                      includeEmptyXMLElements: false
+                    title: cancelShipmentMap
+                - invoke:
+                    timeout: 60
+                    verb: POST
+                    target-url: $(IEDE Endpoint)
+                    tls-profile: $(Tracking SSL Profile)
+                    cache-response: protocol
+                    cache-key: ''
+                    title: cancelShipmentInvoke
+                    stop-on-error:
+                      - SOAPError
+                      - OperationError
+                      - ConnectionError
+                - map:
+                    title: cancelShipmentMap
+                    inputs:
+                      input:
+                        schema:
+                          description: ''
+                          type: object
+                          properties:
+                            cancelShipmentResponse:
+                              type: object
+                              properties:
+                                integrationHeader:
+                                  type: object
+                                  properties:
+                                    dateTime:
+                                      type: string
+                                    transactionId:
+                                      type: string
+                                    applicationId:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                cancelled:
+                                  type: object
+                                  properties:
+                                    trackingNumber:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                integrationFooter:
+                                  type: object
+                                  properties:
+                                    errors:
+                                      type: object
+                                      properties:
+                                        errorDetail:
+                                          type: object
+                                          properties:
+                                            errorCode:
+                                              type: string
+                                            errorDescription:
+                                              type: string
+                                            errorCause:
+                                              type: string
+                                            errorResolution:
+                                              type: string
+                                            errorContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                    warnings:
+                                      type: object
+                                      properties:
+                                        warning:
+                                          type: object
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                  xml:
+                                    namespace: ''
+                              xml:
+                                namespace: 'http://www.royalmailgroup.com/api/international/shipment/V1'
+                          xml:
+                            namespace: ''
+                          example: "<cancelShipmentResponse xmlns=\"http://www.royalmailgroup.com/api/international/shipment/V1\">\r\n   <integrationHeader>\r\n      <dateTime>2016-11-07T12:02:39</dateTime>\r\n      <transactionId>ec1b7419-179b-4b3c-99e1-7cd662b83a93</transactionId>\r\n      <applicationId>0703386001</applicationId>\r\n   </integrationHeader>\r\n   <cancelled>\r\n      <trackingNumber>TES100711401000930205</trackingNumber>\r\n   </cancelled>\r\n   <integrationFooter>\r\n      <errors>\r\n         <errorDetail>\r\n            <errorCode>7002</errorCode>\r\n            <errorDescription>Shipment not on file.</errorDescription>\r\n            <errorCause>9205590165863400046676</errorCause>\r\n            <errorResolution>?</errorResolution>\r\n            <errorContext>?</errorContext>\r\n         </errorDetail>\r\n      </errors>\r\n      <warnings>\r\n        <warning>\r\n          <warningCode></warningCode>\r\n          <warningDescription></warningDescription>\r\n          <warningCause></warningCause>\r\n          <warningResolution></warningResolution>\r\n          <warningContext></warningContext>\r\n        </warning>\r\n      </warnings>\r\n   </integrationFooter>\r\n\r\n\r\n</cancelShipmentResponse>\r\n"
+                        variable: Response1.body
+                        content: application/xml
+                    outputs:
+                      output:
+                        schema:
+                          description: ''
+                          type: object
+                          properties:
+                            cancelShipmentResponse:
+                              type: object
+                              properties:
+                                integrationHeader:
+                                  type: object
+                                  properties:
+                                    dateTime:
+                                      type: string
+                                    transactionId:
+                                      type: string
+                                    applicationId:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                cancelled:
+                                  type: object
+                                  properties:
+                                    trackingNumber:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                integrationFooter:
+                                  type: object
+                                  properties:
+                                    errors:
+                                      type: object
+                                      properties:
+                                        errorDetail:
+                                          type: object
+                                          properties:
+                                            errorCode:
+                                              type: string
+                                            errorDescription:
+                                              type: string
+                                            errorCause:
+                                              type: string
+                                            errorResolution:
+                                              type: string
+                                            errorContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                    warnings:
+                                      type: object
+                                      properties:
+                                        warning:
+                                          type: object
+                                          properties:
+                                            warningCode:
+                                              type: string
+                                            warningDescription:
+                                              type: string
+                                            warningCause:
+                                              type: string
+                                            warningResolution:
+                                              type: string
+                                            warningContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                  xml:
+                                    namespace: ''
+                              xml:
+                                namespace: ''
+                          xml:
+                            namespace: ''
+                          example: "<cancelShipmentResponse>\r\n   <integrationHeader>\r\n      <dateTime>2016-11-07T12:02:39</dateTime>\r\n      <transactionId>ec1b7419-179b-4b3c-99e1-7cd662b83a93</transactionId>\r\n      <applicationId>0703386001</applicationId>\r\n   </integrationHeader>\r\n   <cancelled>\r\n      <trackingNumber>TES100711401000930205</trackingNumber>\r\n   </cancelled>\r\n   <integrationFooter>\r\n      <errors>\r\n         <errorDetail>\r\n            <errorCode>7002</errorCode>\r\n            <errorDescription>Shipment not on file.</errorDescription>\r\n            <errorCause>9205590165863400046676</errorCause>\r\n            <errorResolution>1</errorResolution>\r\n            <errorContext>1</errorContext>\r\n         </errorDetail>\r\n      </errors>\r\n      <warnings>\r\n        <warning>\r\n          <warningCode>1</warningCode>\r\n          <warningDescription>1</warningDescription>\r\n          <warningCause>1</warningCause>\r\n          <warningResolution>1</warningResolution>\r\n          <warningContext>1</warningContext>\r\n        </warning>\r\n      </warnings>\r\n   </integrationFooter>\r\n\r\n\r\n</cancelShipmentResponse>\r\n"
+                        variable: message.body
+                        content: application/json
+                    actions:
+                      - set: output.cancelShipmentResponse.integrationHeader.dateTime
+                        from: input.cancelShipmentResponse.integrationHeader.dateTime
+                      - set: output.cancelShipmentResponse.integrationHeader.transactionId
+                        from: input.cancelShipmentResponse.integrationHeader.transactionId
+                      - set: output.cancelShipmentResponse.integrationHeader.applicationId
+                        from: input.cancelShipmentResponse.integrationHeader.applicationId
+                      - set: output.cancelShipmentResponse.cancelled.trackingNumber
+                        from: input.cancelShipmentResponse.cancelled.trackingNumber
+                      - set: output.cancelShipmentResponse.integrationFooter.errors.errorDetail.errorCode
+                        from: input.cancelShipmentResponse.integrationFooter.errors.errorDetail.errorCode
+                      - set: output.cancelShipmentResponse.integrationFooter.errors.errorDetail.errorDescription
+                        from: input.cancelShipmentResponse.integrationFooter.errors.errorDetail.errorDescription
+                      - set: output.cancelShipmentResponse.integrationFooter.errors.errorDetail.errorCause
+                        from: input.cancelShipmentResponse.integrationFooter.errors.errorDetail.errorCause
+                      - set: output.cancelShipmentResponse.integrationFooter.warnings
+                        from: input.cancelShipmentResponse.integrationFooter.warnings
+                      - set: output.cancelShipmentResponse.integrationFooter.errors.errorDetail.errorResolution
+                        from: input.cancelShipmentResponse.integrationFooter.errors.errorDetail.errorResolution
+                      - set: output.cancelShipmentResponse.integrationFooter.errors.errorDetail.errorContext
+                        from: input.cancelShipmentResponse.integrationFooter.errors.errorDetail.errorContext
+                    version: 1.0.0
+                    options:
+                      includeEmptyXMLElements: false
+                      inlineNamespaces: false
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "var Buss_Body = apim.getvariable('message.body');\nvar Buss_Err = Buss_Body.cancelShipmentResponse.integrationFooter.errors.errorDetail;\nvar Ship_No = Buss_Err.errorCause ; \nif(Buss_Err.errorCode=='7002'){\n    apim.setvariable('message.status.code','404');\n    Buss_Err.errorCode='E1124';\n    Buss_Err.errorDescription='shipmentNumber '+ Ship_No + ' not found';\n    Buss_Err.errorResolution='Please resubmit request with a valid shipment number';\n    Buss_Err.errorContext='Error returned by Intersoft';\n }\n else if(Buss_Err.errorCode=='6001'){\n   apim.setvariable('message.status.code','403');  \n   Buss_Err.errorCode='E0007';\n   Buss_Err.errorDescription='Authorisation failure';\n   Buss_Err.errorContext='Error returned by Intersoft';\n }\n \napim.setvariable('message.body',Buss_Body);\n"
+                - json-to-xml:
+                    title: json-to-xml
+                    root-element-name: json
+                    always-output-root-element: false
+                    version: 1.0.0
+                - activity-log:
+                    content: $(activity.log.level)
+                    error-content: $(error.log.level)
+            - operations:
+                - verb: get
+                  path: '/{trackingNumber}/history'
+              execute:
+                - map:
+                    inputs:
+                      in1:
+                        variable: request.parameters
+                        schema:
+                          type: object
+                          properties:
+                            trackingNumber:
+                              type: string
+                      rmg_headers:
+                        schema:
+                          type: object
+                          properties:
+                            X-RMG-Password:
+                              type: string
+                            X-RMG-Transaction-Id:
+                              type: string
+                            X-RMG-Date-Time:
+                              type: string
+                            X-RMG-User-Name:
+                              type: string
+                        variable: request.headers
+                    outputs:
+                      out1:
+                        variable: message.body
+                        schema:
+                          type: object
+                          properties:
+                            trackingRequest:
+                              type: object
+                              properties:
+                                integrationHeader:
+                                  type: object
+                                  properties:
+                                    dateTime:
+                                      type: string
+                                      default: $(system.datetime)
+                                    applicationId:
+                                      type: string
+                                      default: $(request.headers.x-rmg-application-id)
+                                    transactionId:
+                                      type: string
+                                      default: $(request.headers.x-rmg-transaction-id)
+                                trackingNumber:
+                                  type: string
+                              xml:
+                                namespace: 'http://www.royalmailgroup.com/api/international/shipment/V1'
+                                prefix: p0
+                        content: application/xml
+                    actions:
+                      - set: out1.trackingRequest.trackingNumber
+                        from: '#/in1.trackingNumber'
+                      - set: out1.trackingRequest.integrationHeader.applicationId
+                        default: $(api.properties.ApplicationId)
+                      - set: out1.trackingRequest.integrationHeader.transactionId
+                        default: $(request.headers.x-rmg-transaction-id)
+                      - set: out1.trackingRequest.integrationHeader.dateTime
+                        from: rmg_headers.X-RMG-Date-Time
+                        default: $(system.datetime)
+                    options:
+                      inlineNamespaces: false
+                      includeEmptyXMLElements: false
+                    title: trackingMap
+                - invoke:
+                    timeout: 60
+                    verb: POST
+                    target-url: $(IEDE Endpoint)
+                    tls-profile: $(Tracking SSL Profile)
+                    output: Response2
+                    title: trackingInvoke
+                - map:
+                    title: trackingMap
+                    inputs:
+                      bigResponse2:
+                        schema:
+                          description: ''
+                          type: object
+                          properties:
+                            trackingResponse:
+                              type: object
+                              properties:
+                                integrationHeader:
+                                  type: object
+                                  properties:
+                                    dateTime:
+                                      type: string
+                                    transactionId:
+                                      type: string
+                                    applicationId:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                trackingNumber:
+                                  type: string
+                                events:
+                                  type: object
+                                  properties:
+                                    event:
+                                      type: array
+                                      items:
+                                        properties:
+                                          eventDateTime:
+                                            type: string
+                                          eventLocation:
+                                            type: string
+                                          eventType:
+                                            type: string
+                                          eventDescription:
+                                            type: string
+                                        type: object
+                                        xml:
+                                          namespace: ''
+                                  xml:
+                                    namespace: ''
+                                integrationFooter:
+                                  type: object
+                                  properties:
+                                    errors:
+                                      type: object
+                                      properties:
+                                        errorDetail:
+                                          type: object
+                                          properties:
+                                            errorCode:
+                                              type: string
+                                            errorDescription:
+                                              type: string
+                                            errorCause:
+                                              type: string
+                                            errorResolution:
+                                              type: string
+                                            errorContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                    warnings:
+                                      type: object
+                                      properties:
+                                        warning:
+                                          type: object
+                                          properties:
+                                            warningCode:
+                                              type: string
+                                            warningDescription:
+                                              type: string
+                                            warningCause:
+                                              type: string
+                                            warningResolution:
+                                              type: string
+                                            warningContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                  xml:
+                                    namespace: ''
+                              xml:
+                                namespace: 'http://www.royalmailgroup.com/api/international/shipment/V1'
+                          xml:
+                            namespace: ''
+                          example: "<trackingResponse xmlns=\"http://www.royalmailgroup.com/api/international/shipment/V1\">\r\n   <integrationHeader>\r\n      <dateTime>2016-11-07T16:26:31</dateTime>\r\n      <transactionId>ec1b7419-179b-4b3c-99e1-7cd662b83a93</transactionId>\r\n      <applicationId>0069786000</applicationId>\r\n   </integrationHeader>\r\n   <trackingNumber>9205590165863400046676</trackingNumber>\r\n   <events>\r\n      <event>\r\n         <eventDateTime>2016-06-16 12:19:43</eventDateTime>\r\n         <eventLocation>GB</eventLocation>\r\n         <eventType>T</eventType>\r\n         <eventDescription>DATA PROCESSED</eventDescription>\r\n         <eventCode/>\r\n      </event>\r\n      <event>\r\n         <eventDateTime>2016-06-16 12:22:07</eventDateTime>\r\n         <eventLocation>GB</eventLocation>\r\n         <eventType>T</eventType>\r\n         <eventDescription>ARRIVED AT INTL - LHR</eventDescription>\r\n         <eventCode>AISF</eventCode>\r\n      </event>\r\n      <event>\r\n         <eventDateTime>2016-06-16 12:22:15</eventDateTime>\r\n         <eventLocation>GB</eventLocation>\r\n         <eventType>T</eventType>\r\n         <eventDescription>DEPARTED FROM INTL - LHR</eventDescription>\r\n         <eventCode>DFSF</eventCode>\r\n      </event>\r\n      <event>\r\n         <eventDateTime>2016-06-16 16:11:43</eventDateTime>\r\n         <eventLocation>GB</eventLocation>\r\n         <eventType>T</eventType>\r\n         <eventDescription>DEPARTED FROM INTL - LHR</eventDescription>\r\n         <eventCode>DFSF</eventCode>\r\n      </event>\r\n   </events>\r\n      <integrationFooter>\r\n      <errors>\r\n         <errorDetail>\r\n            <errorCode>7002</errorCode>\r\n            <errorDescription>Shipment not on file.</errorDescription>\r\n            <errorCause>9205590165863400046676</errorCause>\r\n            <errorResolution>1</errorResolution>\r\n            <errorContext>1</errorContext>\r\n         </errorDetail>\r\n      </errors>\r\n      <warnings>\r\n        <warning>\r\n          <warningCode>1</warningCode>\r\n          <warningDescription>1</warningDescription>\r\n          <warningCause>1</warningCause>\r\n          <warningResolution>1</warningResolution>\r\n          <warningContext>1</warningContext>\r\n        </warning>\r\n      </warnings>\r\n   </integrationFooter>\r\n</trackingResponse>\r\n"
+                        variable: Response2.body
+                        content: application/xml
+                    outputs:
+                      output:
+                        schema:
+                          description: ''
+                          type: object
+                          properties:
+                            trackingResponse:
+                              type: object
+                              properties:
+                                integrationHeader:
+                                  type: object
+                                  properties:
+                                    dateTime:
+                                      type: string
+                                    transactionId:
+                                      type: string
+                                    applicationId:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                trackingNumber:
+                                  type: string
+                                events:
+                                  type: object
+                                  properties:
+                                    event:
+                                      type: array
+                                      items:
+                                        properties:
+                                          eventDateTime:
+                                            type: string
+                                          eventLocation:
+                                            type: string
+                                          eventType:
+                                            type: string
+                                          eventDescription:
+                                            type: string
+                                        type: object
+                                        xml:
+                                          namespace: ''
+                                  xml:
+                                    namespace: ''
+                                integrationFooter:
+                                  type: object
+                                  properties:
+                                    errors:
+                                      type: object
+                                      properties:
+                                        errorDetail:
+                                          type: object
+                                          properties:
+                                            errorCode:
+                                              type: string
+                                            errorDescription:
+                                              type: string
+                                            errorCause:
+                                              type: string
+                                            errorResolution:
+                                              type: string
+                                            errorContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                    warnings:
+                                      type: object
+                                      properties:
+                                        warning:
+                                          type: object
+                                          properties:
+                                            warningCode:
+                                              type: string
+                                            warningDescription:
+                                              type: string
+                                            warningCause:
+                                              type: string
+                                            warningResolution:
+                                              type: string
+                                            warningContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                  xml:
+                                    namespace: ''
+                              xml:
+                                namespace: 'http://www.royalmailgroup.com/api/international/shipment/V1'
+                          xml:
+                            namespace: ''
+                          example: "<trackingResponse xmlns=\"http://www.royalmailgroup.com/api/international/shipment/V1\">\r\n   <integrationHeader>\r\n      <dateTime>2016-11-07T16:26:31</dateTime>\r\n      <transactionId>ec1b7419-179b-4b3c-99e1-7cd662b83a93</transactionId>\r\n      <applicationId>0069786000</applicationId>\r\n   </integrationHeader>\r\n   <trackingNumber>9205590165863400046676</trackingNumber>\r\n   <events>\r\n      <event>\r\n         <eventDateTime>2016-06-16 12:19:43</eventDateTime>\r\n         <eventLocation>GB</eventLocation>\r\n         <eventType>T</eventType>\r\n         <eventDescription>DATA PROCESSED</eventDescription>\r\n         <eventCode/>\r\n      </event>\r\n      <event>\r\n         <eventDateTime>2016-06-16 12:22:07</eventDateTime>\r\n         <eventLocation>GB</eventLocation>\r\n         <eventType>T</eventType>\r\n         <eventDescription>ARRIVED AT INTL - LHR</eventDescription>\r\n         <eventCode>AISF</eventCode>\r\n      </event>\r\n      <event>\r\n         <eventDateTime>2016-06-16 12:22:15</eventDateTime>\r\n         <eventLocation>GB</eventLocation>\r\n         <eventType>T</eventType>\r\n         <eventDescription>DEPARTED FROM INTL - LHR</eventDescription>\r\n         <eventCode>DFSF</eventCode>\r\n      </event>\r\n      <event>\r\n         <eventDateTime>2016-06-16 16:11:43</eventDateTime>\r\n         <eventLocation>GB</eventLocation>\r\n         <eventType>T</eventType>\r\n         <eventDescription>DEPARTED FROM INTL - LHR</eventDescription>\r\n         <eventCode>DFSF</eventCode>\r\n      </event>\r\n   </events>\r\n      <integrationFooter>\r\n      <errors>\r\n         <errorDetail>\r\n            <errorCode>7002</errorCode>\r\n            <errorDescription>Shipment not on file.</errorDescription>\r\n            <errorCause>9205590165863400046676</errorCause>\r\n            <errorResolution>1</errorResolution>\r\n            <errorContext>1</errorContext>\r\n         </errorDetail>\r\n      </errors>\r\n      <warnings>\r\n        <warning>\r\n          <warningCode>1</warningCode>\r\n          <warningDescription>1</warningDescription>\r\n          <warningCause>1</warningCause>\r\n          <warningResolution>1</warningResolution>\r\n          <warningContext>1</warningContext>\r\n        </warning>\r\n      </warnings>\r\n   </integrationFooter>\r\n</trackingResponse>\r\n"
+                        variable: message.body
+                        content: application/json
+                    actions:
+                      - set: output.trackingResponse.integrationHeader.dateTime
+                        from: bigResponse2.trackingResponse.integrationHeader.dateTime
+                      - set: output.trackingResponse.integrationHeader.transactionId
+                        from: bigResponse2.trackingResponse.integrationHeader.transactionId
+                      - set: output.trackingResponse.integrationHeader.applicationId
+                        from: bigResponse2.trackingResponse.integrationHeader.applicationId
+                      - create: output.trackingResponse.events.event
+                        foreach: bigResponse2.trackingResponse.events.event
+                        from: bigResponse2.trackingResponse.events.event
+                        actions:
+                          - set: eventDateTime
+                            from: eventDateTime
+                          - set: eventLocation
+                            from: eventLocation
+                          - set: eventType
+                            from: eventType
+                          - set: eventDescription
+                            from: eventDescription
+                      - set: output.trackingResponse.integrationFooter.errors.errorDetail.errorCode
+                        from: bigResponse2.trackingResponse.integrationFooter.errors.errorDetail.errorCode
+                      - set: output.trackingResponse.integrationFooter.errors.errorDetail.errorDescription
+                        from: bigResponse2.trackingResponse.integrationFooter.errors.errorDetail.errorDescription
+                      - set: output.trackingResponse.integrationFooter.errors.errorDetail.errorCause
+                        from: bigResponse2.trackingResponse.integrationFooter.errors.errorDetail.errorCause
+                      - set: output.trackingResponse.integrationFooter.errors.errorDetail.errorResolution
+                        from: bigResponse2.trackingResponse.integrationFooter.errors.errorDetail.errorResolution
+                      - set: output.trackingResponse.integrationFooter.errors.errorDetail.errorContext
+                        from: bigResponse2.trackingResponse.integrationFooter.errors.errorDetail.errorContext
+                      - set: output.trackingResponse.integrationFooter.warnings
+                        from: bigResponse2.trackingResponse.integrationFooter.warnings
+                    version: 1.0.0
+                    options:
+                      includeEmptyXMLElements: false
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "var Buss_Body = apim.getvariable('message.body');\nvar Buss_Err = Buss_Body.trackingResponse.integrationFooter.errors.errorDetail;\nvar Track_No = Buss_Err.errorCause ;\nif(Buss_Err.errorCode=='4002'){\n    apim.setvariable('message.status.code','404');\n    Buss_Err.errorCode='E1142';\n    Buss_Err.errorDescription='Barcode reference '+ Track_No + ' is not valid';\n    Buss_Err.errorCause='A mail item with that barcode cannot be located';\n    Buss_Err.errorResolution='Check barcode and resubmit';\n    Buss_Err.errorContext='Error returned by Intersoft';\n }\n \n else if(Buss_Err.errorCode=='6001'){\n   apim.setvariable('message.status.code','403');  \n   Buss_Err.errorCode='E0007';\n   Buss_Err.errorDescription='Authorisation failure';\n   Buss_Err.errorContext='Error returned by Intersoft';\n }\n \napim.setvariable('message.body',Buss_Body);"
+                - json-to-xml:
+                    title: json-to-xml
+                    root-element-name: json
+                    always-output-root-element: true
+                    version: 1.0.0
+                - activity-log:
+                    content: $(activity.log.level)
+                    error-content: $(error.log.level)
+            - operations:
+                - verb: post
+                  path: /bagcontent
+              execute:
+                - map:
+                    title: createBagMap
+                    inputs:
+                      body:
+                        schema:
+                          description: ''
+                          type: object
+                          properties:
+                            createBagRequest:
+                              type: object
+                              properties:
+                                bagContent:
+                                  type: object
+                                  properties:
+                                    confirmType:
+                                      type: string
+                                    carrierCode:
+                                      type: string
+                                    trackingNumber:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                numberOfBagLabels:
+                                  type: string
+                                labelType:
+                                  type: string
+                              xml:
+                                namespace: ''
+                          xml:
+                            namespace: ''
+                          example: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<createBagRequest>\r\n  <bagContent>\r\n    <confirmType>1</confirmType>\r\n\t<carrierCode>SSYD</carrierCode>\r\n    <trackingNumber>TES100644101000930203</trackingNumber>\r\n  </bagContent>\r\n  <numberOfBagLabels>1</numberOfBagLabels>\r\n  <labelType>PDF</labelType>\r\n</createBagRequest>"
+                        variable: request.body
+                        content: application/xml
+                      rmg_headers:
+                        schema:
+                          type: object
+                          properties:
+                            X-RMG-Password:
+                              type: string
+                            X-RMG-Transaction-Id:
+                              type: string
+                            X-RMG-Date-Time:
+                              type: string
+                            X-RMG-User-Name:
+                              type: string
+                        variable: request.headers
+                    outputs:
+                      bigRequest:
+                        schema:
+                          description: ''
+                          type: object
+                          properties:
+                            createBagRequest:
+                              type: object
+                              properties:
+                                integrationHeader:
+                                  type: object
+                                  properties:
+                                    dateTime:
+                                      type: string
+                                    applicationId:
+                                      type: string
+                                    transactionId:
+                                      type: string
+                                bagContent:
+                                  type: object
+                                  properties:
+                                    confirmType:
+                                      type: string
+                                    carrierCode:
+                                      type: string
+                                    trackingNumber:
+                                      type: string
+                                numberOfBagLabels:
+                                  type: string
+                                labelType:
+                                  type: string
+                                schemaLocation:
+                                  type: string
+                                  xml:
+                                    attribute: true
+                                    prefix: xsi
+                              xml:
+                                namespace: 'http://www.royalmailgroup.com/api/international/shipment/V1'
+                                prefix: ns
+                          xml:
+                            namespace: ''
+                          example: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<ns:createBagRequest xmlns:dt=\"http://www.royalmailgroup.com/cm/rmDatatypes/V1\" xmlns:int=\"http://www.royalmailgroup.com/integration/core/V3\" xmlns:ns=\"http://www.royalmailgroup.com/api/international/shipment/V1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.royalmailgroup.com/api/international/shipment/V1 /InternationalShippingAPI_V1_BIG.xsd\">\r\n  <ns:integrationHeader>\r\n    <ns:dateTime>2001-12-31T12:00:00</ns:dateTime>\r\n    <ns:applicationId>ns:applicationId</ns:applicationId>\r\n    <ns:transactionId>ns:transactionId</ns:transactionId>\r\n  </ns:integrationHeader>\r\n  <ns:bagContent>\r\n    <ns:confirmType>0</ns:confirmType>\r\n    <ns:carrierCode>SSYD</ns:carrierCode>\r\n    <ns:trackingNumber>ns:trackingNumber</ns:trackingNumber>\r\n  </ns:bagContent>\r\n  <ns:numberOfBagLabels>0</ns:numberOfBagLabels>\r\n  <ns:labelType>PDF</ns:labelType>\r\n</ns:createBagRequest>"
+                        variable: message.body
+                        content: application/xml
+                    actions:
+                      - set: bigRequest.createBagRequest.bagContent.confirmType
+                        from: body.createBagRequest.bagContent.confirmType
+                      - set: bigRequest.createBagRequest.bagContent.carrierCode
+                        from: body.createBagRequest.bagContent.carrierCode
+                      - set: bigRequest.createBagRequest.bagContent.trackingNumber
+                        from: body.createBagRequest.bagContent.trackingNumber
+                      - set: bigRequest.createBagRequest.numberOfBagLabels
+                        from: body.createBagRequest.numberOfBagLabels
+                      - set: bigRequest.createBagRequest.labelType
+                        from: body.createBagRequest.labelType
+                      - set: bigRequest.createBagRequest.integrationHeader.applicationId
+                        default: $(api.properties.ApplicationId)
+                      - set: bigRequest.createBagRequest.integrationHeader.transactionId
+                        default: $(request.headers.x-rmg-transaction-id)
+                      - set: bigRequest.createBagRequest.integrationHeader.dateTime
+                        from: rmg_headers.X-RMG-Date-Time
+                        default: $(system.datetime)
+                    version: 1.0.0
+                    options:
+                      includeEmptyXMLElements: false
+                - invoke:
+                    title: createBagInvoke
+                    timeout: 60
+                    verb: POST
+                    cache-response: protocol
+                    cache-ttl: 900
+                    version: 1.0.0
+                    tls-profile: onboarding-pre-prod-test-ca2
+                    target-url: 'https://sit-api.royalmail.com/international/shipment/v1'
+                - map:
+                    title: createBagMap
+                    inputs:
+                      bigResponse:
+                        schema:
+                          description: ''
+                          type: object
+                          properties:
+                            createBagResponse:
+                              type: object
+                              properties:
+                                integrationHeader:
+                                  type: object
+                                  properties:
+                                    dateTime:
+                                      type: string
+                                    applicationId:
+                                      type: string
+                                    transactionId:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                bagDetail:
+                                  type: object
+                                  properties:
+                                    manifestImage:
+                                      type: string
+                                    bagLabelImage:
+                                      type: string
+                                    bagId:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                integrationFooter:
+                                  type: object
+                                  properties:
+                                    errors:
+                                      type: object
+                                      properties:
+                                        errorDetail:
+                                          type: object
+                                          properties:
+                                            errorCode:
+                                              type: string
+                                            errorDescription:
+                                              type: string
+                                            errorCause:
+                                              type: string
+                                            errorResolution:
+                                              type: string
+                                            errorContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                    warnings:
+                                      type: object
+                                      properties:
+                                        warning:
+                                          type: object
+                                          properties:
+                                            warningCode:
+                                              type: string
+                                            warningDescription:
+                                              type: string
+                                            warningCause:
+                                              type: string
+                                            warningResolution:
+                                              type: string
+                                            warningContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                  xml:
+                                    namespace: ''
+                              xml:
+                                namespace: 'http://www.royalmailgroup.com/api/international/shipment/V1'
+                          xml:
+                            namespace: ''
+                          example: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<createBagResponse xmlns=\"http://www.royalmailgroup.com/api/international/shipment/V1\">\r\n  <integrationHeader>\r\n    <dateTime>2001-12-31T12:00:00</dateTime>\r\n    <applicationId>applicationId</applicationId>\r\n    <transactionId>transactionId</transactionId>\r\n  </integrationHeader>\r\n  <bagDetail>\r\n    <manifestImage>MA==</manifestImage>\r\n    <bagLabelImage>MA==</bagLabelImage>\r\n    <bagId>bagId</bagId>\r\n  </bagDetail>\r\n  <integrationFooter>\r\n      <errors>\r\n         <errorDetail>\r\n            <errorCode>7002</errorCode>\r\n            <errorDescription>Shipment not on file.</errorDescription>\r\n            <errorCause>9205590165863400046676</errorCause>\r\n            <errorResolution>1</errorResolution>\r\n            <errorContext>1</errorContext>\r\n         </errorDetail>\r\n      </errors>\r\n      <warnings>\r\n        <warning>\r\n          <warningCode>1</warningCode>\r\n          <warningDescription>1</warningDescription>\r\n          <warningCause>1</warningCause>\r\n          <warningResolution>1</warningResolution>\r\n          <warningContext>1</warningContext>\r\n        </warning>\r\n      </warnings>\r\n   </integrationFooter>\r\n</createBagResponse>\r\n"
+                        variable: Response3.body
+                        content: application/xml
+                    outputs:
+                      output:
+                        schema:
+                          description: ''
+                          type: object
+                          properties:
+                            createBagResponse:
+                              type: object
+                              properties:
+                                integrationHeader:
+                                  type: object
+                                  properties:
+                                    dateTime:
+                                      type: string
+                                    applicationId:
+                                      type: string
+                                    transactionId:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                bagDetail:
+                                  type: object
+                                  properties:
+                                    manifestImage:
+                                      type: string
+                                    bagLabelImage:
+                                      type: string
+                                    bagId:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                integrationFooter:
+                                  type: object
+                                  properties:
+                                    errors:
+                                      type: object
+                                      properties:
+                                        errorDetail:
+                                          type: object
+                                          properties:
+                                            errorCode:
+                                              type: string
+                                            errorDescription:
+                                              type: string
+                                            errorCause:
+                                              type: string
+                                            errorResolution:
+                                              type: string
+                                            errorContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                    warnings:
+                                      type: object
+                                      properties:
+                                        warning:
+                                          type: object
+                                          properties:
+                                            warningCode:
+                                              type: string
+                                            warningDescription:
+                                              type: string
+                                            warningCause:
+                                              type: string
+                                            warningResolution:
+                                              type: string
+                                            warningContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                  xml:
+                                    namespace: ''
+                              xml:
+                                namespace: ''
+                          xml:
+                            namespace: ''
+                          example: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<createBagResponse>\r\n  <integrationHeader>\r\n    <dateTime>2001-12-31T12:00:00</dateTime>\r\n    <applicationId>applicationId</applicationId>\r\n    <transactionId>transactionId</transactionId>\r\n  </integrationHeader>\r\n  <bagDetail>\r\n    <manifestImage>MA==</manifestImage>\r\n    <bagLabelImage>MA==</bagLabelImage>\r\n    <bagId>bagId</bagId>\r\n  </bagDetail>\r\n  <integrationFooter>\r\n      <errors>\r\n         <errorDetail>\r\n            <errorCode>7002</errorCode>\r\n            <errorDescription>Shipment not on file.</errorDescription>\r\n            <errorCause>9205590165863400046676</errorCause>\r\n            <errorResolution>1</errorResolution>\r\n            <errorContext>1</errorContext>\r\n         </errorDetail>\r\n      </errors>\r\n      <warnings>\r\n        <warning>\r\n          <warningCode>1</warningCode>\r\n          <warningDescription>1</warningDescription>\r\n          <warningCause>1</warningCause>\r\n          <warningResolution>1</warningResolution>\r\n          <warningContext>1</warningContext>\r\n        </warning>\r\n      </warnings>\r\n   </integrationFooter>\r\n</createBagResponse>\r\n"
+                        variable: message.body
+                        content: application/json
+                    actions:
+                      - set: output.createBagResponse.integrationHeader.dateTime
+                        from: bigResponse.createBagResponse.integrationHeader.dateTime
+                      - set: output.createBagResponse.integrationHeader.applicationId
+                        from: bigResponse.createBagResponse.integrationHeader.applicationId
+                      - set: output.createBagResponse.integrationHeader.transactionId
+                        from: bigResponse.createBagResponse.integrationHeader.transactionId
+                      - set: output.createBagResponse.bagDetail.manifestImage
+                        from: bigResponse.createBagResponse.bagDetail.manifestImage
+                      - set: output.createBagResponse.bagDetail.bagLabelImage
+                        from: bigResponse.createBagResponse.bagDetail.bagLabelImage
+                      - set: output.createBagResponse.bagDetail.bagId
+                        from: bigResponse.createBagResponse.bagDetail.bagId
+                      - set: output.createBagResponse.integrationFooter.errors.errorDetail.errorCode
+                        from: bigResponse.createBagResponse.integrationFooter.errors.errorDetail.errorCode
+                      - set: output.createBagResponse.integrationFooter.errors.errorDetail.errorDescription
+                        from: bigResponse.createBagResponse.integrationFooter.errors.errorDetail.errorDescription
+                      - set: output.createBagResponse.integrationFooter.errors.errorDetail.errorCause
+                        from: bigResponse.createBagResponse.integrationFooter.errors.errorDetail.errorCause
+                      - set: output.createBagResponse.integrationFooter.errors.errorDetail.errorResolution
+                        from: bigResponse.createBagResponse.integrationFooter.errors.errorDetail.errorResolution
+                      - set: output.createBagResponse.integrationFooter.errors.errorDetail.errorContext
+                        from: bigResponse.createBagResponse.integrationFooter.errors.errorDetail.errorContext
+                      - set: output.createBagResponse.integrationFooter.warnings
+                        from: bigResponse.createBagResponse.integrationFooter.warnings
+                    version: 1.0.0
+                    options:
+                      includeEmptyXMLElements: false
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "var Buss_Body = apim.getvariable('message.body');\nvar Buss_Err = Buss_Body.createBagResponse.integrationFooter.errors.errorDetail;\nvar Track_No = Buss_Err.errorCause ;\nif(Buss_Err.errorCode=='C099'){\n    apim.setvariable('message.status.code','404');\n    Buss_Err.errorCode='E1291';\n    Buss_Err.errorDescription= Track_No + ' not found ';\n    \n    Buss_Err.errorResolution='Please resubmit request with a valid tracking number';\n    Buss_Err.errorContext='Error returned by Intersoft';\n }\n \n  else if(Buss_Err.errorCode=='6001'){\n   apim.setvariable('message.status.code','403');  \n   Buss_Err.errorCode='E0007';\n   Buss_Err.errorDescription='Authorisation failure';\n   Buss_Err.errorContext='Error returned by Intersoft';\n }\n \napim.setvariable('message.body',Buss_Body);"
+                - json-to-xml:
+                    title: json-to-xml
+                    root-element-name: json
+                    always-output-root-element: false
+                    version: 1.0.0
+                - activity-log:
+                    title: activity-log
+                    content: payload
+                    error-content: payload
+                    version: 1.0.0
+            - operations:
+                - verb: post
+                  path: /
+              execute:
+                - map:
+                    title: createShipmentMap
+                    inputs:
+                      input:
+                        schema:
+                          description: ''
+                          type: object
+                          properties:
+                            createShipmentRequest:
+                              type: object
+                              properties:
+                                shipment:
+                                  type: object
+                                  properties:
+                                    shipper:
+                                      type: object
+                                      properties:
+                                        companyName:
+                                          type: string
+                                        addressLine1:
+                                          type: string
+                                        addressLine2:
+                                          type: string
+                                        addressLine3:
+                                          type: string
+                                        city:
+                                          type: string
+                                        county:
+                                          type: string
+                                        countryCode:
+                                          type: string
+                                        postCode:
+                                          type: string
+                                        contactName:
+                                          type: string
+                                        phoneNumber:
+                                          type: string
+                                        vatNumber:
+                                          type: string
+                                        emailAddress:
+                                          type: string
+                                        reference:
+                                          type: string
+                                        departmentCode:
+                                          type: string
+                                      xml:
+                                        namespace: ''
+                                    destination:
+                                      type: object
+                                      properties:
+                                        companyName:
+                                          type: string
+                                        addressLine1:
+                                          type: string
+                                        addressLine2:
+                                          type: string
+                                        addressLine3:
+                                          type: string
+                                        city:
+                                          type: string
+                                        county:
+                                          type: string
+                                        countryCode:
+                                          type: string
+                                        postCode:
+                                          type: string
+                                        contactName:
+                                          type: string
+                                        phoneNumber:
+                                          type: string
+                                        vatNumber:
+                                          type: string
+                                        emailAddress:
+                                          type: string
+                                      xml:
+                                        namespace: ''
+                                    shipmentDetail:
+                                      type: object
+                                      properties:
+                                        shipmentDate:
+                                          type: string
+                                        serviceCode:
+                                          type: string
+                                        totalPieces:
+                                          type: string
+                                        totalWeight:
+                                          type: string
+                                        weightUOM:
+                                          type: string
+                                        dimensions:
+                                          type: object
+                                          properties:
+                                            uom:
+                                              type: string
+                                            length:
+                                              type: string
+                                            width:
+                                              type: string
+                                            height:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                        contentTypeCode:
+                                          type: string
+                                        descriptionOfGoods:
+                                          type: string
+                                        declaredCurrencyValue:
+                                          type: string
+                                        declaredCurrencyCode:
+                                          type: string
+                                        incotermsCode:
+                                          type: string
+                                        itemDetail:
+                                          type: object
+                                          properties:
+                                            hsCode:
+                                              type: string
+                                            description:
+                                              type: string
+                                            quantity:
+                                              type: string
+                                            currencyValue:
+                                              type: string
+                                            netWeight:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                  xml:
+                                    namespace: ''
+                              xml:
+                                namespace: ''
+                          xml:
+                            namespace: ''
+                          example: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<createShipmentRequest>\r\n  <shipment>\r\n    <shipper>\r\n      <companyName>INTERSOFT</companyName>\r\n      <addressLine1>THE MILL STUDIO</addressLine1>\r\n      <addressLine2>HORTON ROAD</addressLine2>\r\n      <addressLine3>?</addressLine3>\r\n      <city>STANWELL MOOR</city>\r\n      <county>MIDX</county>\r\n      <countryCode>GB</countryCode>\r\n      <postCode>TW19 6BJ</postCode>\r\n      <contactName>ARNOLD</contactName>\r\n      <phoneNumber>017536892921234567891</phoneNumber>\r\n      <vatNumber>GB123456912345678</vatNumber>\r\n      <emailAddress>SUPPORT@INTERSOFT.CO.UK</emailAddress>\r\n      <reference>INPSAUSSSYD</reference>\r\n      <departmentCode>?</departmentCode>\r\n    </shipper>\r\n    <destination>\r\n      <companyName>SSYD INPS COMPANY</companyName>\r\n      <addressLine1>11 Town Terrace</addressLine1>\r\n      <addressLine2>?</addressLine2>\r\n      <addressLine3>?</addressLine3>\r\n      <city>Glenmore Park</city>\r\n      <county>NSW</county>\r\n      <countryCode>AU</countryCode>\r\n      <postCode>2745</postCode>\r\n      <contactName>ARNOLD</contactName>\r\n      <phoneNumber>1545554455</phoneNumber>\r\n      <vatNumber>GB123456912345678</vatNumber>\r\n      <emailAddress>arnold.christian@intersoft.co.uk</emailAddress>\r\n    </destination>\r\n    <shipmentDetail>\r\n      <shipmentDate>2011-07-14</shipmentDate>\r\n      <serviceCode>INPS</serviceCode>\r\n      <totalPieces>1</totalPieces>\r\n      <totalWeight>5</totalWeight>\r\n      <weightUOM>K</weightUOM>\r\n      <dimensions>\r\n        <uom>C</uom>\r\n        <length>20</length>\r\n        <width>20</width>\r\n        <height>20</height>\r\n      </dimensions>\r\n      <contentTypeCode>NDX</contentTypeCode>\r\n      <descriptionOfGoods>SKIN CARE</descriptionOfGoods>\r\n      <declaredCurrencyValue>80.33</declaredCurrencyValue>\r\n      <declaredCurrencyCode>GBP</declaredCurrencyCode>\r\n      <incotermsCode>DDU</incotermsCode>\r\n      <itemDetail>\r\n     <hsCode>123456</hsCode>\r\n        <description>FOREO LUNA MINI</description>\r\n        <quantity>1</quantity>\r\n        <currencyValue>52.33</currencyValue>\r\n        \r\n       \r\n        <netWeight>1</netWeight>\r\n      </itemDetail>\r\n\t  \r\n    </shipmentDetail>\r\n  </shipment>\r\n</createShipmentRequest>"
+                        variable: request.body
+                        content: application/xml
+                      rmg_headers:
+                        schema:
+                          type: object
+                          properties:
+                            X-RMG-Password:
+                              type: string
+                            X-RMG-Transaction-Id:
+                              type: string
+                            X-RMG-Date-Time:
+                              type: string
+                            X-RMG-User-Name:
+                              type: string
+                        variable: request.headers
+                    outputs:
+                      response:
+                        schema:
+                          description: ''
+                          type: object
+                          properties:
+                            createShipmentRequest:
+                              type: object
+                              properties:
+                                integrationHeader:
+                                  type: object
+                                  properties:
+                                    dateTime:
+                                      type: string
+                                    applicationId:
+                                      type: string
+                                    transactionId:
+                                      type: string
+                                shipment:
+                                  type: object
+                                  properties:
+                                    shipper:
+                                      type: object
+                                      properties:
+                                        companyName:
+                                          type: string
+                                        addressLine1:
+                                          type: string
+                                        addressLine2:
+                                          type: string
+                                        addressLine3:
+                                          type: object
+                                        city:
+                                          type: string
+                                        county:
+                                          type: string
+                                        countryCode:
+                                          type: string
+                                        postCode:
+                                          type: string
+                                        contactName:
+                                          type: string
+                                        phoneNumber:
+                                          type: string
+                                        vatNumber:
+                                          type: string
+                                        emailAddress:
+                                          type: string
+                                        reference:
+                                          type: string
+                                        departmentCode:
+                                          type: string
+                                    destination:
+                                      type: object
+                                      properties:
+                                        companyName:
+                                          type: string
+                                        addressLine1:
+                                          type: string
+                                        addressLine2:
+                                          type: object
+                                        addressLine3:
+                                          type: object
+                                        city:
+                                          type: string
+                                        county:
+                                          type: string
+                                        countryCode:
+                                          type: string
+                                        postCode:
+                                          type: string
+                                        contactName:
+                                          type: string
+                                        phoneNumber:
+                                          type: string
+                                        vatNumber:
+                                          type: string
+                                        emailAddress:
+                                          type: string
+                                    shipmentDetail:
+                                      type: object
+                                      properties:
+                                        shipmentDate:
+                                          type: string
+                                        serviceCode:
+                                          type: string
+                                        totalPieces:
+                                          type: string
+                                        totalWeight:
+                                          type: string
+                                        weightUOM:
+                                          type: string
+                                        dimensions:
+                                          type: object
+                                          properties:
+                                            uom:
+                                              type: string
+                                            length:
+                                              type: string
+                                            width:
+                                              type: string
+                                            height:
+                                              type: string
+                                        contentTypeCode:
+                                          type: string
+                                        descriptionOfGoods:
+                                          type: string
+                                        declaredCurrencyValue:
+                                          type: string
+                                        declaredCurrencyCode:
+                                          type: string
+                                        incotermsCode:
+                                          type: string
+                                        itemDetail:
+                                          type: object
+                                          properties:
+                                            hsCode:
+                                              type: string
+                                            description:
+                                              type: string
+                                            quantity:
+                                              type: string
+                                            currencyValue:
+                                              type: string
+                                            netWeight:
+                                              type: string
+                                schemaLocation:
+                                  type: string
+                                  xml:
+                                    attribute: true
+                                    prefix: xsi
+                              xml:
+                                namespace: 'http://www.royalmailgroup.com/api/international/shipment/V1'
+                                prefix: ns
+                          xml:
+                            namespace: ''
+                          example: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<ns:createShipmentRequest xmlns:dt=\"http://www.royalmailgroup.com/cm/rmDatatypes/V1\" xmlns:int=\"http://www.royalmailgroup.com/integration/core/V3\" xmlns:ns=\"http://www.royalmailgroup.com/api/international/shipment/V1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.royalmailgroup.com/api/international/shipment/V1/InternationalShippingAPI_V1_BIG.xsd \">\r\n   <ns:integrationHeader>\r\n    <ns:dateTime>2001-12-31T12:00:00</ns:dateTime>\r\n    <ns:applicationId>ns:applicationId</ns:applicationId>\r\n    <ns:transactionId>ns:transactionId</ns:transactionId>\r\n   </ns:integrationHeader>\r\n  <ns:shipment>\r\n    <ns:shipper>\r\n      <ns:companyName>INTERSOFT</ns:companyName>\r\n      <ns:addressLine1>THE MILL STUDIO</ns:addressLine1>\r\n      <ns:addressLine2>HORTON ROAD</ns:addressLine2>\r\n      <ns:addressLine3></ns:addressLine3>\r\n      <ns:city>STANWELL MOOR</ns:city>\r\n      <ns:county>MIDX</ns:county>\r\n      <ns:countryCode>GB</ns:countryCode>\r\n      <ns:postCode>TW19 6BJ</ns:postCode>\r\n      <ns:contactName>ARNOLD</ns:contactName>\r\n      <ns:phoneNumber>017536892921234567891</ns:phoneNumber>\r\n      <ns:vatNumber>GB123456912345678</ns:vatNumber>\r\n      <ns:emailAddress>SUPPORT@INTERSOFT.CO.UK</ns:emailAddress>\r\n      <ns:reference>INPSAUSSSYD</ns:reference>\r\n      <ns:departmentCode>?</ns:departmentCode>\r\n    </ns:shipper>\r\n    <ns:destination>\r\n      <ns:companyName>SSYD INPS COMPANY</ns:companyName>\r\n      <ns:addressLine1>11 Town Terrace</ns:addressLine1>\r\n      <ns:addressLine2></ns:addressLine2>\r\n      <ns:addressLine3></ns:addressLine3>\r\n      <ns:city>Glenmore Park</ns:city>\r\n      <ns:county>NSW</ns:county>\r\n      <ns:countryCode>AU</ns:countryCode>\r\n      <ns:postCode>2745</ns:postCode>\r\n      <ns:contactName>ARNOLD</ns:contactName>\r\n      <ns:phoneNumber>1545554455</ns:phoneNumber>\r\n      <ns:vatNumber>GB123456912345678</ns:vatNumber>\r\n      <ns:emailAddress>arnold.christian@intersoft.co.uk</ns:emailAddress>\r\n    </ns:destination>\r\n    <ns:shipmentDetail>\r\n      <ns:shipmentDate>2011-07-14</ns:shipmentDate>\r\n      <ns:serviceCode>INPS</ns:serviceCode>\r\n      <ns:totalPieces>1</ns:totalPieces>\r\n      <ns:totalWeight>5</ns:totalWeight>\r\n      <ns:weightUOM>K</ns:weightUOM>\r\n      <ns:dimensions>\r\n        <ns:uom>C</ns:uom>\r\n        <ns:length>20</ns:length>\r\n        <ns:width>20</ns:width>\r\n        <ns:height>20</ns:height>\r\n      </ns:dimensions>\r\n      <ns:contentTypeCode>NDX</ns:contentTypeCode>\r\n      <ns:descriptionOfGoods>SKIN CARE</ns:descriptionOfGoods>\r\n      <ns:declaredCurrencyValue>80.33</ns:declaredCurrencyValue>\r\n      <ns:declaredCurrencyCode>GBP</ns:declaredCurrencyCode>\r\n      <ns:incotermsCode>DDU</ns:incotermsCode>\r\n      <ns:itemDetail>\r\n     <ns:hsCode>123456</ns:hsCode>\r\n        <ns:description>FOREO LUNA MINI</ns:description>\r\n        <ns:quantity>1</ns:quantity>\r\n        <ns:currencyValue>52.33</ns:currencyValue>\r\n        \r\n       \r\n        <ns:netWeight>1</ns:netWeight>\r\n      </ns:itemDetail>\r\n\t  \r\n    </ns:shipmentDetail>\r\n  </ns:shipment>\r\n</ns:createShipmentRequest>"
+                        variable: message.body
+                        content: application/xml
+                    actions:
+                      - set: response.createShipmentRequest.shipment.shipper.addressLine1
+                        from: input.createShipmentRequest.shipment.shipper.addressLine1
+                      - set: response.createShipmentRequest.shipment.shipper.addressLine2
+                        from: input.createShipmentRequest.shipment.shipper.addressLine2
+                      - set: response.createShipmentRequest.shipment.shipper.addressLine3
+                        from: input.createShipmentRequest.shipment.shipper.addressLine3
+                      - set: response.createShipmentRequest.shipment.shipper.city
+                        from: input.createShipmentRequest.shipment.shipper.city
+                      - set: response.createShipmentRequest.shipment.shipper.county
+                        from: input.createShipmentRequest.shipment.shipper.county
+                      - set: response.createShipmentRequest.shipment.shipper.countryCode
+                        from: input.createShipmentRequest.shipment.shipper.countryCode
+                      - set: response.createShipmentRequest.shipment.shipper.postCode
+                        from: input.createShipmentRequest.shipment.shipper.postCode
+                      - set: response.createShipmentRequest.shipment.shipper.contactName
+                        from: input.createShipmentRequest.shipment.shipper.contactName
+                      - set: response.createShipmentRequest.shipment.shipper.phoneNumber
+                        from: input.createShipmentRequest.shipment.shipper.phoneNumber
+                      - set: response.createShipmentRequest.shipment.shipper.vatNumber
+                        from: input.createShipmentRequest.shipment.shipper.vatNumber
+                      - set: response.createShipmentRequest.shipment.shipper.emailAddress
+                        from: input.createShipmentRequest.shipment.shipper.emailAddress
+                      - set: response.createShipmentRequest.shipment.shipper.reference
+                        from: input.createShipmentRequest.shipment.shipper.reference
+                      - set: response.createShipmentRequest.shipment.shipper.departmentCode
+                        from: input.createShipmentRequest.shipment.shipper.departmentCode
+                      - set: response.createShipmentRequest.shipment.destination.companyName
+                        from: input.createShipmentRequest.shipment.destination.companyName
+                      - set: response.createShipmentRequest.shipment.destination.addressLine1
+                        from: input.createShipmentRequest.shipment.destination.addressLine1
+                      - set: response.createShipmentRequest.shipment.destination.addressLine2
+                        from: input.createShipmentRequest.shipment.destination.addressLine2
+                      - set: response.createShipmentRequest.shipment.destination.addressLine3
+                        from: input.createShipmentRequest.shipment.destination.addressLine3
+                      - set: response.createShipmentRequest.shipment.destination.city
+                        from: input.createShipmentRequest.shipment.destination.city
+                      - set: response.createShipmentRequest.shipment.destination.county
+                        from: input.createShipmentRequest.shipment.destination.county
+                      - set: response.createShipmentRequest.shipment.destination.countryCode
+                        from: input.createShipmentRequest.shipment.destination.countryCode
+                      - set: response.createShipmentRequest.shipment.destination.postCode
+                        from: input.createShipmentRequest.shipment.destination.postCode
+                      - set: response.createShipmentRequest.shipment.destination.contactName
+                        from: input.createShipmentRequest.shipment.destination.contactName
+                      - set: response.createShipmentRequest.shipment.destination.phoneNumber
+                        from: input.createShipmentRequest.shipment.destination.phoneNumber
+                      - set: response.createShipmentRequest.shipment.destination.vatNumber
+                        from: input.createShipmentRequest.shipment.destination.vatNumber
+                      - set: response.createShipmentRequest.shipment.destination.emailAddress
+                        from: input.createShipmentRequest.shipment.destination.emailAddress
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.shipmentDate
+                        from: input.createShipmentRequest.shipment.shipmentDetail.shipmentDate
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.serviceCode
+                        from: input.createShipmentRequest.shipment.shipmentDetail.serviceCode
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.totalPieces
+                        from: input.createShipmentRequest.shipment.shipmentDetail.totalPieces
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.totalWeight
+                        from: input.createShipmentRequest.shipment.shipmentDetail.totalWeight
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.weightUOM
+                        from: input.createShipmentRequest.shipment.shipmentDetail.weightUOM
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.dimensions.uom
+                        from: input.createShipmentRequest.shipment.shipmentDetail.dimensions.uom
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.dimensions.length
+                        from: input.createShipmentRequest.shipment.shipmentDetail.dimensions.length
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.dimensions.width
+                        from: input.createShipmentRequest.shipment.shipmentDetail.dimensions.width
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.dimensions.height
+                        from: input.createShipmentRequest.shipment.shipmentDetail.dimensions.height
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.contentTypeCode
+                        from: input.createShipmentRequest.shipment.shipmentDetail.contentTypeCode
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.descriptionOfGoods
+                        from: input.createShipmentRequest.shipment.shipmentDetail.descriptionOfGoods
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.declaredCurrencyValue
+                        from: input.createShipmentRequest.shipment.shipmentDetail.declaredCurrencyValue
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.declaredCurrencyCode
+                        from: input.createShipmentRequest.shipment.shipmentDetail.declaredCurrencyCode
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.incotermsCode
+                        from: input.createShipmentRequest.shipment.shipmentDetail.incotermsCode
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.itemDetail.hsCode
+                        from: input.createShipmentRequest.shipment.shipmentDetail.itemDetail.hsCode
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.itemDetail.description
+                        from: input.createShipmentRequest.shipment.shipmentDetail.itemDetail.description
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.itemDetail.quantity
+                        from: input.createShipmentRequest.shipment.shipmentDetail.itemDetail.quantity
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.itemDetail.currencyValue
+                        from: input.createShipmentRequest.shipment.shipmentDetail.itemDetail.currencyValue
+                      - set: response.createShipmentRequest.shipment.shipmentDetail.itemDetail.netWeight
+                        from: input.createShipmentRequest.shipment.shipmentDetail.itemDetail.netWeight
+                      - set: response.createShipmentRequest.shipment.shipper.companyName
+                        from: input.createShipmentRequest.shipment.shipper.companyName
+                      - set: response.createShipmentRequest.integrationHeader.transactionId
+                        default: $(request.headers.x-rmg-transaction-id)
+                      - set: response.createShipmentRequest.integrationHeader.applicationId
+                        default: $(api.properties.ApplicationId)
+                      - set: response.createShipmentRequest.integrationHeader.dateTime
+                        from: rmg_headers.X-RMG-Date-Time
+                        default: $(system.datetime)
+                    version: 1.0.0
+                    options:
+                      includeEmptyXMLElements: false
+                - invoke:
+                    title: createShipmentInvoke
+                    timeout: 60
+                    verb: POST
+                    cache-response: protocol
+                    cache-ttl: 900
+                    version: 1.0.0
+                    tls-profile: onboarding-pre-prod-test-ca2
+                    target-url: 'https://sit-api.royalmail.com/international/shipment/v1'
+                    output: Response4
+                - map:
+                    title: createShipmentMap
+                    inputs:
+                      bigResponse4:
+                        schema:
+                          description: ''
+                          type: object
+                          properties:
+                            createShipmentResponse:
+                              type: object
+                              properties:
+                                integrationHeader:
+                                  type: object
+                                  properties:
+                                    dateTime:
+                                      type: string
+                                    applicationId:
+                                      type: string
+                                    transactionId:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                completedShipment:
+                                  type: object
+                                  properties:
+                                    trackingNumber:
+                                      type: string
+                                    carrierCode:
+                                      type: string
+                                    labelImage:
+                                      type: string
+                                    labelImageFormat:
+                                      type: string
+                                    globalTrackingURL:
+                                      type: string
+                                    localTrackingURL:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                integrationFooter:
+                                  type: object
+                                  properties:
+                                    errors:
+                                      type: object
+                                      properties:
+                                        errorDetail:
+                                          type: object
+                                          properties:
+                                            errorCode:
+                                              type: string
+                                            errorDescription:
+                                              type: string
+                                            errorCause:
+                                              type: string
+                                            errorResolution:
+                                              type: string
+                                            errorContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                    warnings:
+                                      type: object
+                                      properties:
+                                        warning:
+                                          type: object
+                                          properties:
+                                            warningCode:
+                                              type: string
+                                            warningDescription:
+                                              type: string
+                                            warningCause:
+                                              type: string
+                                            warningResolution:
+                                              type: string
+                                            warningContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                  xml:
+                                    namespace: ''
+                              xml:
+                                namespace: 'http://www.royalmailgroup.com/api/international/shipment/V1'
+                          xml:
+                            namespace: ''
+                          example: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<createShipmentResponse xmlns=\"http://www.royalmailgroup.com/api/international/shipment/V1\">\r\n  <integrationHeader>\r\n    <dateTime>2001-12-31T12:00:00</dateTime>\r\n    <applicationId>applicationId</applicationId>\r\n    <transactionId>transactionId</transactionId>\r\n  </integrationHeader>\r\n  <completedShipment>\r\n    <trackingNumber>trackingNumber</trackingNumber>\r\n    <carrierCode>carrierCode</carrierCode>\r\n    <labelImage>MA==</labelImage>\r\n    <labelImageFormat>PDF</labelImageFormat>\r\n    <globalTrackingURL>globalTrackingURL</globalTrackingURL>\r\n    <localTrackingURL>localTrackingURL</localTrackingURL>\r\n  </completedShipment>\r\n  <integrationFooter>\r\n      <errors>\r\n         <errorDetail>\r\n            <errorCode>7002</errorCode>\r\n            <errorDescription>Shipment not on file.</errorDescription>\r\n            <errorCause>9205590165863400046676</errorCause>\r\n            <errorResolution>1</errorResolution>\r\n            <errorContext>1</errorContext>\r\n         </errorDetail>\r\n      </errors>\r\n      <warnings>\r\n        <warning>\r\n          <warningCode>1</warningCode>\r\n          <warningDescription>1</warningDescription>\r\n          <warningCause>1</warningCause>\r\n          <warningResolution>1</warningResolution>\r\n          <warningContext>1</warningContext>\r\n        </warning>\r\n      </warnings>\r\n   </integrationFooter>\r\n</createShipmentResponse>"
+                        variable: Response4.body
+                        content: application/xml
+                    outputs:
+                      output:
+                        schema:
+                          description: ''
+                          type: object
+                          properties:
+                            createShipmentResponse:
+                              type: object
+                              properties:
+                                integrationHeader:
+                                  type: object
+                                  properties:
+                                    dateTime:
+                                      type: string
+                                    applicationId:
+                                      type: string
+                                    transactionId:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                completedShipment:
+                                  type: object
+                                  properties:
+                                    trackingNumber:
+                                      type: string
+                                    carrierCode:
+                                      type: string
+                                    labelImage:
+                                      type: string
+                                    labelImageFormat:
+                                      type: string
+                                    globalTrackingURL:
+                                      type: string
+                                    localTrackingURL:
+                                      type: string
+                                  xml:
+                                    namespace: ''
+                                integrationFooter:
+                                  type: object
+                                  properties:
+                                    errors:
+                                      type: object
+                                      properties:
+                                        errorDetail:
+                                          type: object
+                                          properties:
+                                            errorCode:
+                                              type: string
+                                            errorDescription:
+                                              type: string
+                                            errorCause:
+                                              type: string
+                                            errorResolution:
+                                              type: string
+                                            errorContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                    warnings:
+                                      type: object
+                                      properties:
+                                        warning:
+                                          type: object
+                                          properties:
+                                            warningCode:
+                                              type: string
+                                            warningDescription:
+                                              type: string
+                                            warningCause:
+                                              type: string
+                                            warningResolution:
+                                              type: string
+                                            warningContext:
+                                              type: string
+                                          xml:
+                                            namespace: ''
+                                      xml:
+                                        namespace: ''
+                                  xml:
+                                    namespace: ''
+                              xml:
+                                namespace: 'http://www.royalmailgroup.com/api/international/shipment/V1'
+                          xml:
+                            namespace: ''
+                          example: "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<createShipmentResponse xmlns=\"http://www.royalmailgroup.com/api/international/shipment/V1\">\r\n  <integrationHeader>\r\n    <dateTime>2001-12-31T12:00:00</dateTime>\r\n    <applicationId>applicationId</applicationId>\r\n    <transactionId>transactionId</transactionId>\r\n  </integrationHeader>\r\n  <completedShipment>\r\n    <trackingNumber>trackingNumber</trackingNumber>\r\n    <carrierCode>carrierCode</carrierCode>\r\n    <labelImage>MA==</labelImage>\r\n    <labelImageFormat>PDF</labelImageFormat>\r\n    <globalTrackingURL>globalTrackingURL</globalTrackingURL>\r\n    <localTrackingURL>localTrackingURL</localTrackingURL>\r\n  </completedShipment>\r\n  <integrationFooter>\r\n      <errors>\r\n         <errorDetail>\r\n            <errorCode>7002</errorCode>\r\n            <errorDescription>Shipment not on file.</errorDescription>\r\n            <errorCause>9205590165863400046676</errorCause>\r\n            <errorResolution>1</errorResolution>\r\n            <errorContext>1</errorContext>\r\n         </errorDetail>\r\n      </errors>\r\n      <warnings>\r\n        <warning>\r\n          <warningCode>1</warningCode>\r\n          <warningDescription>1</warningDescription>\r\n          <warningCause>1</warningCause>\r\n          <warningResolution>1</warningResolution>\r\n          <warningContext>1</warningContext>\r\n        </warning>\r\n      </warnings>\r\n   </integrationFooter>\r\n</createShipmentResponse>"
+                        variable: message.body
+                        content: application/json
+                    actions:
+                      - set: output.createShipmentResponse.integrationHeader.dateTime
+                        from: bigResponse4.createShipmentResponse.integrationHeader.dateTime
+                      - set: output.createShipmentResponse.integrationHeader.applicationId
+                        from: bigResponse4.createShipmentResponse.integrationHeader.applicationId
+                      - set: output.createShipmentResponse.integrationHeader.transactionId
+                        from: bigResponse4.createShipmentResponse.integrationHeader.transactionId
+                      - set: output.createShipmentResponse.completedShipment.trackingNumber
+                        from: bigResponse4.createShipmentResponse.completedShipment.trackingNumber
+                      - set: output.createShipmentResponse.completedShipment.carrierCode
+                        from: bigResponse4.createShipmentResponse.completedShipment.carrierCode
+                      - set: output.createShipmentResponse.completedShipment.labelImage
+                        from: bigResponse4.createShipmentResponse.completedShipment.labelImage
+                      - set: output.createShipmentResponse.completedShipment.labelImageFormat
+                        from: bigResponse4.createShipmentResponse.completedShipment.labelImageFormat
+                      - set: output.createShipmentResponse.completedShipment.globalTrackingURL
+                        from: bigResponse4.createShipmentResponse.completedShipment.globalTrackingURL
+                      - set: output.createShipmentResponse.completedShipment.localTrackingURL
+                        from: bigResponse4.createShipmentResponse.completedShipment.localTrackingURL
+                      - set: output.createShipmentResponse.integrationFooter.errors.errorDetail.errorCode
+                        from: bigResponse4.createShipmentResponse.integrationFooter.errors.errorDetail.errorCode
+                      - set: output.createShipmentResponse.integrationFooter.errors.errorDetail.errorDescription
+                        from: bigResponse4.createShipmentResponse.integrationFooter.errors.errorDetail.errorDescription
+                      - set: output.createShipmentResponse.integrationFooter.errors.errorDetail.errorCause
+                        from: bigResponse4.createShipmentResponse.integrationFooter.errors.errorDetail.errorCause
+                      - set: output.createShipmentResponse.integrationFooter.errors.errorDetail.errorResolution
+                        from: bigResponse4.createShipmentResponse.integrationFooter.errors.errorDetail.errorResolution
+                      - set: output.createShipmentResponse.integrationFooter.errors.errorDetail.errorContext
+                        from: bigResponse4.createShipmentResponse.integrationFooter.errors.errorDetail.errorContext
+                      - set: output.createShipmentResponse.integrationFooter.warnings
+                        from: bigResponse4.createShipmentResponse.integrationFooter.warnings
+                    version: 1.0.0
+                    options:
+                      includeEmptyXMLElements: false
+                - gatewayscript:
+                    title: gatewayscript
+                    version: 1.0.0
+                    source: "var Buss_Body = apim.getvariable('message.body');\nvar Buss_Err = Buss_Body.createBagResponse.integrationFooter.errors.errorDetail;\nvar Track_No = Buss_Err.errorCause ;\nif(Buss_Err.errorCode=='C099'){\n    apim.setvariable('message.status.code','404');\n    Buss_Err.errorCode='E1291';\n    Buss_Err.errorDescription= Track_No + ' not found ';\n    \n    Buss_Err.errorResolution='Please resubmit request with a valid tracking number';\n    Buss_Err.errorContext='Error returned by Intersoft';\n }\n \n  else if(Buss_Err.errorCode=='6001'){\n   apim.setvariable('message.status.code','403');  \n   Buss_Err.errorCode='E0007';\n   Buss_Err.errorDescription='Authorisation failure';\n   Buss_Err.errorContext='Error returned by Intersoft';\n }\n \napim.setvariable('message.body',Buss_Body);"
+                - json-to-xml:
+                    title: json-to-xml
+                    root-element-name: json
+                    always-output-root-element: false
+                    version: 1.0.0
+                - activity-log:
+                    title: activity-log
+                    content: payload
+                    error-content: payload
+                    version: 1.0.0
+    catch:
+      - errors:
+          - ConnectionError
+          - SOAPError
+          - OperationError
+        execute:
+          - map:
+              title: map
+              inputs:
+                input:
+                  schema:
+                    description: ''
+                    type: object
+                    properties:
+                      Envelope:
+                        type: object
+                        properties:
+                          Body:
+                            type: object
+                            properties:
+                              Fault:
+                                type: object
+                                properties:
+                                  faultcode:
+                                    type: string
+                                    xml:
+                                      namespace: ''
+                                  faultstring:
+                                    type: string
+                                    xml:
+                                      namespace: ''
+                                  faultactor:
+                                    type: string
+                                    xml:
+                                      namespace: ''
+                                  detail:
+                                    type: object
+                                    properties:
+                                      exceptionTransactionId:
+                                        type: string
+                                        xml:
+                                          namespace: ''
+                                      exceptionCode:
+                                        type: string
+                                        xml:
+                                          namespace: ''
+                                      exceptionText:
+                                        type: string
+                                        xml:
+                                          namespace: ''
+                                    xml:
+                                      namespace: ''
+                        xml:
+                          namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+                          prefix: soapenv
+                    xml:
+                      namespace: ''
+                    example: >-
+                      <?xml version="1.0" encoding="UTF-8"?>
+
+                      <soapenv:Envelope
+                      xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+
+                          <soapenv:Body>
+
+                              <soapenv:Fault>
+
+                                  <faultcode>Client</faultcode>
+
+                                  <faultstring>Invalid Request</faultstring>
+
+                                  <faultactor>ESB</faultactor>
+
+                                  <detail>
+
+                                      <exceptionTransactionId>8d605492-de3c-4ed1-a969-1ef796f12560</exceptionTransactionId>
+
+                                      <exceptionCode>E0004</exceptionCode>
+
+                                      <exceptionText>Failed Schema
+                      Validation</exceptionText>
+
+                                  </detail>
+
+                              </soapenv:Fault>
+
+                          </soapenv:Body>
+
+
+
+                      </soapenv:Envelope>
+                  variable: Response1.body
+                  content: application/xml
+              outputs:
+                output:
+                  schema:
+                    description: ''
+                    type: object
+                    properties:
+                      Envelope:
+                        type: object
+                        properties:
+                          Body:
+                            type: object
+                            properties:
+                              Fault:
+                                type: object
+                                properties:
+                                  faultcode:
+                                    type: string
+                                    xml:
+                                      namespace: ''
+                                  faultstring:
+                                    type: string
+                                    xml:
+                                      namespace: ''
+                                  faultactor:
+                                    type: string
+                                    xml:
+                                      namespace: ''
+                                  detail:
+                                    type: object
+                                    properties:
+                                      exceptionTransactionId:
+                                        type: string
+                                        xml:
+                                          namespace: ''
+                                      exceptionCode:
+                                        type: string
+                                        xml:
+                                          namespace: ''
+                                      exceptionText:
+                                        type: string
+                                        xml:
+                                          namespace: ''
+                                    xml:
+                                      namespace: ''
+                        xml:
+                          namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+                          prefix: soapenv
+                    xml:
+                      namespace: ''
+                    example: >-
+                      <?xml version="1.0" encoding="UTF-8"?>
+
+                      <soapenv:Envelope
+                      xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+
+                          <soapenv:Body>
+
+                              <soapenv:Fault>
+
+                                  <faultcode>Client</faultcode>
+
+                                  <faultstring>Invalid Request</faultstring>
+
+                                  <faultactor>ESB</faultactor>
+
+                                  <detail>
+
+                                      <exceptionTransactionId>8d605492-de3c-4ed1-a969-1ef796f12560</exceptionTransactionId>
+
+                                      <exceptionCode>E0004</exceptionCode>
+
+                                      <exceptionText>Failed Schema
+                      Validation</exceptionText>
+
+                                  </detail>
+
+                              </soapenv:Fault>
+
+                          </soapenv:Body>
+
+                      </soapenv:Envelope>
+                  variable: message.body
+                  content: application/json
+              actions:
+                - set: output.Envelope.Body.Fault.detail.exceptionCode
+                  from: input.Envelope.Body.Fault.detail.exceptionCode
+              version: 1.0.0
+              options:
+                includeEmptyXMLElements: false
+tags: []
+definitions: {}
+securityDefinitions:
+  Client ID:
+    description: ''
+    in: header
+    name: X-IBM-Client-Id
+    type: apiKey
+  Client Secret:
+    type: apiKey
+    name: X-IBM-Client-Secret
+    in: header
+    description: ''
+paths:
+  '/{trackingNumber}':
+    delete:
+      description: Cancels a shipment which has yet not been confirmed.
+      tags:
+        - /
+      parameters:
+        - description: ''
+          name: trackingNumber
+          type: string
+          required: true
+          in: path
+        - name: X-RMG-Transaction-Id
+          type: string
+          required: true
+          in: header
+        - name: X-RMG-Date-Time
+          type: string
+          required: false
+          in: header
+        - name: X-RMG-User-Name
+          type: string
+          required: true
+          in: header
+        - name: X-RMG-Password
+          type: string
+          required: true
+          in: header
+          format: password
+      responses:
+        '200':
+          schema: {}
+          description: ''
+          examples:
+            application/xml: >-
+              <?xml version="1.0" encoding="UTF-8"?>
+
+              <ns:cancelShipmentResponse
+              xmlns:dt="http://www.royalmailgroup.com/cm/rmDatatypes/V1"
+              xmlns:int="http://www.royalmailgroup.com/integration/core/V3"
+              xmlns:ns="http://www.royalmailgroup.com/api/international/shipment/V1"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.royalmailgroup.com/api/international/shipment/V1
+              InternationalShippingAPI_V1_BIG.xsd ">
+
+                <ns:integrationHeader>
+
+                  <ns:dateTime>2001-12-31T12:00:00</ns:dateTime>
+
+                  <ns:applicationId>ns:applicationId</ns:applicationId>
+
+                  <ns:transactionId>ns:transactionId</ns:transactionId>
+
+                </ns:integrationHeader>
+
+                <ns:cancelled>
+
+                  <ns:trackingNumber>ns:trackingNumber</ns:trackingNumber>
+
+                </ns:cancelled>
+
+                <ns:integrationFooter>
+
+                  <errors/>
+
+                  <warnings/>
+
+                </ns:integrationFooter>
+
+              </ns:cancelShipmentResponse>
+      security:
+        - Client ID: []
+          Client Secret: []
+      summary: Cancels a shipment which has yet not been confirmed.
+  /:
+    post:
+      description: Creates an international tracked direct shipment in the system and returns a final mile carrier label.  Shipment stays in unprocessed state until confirmed by CreateBag operation.
+      tags: []
+      parameters:
+        - schema:
+            example: >-
+              <?xml version="1.0" encoding="UTF-8"?>
+
+              <ns:createShipmentRequest
+              xmlns:dt="http://www.royalmailgroup.com/cm/rmDatatypes/V1"
+              xmlns:int="http://www.royalmailgroup.com/integration/core/V3"
+              xmlns:ns="http://www.royalmailgroup.com/api/international/shipment/V1"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.royalmailgroup.com/api/international/shipment/V1
+              InternationalShippingAPI_V1_BIG.xsd ">
+
+                <ns:integrationHeader>
+
+                  <ns:dateTime>2001-12-31T12:00:00</ns:dateTime>
+
+                  <ns:applicationId>0703386001</ns:applicationId>
+
+                  <ns:transactionId>BCMYH-ZOOFY-XPRKB-FKCCT-TTURS-ZN</ns:transactionId>
+
+                </ns:integrationHeader>
+
+                <ns:shipment>
+
+                  <ns:shipper>
+
+                    <ns:companyName>INTERSOFT</ns:companyName>
+
+                    <ns:addressLine1>THE MILL STUDIO</ns:addressLine1>
+
+                    <ns:addressLine2>HORTON ROAD</ns:addressLine2>
+
+                    <ns:addressLine3></ns:addressLine3>
+
+                    <ns:city>STANWELL MOOR</ns:city>
+
+                    <ns:county>MIDX</ns:county>
+
+                    <ns:countryCode>GB</ns:countryCode>
+
+                    <ns:postCode>TW19 6BJ</ns:postCode>
+
+                    <ns:contactName>ARNOLD</ns:contactName>
+
+                    <ns:phoneNumber>017536892921234567891</ns:phoneNumber>
+
+                    <ns:vatNumber>GB123456912345678</ns:vatNumber>
+
+                    <ns:emailAddress>SUPPORT@INTERSOFT.CO.UK</ns:emailAddress>
+
+                    <ns:reference>INPSAUSSSYD</ns:reference>
+
+                    <ns:departmentCode></ns:departmentCode>
+
+                  </ns:shipper>
+
+                  <ns:destination>
+
+                    <ns:companyName>SSYD INPS COMPANY</ns:companyName>
+
+                    <ns:addressLine1>11 Town Terrace</ns:addressLine1>
+
+                    <ns:addressLine2></ns:addressLine2>
+
+                    <ns:addressLine3></ns:addressLine3>
+
+                    <ns:city>Glenmore Park</ns:city>
+
+                    <ns:county>NSW</ns:county>
+
+                    <ns:countryCode>AU</ns:countryCode>
+
+                    <ns:postCode>2745</ns:postCode>
+
+                    <ns:contactName>ARNOLD</ns:contactName>
+
+                    <ns:phoneNumber>1545554455</ns:phoneNumber>
+
+                    <ns:vatNumber>GB123456912345678</ns:vatNumber>
+
+                    <ns:emailAddress>arnold.christian@intersoft.co.uk</ns:emailAddress>
+
+                  </ns:destination>
+
+                  <ns:shipmentDetail>
+
+                    <ns:shipmentDate>2011-07-14</ns:shipmentDate>
+
+                    <ns:serviceCode>INPS</ns:serviceCode>
+
+                    <ns:totalPieces>1</ns:totalPieces>
+
+                    <ns:totalWeight>5</ns:totalWeight>
+
+                    <ns:weightUOM>K</ns:weightUOM>
+
+                    <ns:dimensions>
+
+                      <ns:uom>C</ns:uom>
+
+                      <ns:length>20</ns:length>
+
+                      <ns:width>20</ns:width>
+
+                      <ns:height>20</ns:height>
+
+                    </ns:dimensions>
+
+                    <ns:contentTypeCode>NDX</ns:contentTypeCode>
+
+                    <ns:descriptionOfGoods>SKIN CARE</ns:descriptionOfGoods>
+
+                    <ns:declaredCurrencyValue>80.33</ns:declaredCurrencyValue>
+
+                    <ns:declaredCurrencyCode>GBP</ns:declaredCurrencyCode>
+
+                    <ns:incotermsCode>DDU</ns:incotermsCode>
+
+                    <ns:itemDetail>
+
+                      <ns:hsCode>999999999</ns:hsCode>
+
+                      <ns:description>FOREO LUNA MINI</ns:description>
+
+                      <ns:quantity>1</ns:quantity>
+
+                      <ns:currencyValue>52.33</ns:currencyValue>
+
+                      <ns:countryOfOrigin>GB</ns:countryOfOrigin>
+
+                      <ns:sku></ns:sku>
+
+                      <ns:netWeight>1</ns:netWeight>
+
+                    </ns:itemDetail>
+
+                  </ns:shipmentDetail>
+
+                </ns:shipment>
+
+              </ns:createShipmentRequest>
+          description: ''
+          name: body
+          in: body
+          required: true
+        - name: X-RMG-Transaction-Id
+          type: string
+          required: true
+          in: header
+        - name: X-RMG-Date-Time
+          type: string
+          required: false
+          in: header
+        - name: X-RMG-User-Name
+          type: string
+          required: true
+          in: header
+        - name: X-RMG-Password
+          type: string
+          required: true
+          in: header
+          format: password
+      responses:
+        '200':
+          schema: {}
+          description: ''
+          examples:
+            application/xml: >-
+              <?xml version="1.0" encoding="UTF-8"?>
+
+              <ns:createShipmentResponse
+              xmlns:dt="http://www.royalmailgroup.com/cm/rmDatatypes/V1"
+              xmlns:int="http://www.royalmailgroup.com/integration/core/V3"
+              xmlns:ns="http://www.royalmailgroup.com/api/international/shipment/V1"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.royalmailgroup.com/api/international/shipment/V1
+              InternationalShippingAPI_V1_BIG.xsd ">
+
+                <ns:integrationHeader>
+
+                  <ns:dateTime>2001-12-31T12:00:00</ns:dateTime>
+
+                  <ns:applicationId>ns:applicationId</ns:applicationId>
+
+                  <ns:transactionId>ns:transactionId</ns:transactionId>
+
+                </ns:integrationHeader>
+
+                <ns:completedShipment>
+
+                  <ns:trackingNumber>ns:trackingNumber</ns:trackingNumber>
+
+                  <ns:carrierCode>ns:carrierCode</ns:carrierCode>
+
+                  <ns:labelImage>MA==</ns:labelImage>
+
+                  <ns:labelImageFormat>PDF</ns:labelImageFormat>
+
+                  <ns:globalTrackingURL>ns:globalTrackingURL</ns:globalTrackingURL>
+
+                  <ns:localTrackingURL>ns:localTrackingURL</ns:localTrackingURL>
+
+                </ns:completedShipment>
+
+                <ns:integrationFooter>
+
+                  <errors/>
+
+                  <warnings/>
+
+                </ns:integrationFooter>
+
+              </ns:createShipmentResponse>
+      security:
+        - Client ID: []
+          Client Secret: []
+      summary: Creates an international tracked direct shipment in the system and returns a final mile carrier label.  Shipment stays in unprocessed state until confirmed by CreateBag operation.
+  /bagcontent:
+    post:
+      description: Confirms the list of shipments created by createShipment operation. This will put the shipments in the ‘processed’ state in the system and returns the bag label and manifest for the shipments
+      tags: []
+      parameters:
+        - schema:
+            example: >-
+              <?xml version="1.0" encoding="UTF-8"?>
+
+              <ns:createBagRequest
+              xmlns:dt="http://www.royalmailgroup.com/cm/rmDatatypes/V1"
+              xmlns:int="http://www.royalmailgroup.com/integration/core/V3"
+              xmlns:ns="http://www.royalmailgroup.com/api/international/shipment/V1"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.royalmailgroup.com/api/international/shipment/V1
+              InternationalShippingAPI_V1_APIM.xsd ">
+
+                <ns:bagContent>
+
+                  <ns:confirmType>2</ns:confirmType>
+
+                  <ns:carrierCode>SSYD</ns:carrierCode>
+
+                  <ns:trackingNumber>TES100644101000930203</ns:trackingNumber>
+
+                </ns:bagContent>
+
+                <ns:numberOfBagLabels>1</ns:numberOfBagLabels>
+
+                <ns:labelType>PDF</ns:labelType>
+
+              </ns:createBagRequest>
+          description: ''
+          name: body
+          in: body
+          required: true
+        - name: X-RMG-Transaction-Id
+          type: string
+          required: true
+          in: header
+        - name: X-RMG-Date-Time
+          type: string
+          required: false
+          in: header
+        - name: X-RMG-User-Name
+          type: string
+          required: true
+          in: header
+        - name: X-RMG-Password
+          type: string
+          required: true
+          in: header
+          format: password
+      responses:
+        '200':
+          schema: {}
+          description: OK Response
+          examples:
+            application/xml: >-
+              <?xml version="1.0" encoding="UTF-8"?>
+
+              <ns:createBagResponse
+              xmlns:dt="http://www.royalmailgroup.com/cm/rmDatatypes/V1"
+              xmlns:int="http://www.royalmailgroup.com/integration/core/V3"
+              xmlns:ns="http://www.royalmailgroup.com/api/international/shipment/V1"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.royalmailgroup.com/api/international/shipment/V1
+              InternationalShippingAPI_V1_BIG.xsd ">
+
+                <ns:integrationHeader>
+
+                  <ns:dateTime>2001-12-31T12:00:00</ns:dateTime>
+
+                  <ns:applicationId>ns:applicationId</ns:applicationId>
+
+                  <ns:transactionId>ns:transactionId</ns:transactionId>
+
+                </ns:integrationHeader>
+
+                <ns:bagDetail>
+
+                  <ns:manifestImage>MA==</ns:manifestImage>
+
+                  <ns:bagLabelImage>MA==</ns:bagLabelImage>
+
+                  <ns:bagId>ns:bagId</ns:bagId>
+
+                </ns:bagDetail>
+
+                <ns:integrationFooter>
+
+                  <errors/>
+
+                  <warnings/>
+
+                </ns:integrationFooter>
+
+              </ns:createBagResponse>
+      security:
+        - Client ID: []
+          Client Secret: []
+      summary: Processed state in the system and returns the bag label and manifest for the shipments
+  '/{trackingNumber}/history':
+    get:
+      description: Retrieves full tracking history of a confirmed shipment
+      tags: []
+      parameters:
+        - description: ''
+          name: trackingNumber
+          type: string
+          required: true
+          in: path
+        - name: X-RMG-Transaction-Id
+          type: string
+          required: true
+          in: header
+        - name: X-RMG-Date-Time
+          type: string
+          required: false
+          in: header
+        - name: X-RMG-User-Name
+          type: string
+          required: true
+          in: header
+        - name: X-RMG-Password
+          type: string
+          required: true
+          in: header
+          format: password
+      responses:
+        '200':
+          schema: {}
+          description: ''
+          examples:
+            application/xml: >-
+              <?xml version="1.0" encoding="UTF-8"?>
+
+              <ns:trackingResponse
+              xmlns:dt="http://www.royalmailgroup.com/cm/rmDatatypes/V1"
+              xmlns:int="http://www.royalmailgroup.com/integration/core/V3"
+              xmlns:ns="http://www.royalmailgroup.com/api/international/shipment/V1"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.royalmailgroup.com/api/international/shipment/V1
+              InternationalShippingAPI_V1_BIG.xsd ">
+
+                <ns:integrationHeader>
+
+                  <ns:dateTime>2001-12-31T12:00:00</ns:dateTime>
+
+                  <ns:applicationId>ns:applicationId</ns:applicationId>
+
+                  <ns:transactionId>ns:transactionId</ns:transactionId>
+
+                </ns:integrationHeader>
+
+                <ns:trackingNumber>ns:trackingNumber</ns:trackingNumber>
+
+                <ns:events>
+
+                  <ns:event>
+
+                    <ns:eventDateTime>2001-12-31T12:00:00</ns:eventDateTime>
+
+                    <ns:eventDescription>ns:eventDescription</ns:eventDescription>
+
+                    <ns:eventCode>ns:eventCode</ns:eventCode>
+
+                    <ns:eventType>ns:eventType</ns:eventType>
+
+                  </ns:event>
+
+                </ns:events>
+
+                <ns:integrationFooter>
+
+                  <errors/>
+
+                  <warnings/>
+
+                </ns:integrationFooter>
+
+              </ns:trackingResponse>
+      security:
+        - Client ID: []
+          Client Secret: []
+      summary: Retrieves full tracking history of a confirmed shipment
+security:
+  - Client ID: []
+    Client Secret: []
+consumes:
+  - application/xml
+  - text/xml
+produces:
+  - application/xml
+  - text/xml

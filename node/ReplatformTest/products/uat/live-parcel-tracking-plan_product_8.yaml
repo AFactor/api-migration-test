@@ -1,0 +1,26 @@
+product: 1.0.0
+info:
+  title: Live Parcel Tracking Plan
+  version: '8'
+  description: Live Parcel Tracking Plan - This plan will be used for PFW Tracking SOAP api Go Live
+  name: live-parcel-tracking-plan
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  pfw-tracking-api-soap:
+    $ref: pfw-tracking-api-soap_1-rev11.yaml
+plans:
+  live-parcel-tracking-plan:
+    title: Live Parcel Tracking Plan
+    description: Live Parcel Tracking Plan - This plan will be used for PFW Tracking SOAP api Go Live
+    approval: true
+    apis: {}

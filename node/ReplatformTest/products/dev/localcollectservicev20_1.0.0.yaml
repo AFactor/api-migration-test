@@ -1,0 +1,1004 @@
+swagger: '2.0'
+info:
+  title: Local Collect API
+  description: ''
+  x-ibm-name: localcollectservicev20
+  version: 1.0.0
+schemes:
+  - https
+basePath: /localcollect/v2
+produces:
+  - application/xml
+consumes:
+  - application/xml
+  - text/xml
+securityDefinitions:
+  Client Secret:
+    type: apiKey
+    description: ''
+    in: header
+    name: X-IBM-Client-Secret
+  clientID:
+    type: apiKey
+    name: X-IBM-Client-Id
+    in: header
+    description: ''
+security:
+  - clientID: []
+    Client Secret: []
+x-ibm-configuration:
+  type: wsdl
+  wsdl-definition:
+    wsdl: localcollectservicev20_1.0.0.zip
+    service: LocalCollectServicev2_0
+    port: LocalCollectPortv2_0
+    soap-version: '1.1'
+  assembly:
+    execute:
+      - proxy:
+          title: proxy
+          target-url: 'https://sit-api.royalmail.com/localcollect/v2'
+          tls-profile: onboarding-pre-prod-test-ca2
+      - activity-log:
+          title: activity-log
+          content: payload
+          error-content: payload
+          version: 1.0.0
+    catch: []
+  gateway: datapower-gateway
+  enforced: true
+  testable: true
+  phase: realized
+  cors:
+    enabled: true
+paths:
+  /getLocations:
+    post:
+      summary: Operation getLocations
+      description: ''
+      operationId: getLocations
+      x-ibm-soap:
+        soap-action: 'http://royalmail.com/LocalCollectInterfacev3_0/getLocalCollectLocations'
+        soap-operation: '{http://www.royalmailgroup.com/API/LocalCollect/schema/V2.0}getLocationsRequest'
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/getLocationsInput'
+      responses:
+        '500':
+          description: ''
+          schema:
+            $ref: '#/definitions/getLocationsFault'
+        default:
+          description: ''
+          schema:
+            $ref: '#/definitions/getLocationsOutput'
+definitions:
+  Security:
+    xml:
+      namespace: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd'
+      prefix: wsse
+    type: object
+    properties:
+      UsernameToken:
+        type: object
+        properties:
+          Username:
+            type: string
+          Password:
+            type: string
+  getLocationsInput:
+    type: object
+    properties:
+      Envelope:
+        xml:
+          prefix: soap-env
+          namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+        type: object
+        properties:
+          Header:
+            $ref: '#/definitions/getLocationsHeader'
+          Body:
+            type: object
+            properties:
+              getLocationsRequest:
+                $ref: '#/definitions/getLocationsRequest_local_collect_schema'
+    example: >-
+      <soap-env:Envelope
+      xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+
+       <soap-env:Header>
+
+        <wsse:Security
+      xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+
+         <UsernameToken>
+
+          <Username>string</Username>
+
+          <Password>string</Password>
+
+         </UsernameToken>
+
+        </wsse:Security>
+
+        <int:integrationHeader
+      xmlns:int="http://www.royalmailgroup.com/integration/core/V3">
+
+         <dateTime>2016-04-18T14:07:37</dateTime>
+
+         <version>string</version>
+
+         <identification><!-- mandatory -->
+
+          <endUserId>string</endUserId>
+
+          <clientId>string</clientId>
+
+          <applicationId><!-- mandatory -->string</applicationId>
+
+          <intermediaryId>string</intermediaryId>
+
+          <transactionId><!-- mandatory -->string</transactionId>
+
+         </identification>
+
+         <debugAudit>
+
+          <testFlag>true</testFlag>
+
+          <debugFlag>true</debugFlag>
+
+          <performanceFlag>true</performanceFlag>
+
+          <messageAuditFlag>true</messageAuditFlag>
+
+         </debugAudit>
+
+        </int:integrationHeader>
+
+       </soap-env:Header>
+
+       <soap-env:Body>
+
+        <local_collect_schema:getLocationsRequest
+      xmlns:local_collect_schema="http://www.royalmailgroup.com/API/LocalCollect/schema/V2.0">
+
+         <locationType>string</locationType>
+
+         <radius>17</radius>
+
+         <postCode><!-- mandatory -->string</postCode>
+
+         <geoLocation><!-- mandatory -->
+
+          <latitude><!-- mandatory -->string</latitude>
+
+          <longitude><!-- mandatory -->string</longitude>
+
+         </geoLocation>
+
+        </local_collect_schema:getLocationsRequest>
+
+       </soap-env:Body>
+
+      </soap-env:Envelope>
+  getLocationsHeader:
+    type: object
+    properties:
+      Security:
+        $ref: '#/definitions/Security'
+      integrationHeader:
+        $ref: '#/definitions/integrationHeader_int'
+  getLocationsOutput:
+    type: object
+    properties:
+      Envelope:
+        xml:
+          prefix: soap-env
+          namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+        type: object
+        properties:
+          Body:
+            type: object
+            properties:
+              getLocationsResponse:
+                $ref: '#/definitions/getLocationsResponse_local_collect_schema'
+          Header:
+            $ref: '#/definitions/getLocationsHeaderOut'
+    example: >-
+      <soap-env:Envelope
+      xmlns:soap-env="http://schemas.xmlsoap.org/soap/envelope/">
+
+       <soap-env:Body>
+
+        <local_collect_schema:getLocationsResponse
+      xmlns:local_collect_schema="http://www.royalmailgroup.com/API/LocalCollect/schema/V2.0">
+
+         <locations>
+
+          <location><!-- between zero and 20 repetitions of this element -->
+
+           <organisationName><!-- mandatory -->string</organisationName>
+
+           <locationName><!-- mandatory -->string</locationName>
+
+           <addressLine1><!-- mandatory -->string</addressLine1>
+
+           <addressLine2>string</addressLine2>
+
+           <addressLine3>string</addressLine3>
+
+           <city>string</city>
+
+           <county>string</county>
+
+           <postcode><!-- mandatory -->string</postcode>
+
+           <openingHours><!-- mandatory --><!-- between 1 and 7 repetitions of
+      this element -->
+
+            <dayOfWeek><!-- mandatory -->string</dayOfWeek>
+
+            <openingTime><!-- mandatory -->string</openingTime>
+
+            <closingTime><!-- mandatory -->string</closingTime>
+
+            <lunchHours>
+
+             <lunchClosingTime><!-- mandatory -->string</lunchClosingTime>
+
+             <lunchOpeningTime><!-- mandatory -->string</lunchOpeningTime>
+
+            </lunchHours>
+
+           </openingHours>
+
+           <geoLocation><!-- mandatory -->
+
+            <latitude><!-- mandatory -->string</latitude>
+
+            <longitude><!-- mandatory -->string</longitude>
+
+           </geoLocation>
+
+           <distance><!-- mandatory -->string</distance>
+
+           <facilities>
+
+            <customerParkingIndicator><!-- mandatory
+      -->true</customerParkingIndicator>
+
+            <disabilityIndicator><!-- mandatory -->true</disabilityIndicator>
+
+           </facilities>
+
+           <locationType><!-- mandatory -->string</locationType>
+
+          </location>
+
+         </locations>
+
+         <integrationFooter>
+
+          <errors>
+
+           <error><!-- between zero and unlimited repetitions of this element
+      -->
+
+            <errorCode><!-- mandatory -->string</errorCode>
+
+            <errorDescription><!-- mandatory -->string</errorDescription>
+
+            <errorCause>string</errorCause>
+
+            <errorResolution>string</errorResolution>
+
+            <errorContext>string</errorContext>
+
+           </error>
+
+          </errors>
+
+          <warnings>
+
+           <warning><!-- between zero and unlimited repetitions of this element
+      -->
+
+            <warningCode><!-- mandatory -->string</warningCode>
+
+            <warningDescription><!-- mandatory -->string</warningDescription>
+
+            <warningCause>string</warningCause>
+
+            <warningResolution>string</warningResolution>
+
+            <warningContext>string</warningContext>
+
+           </warning>
+
+          </warnings>
+
+         </integrationFooter>
+
+        </local_collect_schema:getLocationsResponse>
+
+       </soap-env:Body>
+
+       <soap-env:Header>
+
+        <int:integrationHeader
+      xmlns:int="http://www.royalmailgroup.com/integration/core/V3">
+
+         <dateTime>2016-04-18T14:07:37</dateTime>
+
+         <version>string</version>
+
+         <identification><!-- mandatory -->
+
+          <endUserId>string</endUserId>
+
+          <clientId>string</clientId>
+
+          <applicationId><!-- mandatory -->string</applicationId>
+
+          <intermediaryId>string</intermediaryId>
+
+          <transactionId><!-- mandatory -->string</transactionId>
+
+         </identification>
+
+         <debugAudit>
+
+          <testFlag>true</testFlag>
+
+          <debugFlag>true</debugFlag>
+
+          <performanceFlag>true</performanceFlag>
+
+          <messageAuditFlag>true</messageAuditFlag>
+
+         </debugAudit>
+
+        </int:integrationHeader>
+
+       </soap-env:Header>
+
+      </soap-env:Envelope>
+  getLocationsHeaderOut:
+    type: object
+    properties:
+      integrationHeader:
+        $ref: '#/definitions/integrationHeader_int'
+  getLocationsFault:
+    type: object
+    properties:
+      Envelope:
+        xml:
+          prefix: soap-env
+          namespace: 'http://schemas.xmlsoap.org/soap/envelope/'
+        type: object
+        properties:
+          Fault:
+            type: object
+            properties:
+              getLocalCollectFault:
+                $ref: '#/definitions/getLocalCollectLocationsFault_tns'
+  getLocationsRequest_local_collect_schema:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/API/LocalCollect/schema/V2.0'
+      prefix: local_collect_schema
+    type: object
+    properties:
+      locationType:
+        $ref: '#/definitions/locationType_ns2'
+      radius:
+        $ref: '#/definitions/radius_ns2'
+      postCode:
+        $ref: '#/definitions/postcode_ns2'
+      geoLocation:
+        $ref: '#/definitions/geoSpatialPosition_ns2'
+    description: "The element represents the Local Collect request object. The request consists of choice of either a valid UK post code or a lat and long representing the search location.\n\t\t\tThe request allows the caller to restrict the look up by a search radius and a location type.\n\t\t\tThe search radius is the radius from the centre of the look up post code\n\t\t\tThe location type allows the retailer to restrict the data returned from the api. e.g. only return POL or EO data.;\npostCode: Warning: CHOICE element;\ngeoLocation: Warning: CHOICE element"
+    required:
+      - postCode
+      - geoLocation
+    example: >-
+      <local_collect_schema:getLocationsRequest
+      xmlns:local_collect_schema="http://www.royalmailgroup.com/API/LocalCollect/schema/V2.0">
+
+       <locationType>string</locationType>
+
+       <radius>17</radius>
+
+       <postCode><!-- mandatory -->string</postCode>
+
+       <geoLocation><!-- mandatory -->
+
+        <latitude><!-- mandatory -->string</latitude>
+
+        <longitude><!-- mandatory -->string</longitude>
+
+       </geoLocation>
+
+      </local_collect_schema:getLocationsRequest>
+  getLocationsResponse_local_collect_schema:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/API/LocalCollect/schema/V2.0'
+      prefix: local_collect_schema
+    type: object
+    properties:
+      locations:
+        $ref: '#/definitions/locations_ns2'
+      integrationFooter:
+        $ref: '#/definitions/integrationFooter_int'
+    description: "The element represents the Local Collect response object. The location response consists of 2 parts.\n\t\t\tThe first part is the integration footer consisting or errors/warnings\n\t\t\tThe second part consists of an array of address elements representing the local collect offices."
+    example: >-
+      <local_collect_schema:getLocationsResponse
+      xmlns:local_collect_schema="http://www.royalmailgroup.com/API/LocalCollect/schema/V2.0">
+
+       <locations>
+
+        <location><!-- between zero and 20 repetitions of this element -->
+
+         <organisationName><!-- mandatory -->string</organisationName>
+
+         <locationName><!-- mandatory -->string</locationName>
+
+         <addressLine1><!-- mandatory -->string</addressLine1>
+
+         <addressLine2>string</addressLine2>
+
+         <addressLine3>string</addressLine3>
+
+         <city>string</city>
+
+         <county>string</county>
+
+         <postcode><!-- mandatory -->string</postcode>
+
+         <openingHours><!-- mandatory --><!-- between 1 and 7 repetitions of this
+      element -->
+
+          <dayOfWeek><!-- mandatory -->string</dayOfWeek>
+
+          <openingTime><!-- mandatory -->string</openingTime>
+
+          <closingTime><!-- mandatory -->string</closingTime>
+
+          <lunchHours>
+
+           <lunchClosingTime><!-- mandatory -->string</lunchClosingTime>
+
+           <lunchOpeningTime><!-- mandatory -->string</lunchOpeningTime>
+
+          </lunchHours>
+
+         </openingHours>
+
+         <geoLocation><!-- mandatory -->
+
+          <latitude><!-- mandatory -->string</latitude>
+
+          <longitude><!-- mandatory -->string</longitude>
+
+         </geoLocation>
+
+         <distance><!-- mandatory -->string</distance>
+
+         <facilities>
+
+          <customerParkingIndicator><!-- mandatory
+      -->true</customerParkingIndicator>
+
+          <disabilityIndicator><!-- mandatory -->true</disabilityIndicator>
+
+         </facilities>
+
+         <locationType><!-- mandatory -->string</locationType>
+
+        </location>
+
+       </locations>
+
+       <integrationFooter>
+
+        <errors>
+
+         <error><!-- between zero and unlimited repetitions of this element -->
+
+          <errorCode><!-- mandatory -->string</errorCode>
+
+          <errorDescription><!-- mandatory -->string</errorDescription>
+
+          <errorCause>string</errorCause>
+
+          <errorResolution>string</errorResolution>
+
+          <errorContext>string</errorContext>
+
+         </error>
+
+        </errors>
+
+        <warnings>
+
+         <warning><!-- between zero and unlimited repetitions of this element
+      -->
+
+          <warningCode><!-- mandatory -->string</warningCode>
+
+          <warningDescription><!-- mandatory -->string</warningDescription>
+
+          <warningCause>string</warningCause>
+
+          <warningResolution>string</warningResolution>
+
+          <warningContext>string</warningContext>
+
+         </warning>
+
+        </warnings>
+
+       </integrationFooter>
+
+      </local_collect_schema:getLocationsResponse>
+  getLocalCollectLocationsFault_tns:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V3'
+      prefix: int
+    type: object
+    properties:
+      exceptionApplicationId:
+        $ref: '#/definitions/applicationId_int'
+      exceptionTransactionId:
+        $ref: '#/definitions/transactionId_int'
+      exceptionCode:
+        $ref: '#/definitions/errorCode_int'
+      exceptionText:
+        $ref: '#/definitions/description_ns1'
+    description: "RMG SOAP fault structure to be contained within 'detail' element"
+    required:
+      - exceptionApplicationId
+      - exceptionTransactionId
+      - exceptionCode
+      - exceptionText
+    example: >-
+      <int:exceptionDetails
+      xmlns:int="http://www.royalmailgroup.com/integration/core/V3">
+
+       <exceptionApplicationId><!-- mandatory -->string</exceptionApplicationId>
+
+       <exceptionTransactionId><!-- mandatory -->string</exceptionTransactionId>
+
+       <exceptionCode><!-- mandatory -->string</exceptionCode>
+
+       <exceptionText><!-- mandatory -->string</exceptionText>
+
+      </int:exceptionDetails>
+  integrationHeader_int:
+    xml:
+      namespace: 'http://www.royalmailgroup.com/integration/core/V3'
+      prefix: int
+    type: object
+    properties:
+      dateTime:
+        $ref: '#/definitions/dateTime_ns1'
+      version:
+        $ref: '#/definitions/decimal_ns1'
+      identification:
+        $ref: '#/definitions/identificationStructure_int'
+      debugAudit:
+        $ref: '#/definitions/debugAuditStructure_int'
+    description: >-
+      Common integration header definition;
+
+      dateTime: Date timestamp associated with when the data was generated, sent
+      or received;
+
+      version: Version of the service;
+
+      identification: Identification details associated with the Service
+      Requestor or Service Provider;
+
+      debugAudit: Flags used to assist with troubleshooting, problem
+      determination and to allow the performance and data exchanges between
+      systems to be tracked and audited.
+    required:
+      - identification
+  locationType_ns2:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    enum:
+      - Post Office
+      - Enquiry Office
+  radius_ns2:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: number
+    minimum: 0
+    exclusiveMinimum: true
+    maximum: 20
+  postcode_ns2:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    pattern: "[a-zA-Z][0-9a-zA-Z]+\\s?[0-9a-zA-Z]*"
+    maxLength: 8
+    minLength: 5
+  geoSpatialPosition_ns2:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      latitude:
+        $ref: '#/definitions/geoSpatial_ns1'
+      longitude:
+        $ref: '#/definitions/geoSpatial_ns1'
+    required:
+      - latitude
+      - longitude
+  locations_ns2:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      location:
+        type: array
+        items:
+          $ref: '#/definitions/address_ns2'
+        maxItems: 20
+  integrationFooter_int:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      errors:
+        $ref: '#/definitions/errorStructure_int'
+      warnings:
+        $ref: '#/definitions/warningStructure_int'
+    description: Common integration footer definition
+  applicationId_int:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: 'For a request, this is the ID of the Service Requester calling the service, unique when combined with the TransactionId. For the response, this is the ID of the Service Provider, unique when combined with the TransactionId.'
+    pattern: "[a-zA-Z0-9/\\-]*"
+    maxLength: 50
+    minLength: 1
+  transactionId_int:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: 'Id preserved throughout the lifespan of the transaction, unique when combined with the applicationId and intermediaryId (if applicable).'
+    pattern: "[a-zA-Z0-9/\\-]*"
+    maxLength: 50
+    minLength: 1
+  errorCode_int:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: Code associated with the error condition in the form ENNNN
+    pattern: '[E]{1}[0-9]{4}'
+  description_ns1:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: A description is a sub-type of string and is statement in words that gives an account or descriptive representation of a thing. Descriptions are only editable via an admin function and are for display and information purposes only for end users.
+    maxLength: 256
+  dateTime_ns1:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: 'dateTime represents a period in time which could be a particular month, day, and year at which some event happened or will happen but also includes a breakdown of time using hours, minutes, seconds and milliseconds. A dateTime stamp is a common use for this data type so that a precise record of an event can be captured.'
+    format: date-time
+  decimal_ns1:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: 'A decimal data type represents a real number with every decimal place indicating a multiple of a negative power of 10. It represents non-repeating decimal fractions like 0.3 and -1.17 without rounding, and gives the ability to do arithmetic on them.'
+  identificationStructure_int:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      endUserId:
+        $ref: '#/definitions/identifier_ns1'
+      clientId:
+        $ref: '#/definitions/identifier_ns1'
+      applicationId:
+        $ref: '#/definitions/applicationId_int'
+      intermediaryId:
+        $ref: '#/definitions/applicationId_int'
+      transactionId:
+        $ref: '#/definitions/transactionId_int'
+    description: >-
+      endUserId: User ID associated with the end user of the internal or external
+      organisation;
+
+      clientId: The ID of the Service Requester organisation or sub-organisation
+      calling the service.;
+
+      applicationId: The ID of the Service Requester system calling the service,
+      unique when combined with the transactionId.;
+
+      intermediaryId: Id associated with the Intermediary application (if
+      applicable).;
+
+      transactionId: Unique session id sent by the Service Requestor (for the
+      request) or returned by the Service Provider (for the response)
+    required:
+      - applicationId
+      - transactionId
+  debugAuditStructure_int:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      testFlag:
+        $ref: '#/definitions/boolean_ns1'
+      debugFlag:
+        $ref: '#/definitions/boolean_ns1'
+      performanceFlag:
+        $ref: '#/definitions/boolean_ns1'
+      messageAuditFlag:
+        $ref: '#/definitions/boolean_ns1'
+    description: >-
+      testFlag: Flag which can be used to test that the exposed service is
+      available. It is not expected that this flag will be used under normal BAU
+      service operation;
+
+      debugFlag: Flag which can be used to allow any messages to be dynamically
+      debugged. It is not expected that this flag will be used under normal BAU
+      service operation;
+
+      performanceFlag: Flag which can be used to track the performance of the
+      service between systems (entry time, exit time, latency etc);
+
+      messageAuditFlag: Flag used to audit message exchanges between systems
+  geoSpatial_ns1:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: 'A decimal data type representing Latitude and Longitude data. The format of decimal 10,7 was chosen as a generic representation which facilities conversion between geospatial systems'
+  address_ns2:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      organisationName:
+        $ref: '#/definitions/longName_ns1'
+      locationName:
+        $ref: '#/definitions/longName_ns1'
+      addressLine1:
+        $ref: '#/definitions/description_ns1'
+      addressLine2:
+        $ref: '#/definitions/description_ns1'
+      addressLine3:
+        $ref: '#/definitions/description_ns1'
+      city:
+        $ref: '#/definitions/shortName_ns1'
+      county:
+        $ref: '#/definitions/shortName_ns1'
+      postcode:
+        $ref: '#/definitions/postcode_ns2'
+      openingHours:
+        type: array
+        items:
+          $ref: '#/definitions/openingTime_ns2'
+        maxItems: 7
+        minItems: 1
+      geoLocation:
+        $ref: '#/definitions/geoSpatialPosition_ns2'
+      distance:
+        type: string
+      facilities:
+        $ref: '#/definitions/facilities_ns2'
+      locationType:
+        $ref: '#/definitions/locationType_ns2'
+    required:
+      - organisationName
+      - locationName
+      - addressLine1
+      - postcode
+      - openingHours
+      - geoLocation
+      - distance
+      - locationType
+  errorStructure_int:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      error:
+        type: array
+        items:
+          $ref: '#/definitions/errorDetail_int'
+  warningStructure_int:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      warning:
+        type: array
+        items:
+          $ref: '#/definitions/warningDetail_int'
+  identifier_ns1:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: An identifier is a sub-type of string which serves as a means of identification for a particular thing; An identifier can be associated with a name.
+    maxLength: 128
+  boolean_ns1:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: boolean
+    description: "Boolean, or boolean logic, is a subset of algebra used for creating true/false statements. Boolean expressions use the operators AND, OR, XOR, and NOT to compare values and return a true or false result. Boolean values can also be referred to as 'flags'."
+  longName_ns1:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: 'A long name is a sub-type of string and is word or a combination of words by which an organization, place, or thing, a body or class, or any object of thought is designated, called, or known.'
+    maxLength: 128
+  shortName_ns1:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: 'A name is a sub-type of string and is word or a combination of words by which a person, place, or thing, a body or class, or any object of thought is designated, called, or known. short name is intended for use with Reference data items'
+    maxLength: 64
+  openingTime_ns2:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      dayOfWeek:
+        $ref: '#/definitions/dayOfWeek_ns2'
+      openingTime:
+        type: string
+      closingTime:
+        type: string
+      lunchHours:
+        $ref: '#/definitions/lunchTime_ns2'
+    required:
+      - dayOfWeek
+      - openingTime
+      - closingTime
+  facilities_ns2:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      customerParkingIndicator:
+        type: boolean
+      disabilityIndicator:
+        type: boolean
+    required:
+      - customerParkingIndicator
+      - disabilityIndicator
+  errorDetail_int:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      errorCode:
+        $ref: '#/definitions/errorCode_int'
+      errorDescription:
+        $ref: '#/definitions/description_ns1'
+      errorCause:
+        $ref: '#/definitions/description_ns1'
+      errorResolution:
+        $ref: '#/definitions/description_ns1'
+      errorContext:
+        $ref: '#/definitions/description_ns1_nil'
+    description: >-
+      errorCode: Code associated with the error condition;
+
+      errorDescription: Description of the error condition;
+
+      errorCause: Cause of the business error (if known);
+
+      errorResolution: Description of the resolution and action required to
+      correct the error;
+
+      errorContext: Context of the business error, e.g. client or server
+    required:
+      - errorCode
+      - errorDescription
+  warningDetail_int:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      warningCode:
+        $ref: '#/definitions/warningCode_int'
+      warningDescription:
+        $ref: '#/definitions/description_ns1'
+      warningCause:
+        $ref: '#/definitions/description_ns1'
+      warningResolution:
+        $ref: '#/definitions/description_ns1'
+      warningContext:
+        $ref: '#/definitions/description_ns1_nil'
+    description: >-
+      warningCode: Code associated with the warning;
+
+      warningDescription: Description of the warning;
+
+      warningCause: Cause of the warning (if known);
+
+      warningResolution: Description of the resolution and action required to
+      correct the warning;
+
+      warningContext: Context of the warning, e.g. client or server
+    required:
+      - warningCode
+      - warningDescription
+  dayOfWeek_ns2:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    enum:
+      - Monday
+      - Tuesday
+      - Wednesday
+      - Thursday
+      - Friday
+      - Saturday
+      - Sunday
+  lunchTime_ns2:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: object
+    properties:
+      lunchClosingTime:
+        type: string
+      lunchOpeningTime:
+        type: string
+    required:
+      - lunchClosingTime
+      - lunchOpeningTime
+  warningCode_int:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: Code associated with the warning condition in the form WNNNN
+    pattern: '[W]{1}[0-9]{4}'
+  description_ns1_nil:
+    xml:
+      namespace: ''
+      prefix: ''
+    type: string
+    description: A description is a sub-type of string and is statement in words that gives an account or descriptive representation of a thing. Descriptions are only editable via an admin function and are for display and information purposes only for end users.
+    maxLength: 256
+    x-nullable: true

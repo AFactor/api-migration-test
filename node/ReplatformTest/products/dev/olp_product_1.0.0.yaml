@@ -1,0 +1,23 @@
+product: 1.0.0
+info:
+  name: olp
+  title: OLP
+  version: 1.0.0
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  olpolp:
+    $ref: jwtapi_1.0.0.yaml
+plans:
+  Default:
+    title: Default Plan
+    apis: {}

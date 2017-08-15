@@ -1,0 +1,45 @@
+product: 1.0.0
+info:
+  name: bulk-indicia
+  title: Bulk Indicia
+  version: 1.0.0
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  onlinepostageservicev2-1_0_0:
+    $ref: onlinepostageservicev2-1_0_0_1.0.0.yaml
+  broker-1:
+    $ref: broker-1_1.0.0.yaml
+  online-postage-service-v2-soap:
+    $ref: online-postage-service-v2-soap_1.0.0.yaml
+plans:
+  pfw-tracking-amazon:
+    title: PFW Tracking_Amazon
+    description: for amazon
+    rate-limits:
+      rate-limit-1:
+        hard-limit: true
+        value: 10/1second
+  new-plan:
+    title: New Plan 1
+    apis: {}
+    rate-limits:
+      rate-limit-1:
+        hard-limit: false
+        value: 500/1day
+  default:
+    title: Default Plan
+    description: Default Plan
+    approval: false
+    rate-limit:
+      hard-limit: false
+      value: 100/hour

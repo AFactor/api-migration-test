@@ -1,0 +1,23 @@
+product: 1.0.0
+info:
+  name: shipping-api-v2-rest
+  title: Shipping API V2 REST (UAT)
+  version: 2.3 UAT
+  description: 'Shipping API V2 REST (UAT) points to https://cob-api.royalmail.com/shipping/onboarding'
+visibility:
+  view:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  shipping-v2-rest:
+    $ref: shipping-v2-rest_UAT 2.3.yaml
+plans:
+  Default:
+    title: Default Plan

@@ -1,0 +1,27 @@
+product: 1.0.0
+info:
+  name: olp-v2-product
+  title: OLP V2 Product
+  version: 1.0.0
+visibility:
+  view:
+    enabled: true
+    type: public
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  onlinepostageservicev2:
+    $ref: onlinepostageservicev2_1.0.0.yaml
+plans:
+  default:
+    title: Default Plan
+    description: Default Plan
+    approval: false
+    rate-limit:
+      hard-limit: false
+      value: 100/hour

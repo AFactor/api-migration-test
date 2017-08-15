@@ -1,0 +1,32 @@
+product: 1.0.0
+info:
+  title: SIT Parcels Tracking API
+  version: 1.0.26-sit
+  description: 'Tracking APIs for SIT Testing TAPI V1 , V2'
+  name: sit-parcels-tracking-api
+visibility:
+  view:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+  subscribe:
+    enabled: true
+    type: authenticated
+    tags: []
+    orgs: []
+apis:
+  tracking-api-soap:
+    $ref: tracking-api-soap_1.1.1-rev34.yaml
+  tracking-api-rest:
+    $ref: tracking-api-rest_1.0.27-sit.yaml
+  rmg-tracking-api-v2-rest-server:
+    $ref: rmg-tracking-api-v2-rest-server_1.0.13-sit.yaml
+  rmg-tracking-api-v2-rest-b2b-shiptrack:
+    $ref: rmg-tracking-api-v2-rest-b2b-shiptrack_1.0.15-sit.yaml
+plans:
+  sit-tracking-api-plan:
+    title: SIT TRACKING API PLAN
+    description: for tracking api v1 and v2 sit testing.
+    approval: true
+    apis: {}
