@@ -55,7 +55,9 @@ namespace IBMApiAnalytics.Models
         public string latency { get; set; }
         public int? bytesReceived { get; set; }
         public string productName { get; set; }
+        public string esbErrorCode { get; set; }
     }
+
 
     public class CallLit
     {

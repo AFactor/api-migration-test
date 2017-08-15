@@ -4,9 +4,10 @@
     <ProjectView>ProjectFiles</ProjectView>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>--credentials apimanager/avik.sengupta%40royalmail.com:W1elcome1 --s 2016-12-01T00:00:00.000Z --e 2016-12-31T23:59:59.999Z --d 1</StartArguments>
+    <StartArguments>--credentials apimanager/aniruddha.pai%40royalmail.com:January01!  --s 2017-05-22T10:19:00.000 --e 2017-05-22T10:22:59.999 --d 1
+</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <StartArguments>--credentials apimanager/aniruddha.pai%40royalmail.com:January01! --s 2016-11-24T08:10:00.000Z --e 2016-11-24T23:59:59.999Z --d 1</StartArguments>
+    <StartArguments>IBMApiAnalytics.App.exe --credentials apimanager/aniruddha.pai%40royalmail.com:January01!  --s 2017-05-15T16:35:00.000 --e 2017-05-15T16:38:59.999 --d 1</StartArguments>
   </PropertyGroup>
 </Project>

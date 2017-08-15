@@ -60,13 +60,19 @@ namespace IBMApiAnalytics.Client
             var indexName = string.Format(IndexNameFormat, ConfigurationManager.AppSettings.SafeGet(_configDetailIndexKey, _defaultDetailIndexName), date.ToString("yyyyMMdd"));
 
             var dataLit = data.Select(d => new CallLit
-                                        { Id = d.Id, apiName = d.apiName, datetime = d.datetime,
-                                            devOrgName = d.devOrgName, productName = d.productName,
-                                            statusCode = d.statusCode, timeToServeRequest = d.timeToServeRequest,
-                                            requestBody = (d.apiName.Contains("live") ? string.Empty : d.requestBody),
-                                            responseBody = (d.apiName.Contains("live") ? string.Empty : d.responseBody),
-                                            planName = d.planName
+            {
+                Id = d.Id,
+                apiName = d.apiName,// ?? "",
+                datetime = d.datetime,
+                devOrgName = d.devOrgName,// ?? "",
+                productName = d.productName,
+                statusCode = d.statusCode,
+                timeToServeRequest = d.timeToServeRequest,
+                requestBody = (d.productName != null && d.productName.Contains("test") ? string.Empty : d.requestBody),
+                responseBody = (d.productName != null && d.productName.Contains("test") ? string.Empty : d.responseBody),
+                planName = d.planName
             }).ToList();
+
 
             var response = IndexManyInElastic(server, indexName, dataLit);
             _logger.Debug("Detail records added to Index {0} - {1}", response.Items.First().Index, response.Items.Count());
