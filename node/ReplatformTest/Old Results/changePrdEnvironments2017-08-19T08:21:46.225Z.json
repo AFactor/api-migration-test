@@ -1,0 +1,86 @@
+{
+  "0": {
+    "owner": {
+      "url": {
+        "old": "https://eu.apiconnect.ibmcloud.com/v1/users/5746ba160cf2eb1d98ebe96b",
+        "new": "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/users/5746ba160cf2eb1d98ebe96b"
+      }
+    },
+    "portalUrl": {
+      "old": "https://developer.eu.apiconnect.ibmcloud.com/royalmail/dev",
+      "new": "https://apicmgmt.royalmail01.eu-gb.bluemix.net/royalmail/dev"
+    },
+    "gwServices": {
+      "0": {
+        "id": {
+          "old": "PRODAPIC_APIMGMT_GATEWAY",
+          "new": "DEDICATED_APIMGMT_GATEWAY"
+        },
+        "endpointUrl": {
+          "old": "https://api.eu.apiconnect.ibmcloud.com/royalmail/dev",
+          "new": "noValue"
+        }
+      }
+    },
+    "url": {
+      "old": "https://eu.apiconnect.ibmcloud.com/v1/orgs/55a900b10cf272a4b3015a7a/environments/55eeff8d0cf2822d3faa322e",
+      "new": "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55eeff8d0cf2822d3faa322e"
+    }
+  },
+  "1": {
+    "owner": {
+      "url": {
+        "old": "https://eu.apiconnect.ibmcloud.com/v1/users/5746ba160cf2eb1d98ebe96b",
+        "new": "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/users/5746ba160cf2eb1d98ebe96b"
+      }
+    },
+    "portalUrl": {
+      "old": "https://developer.eu.apiconnect.ibmcloud.com/royalmail/live",
+      "new": "https://apicmgmt.royalmail01.eu-gb.bluemix.net/royalmail/live"
+    },
+    "gwServices": {
+      "0": {
+        "id": {
+          "old": "PRODAPIC_APIMGMT_GATEWAY",
+          "new": "DEDICATED_APIMGMT_GATEWAY"
+        },
+        "endpointUrl": {
+          "old": "https://api.royalmail.net",
+          "new": "noValue"
+        }
+      }
+    },
+    "url": {
+      "old": "https://eu.apiconnect.ibmcloud.com/v1/orgs/55a900b10cf272a4b3015a7a/environments/55f16d010cf2fae1b6b74fec",
+      "new": "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55f16d010cf2fae1b6b74fec"
+    }
+  },
+  "2": {
+    "owner": {
+      "url": {
+        "old": "https://eu.apiconnect.ibmcloud.com/v1/users/5746ba160cf2eb1d98ebe96b",
+        "new": "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/users/5746ba160cf2eb1d98ebe96b"
+      }
+    },
+    "portalUrl": {
+      "old": "https://developer.eu.apiconnect.ibmcloud.com/royalmail/uat",
+      "new": "https://apicmgmt.royalmail01.eu-gb.bluemix.net/royalmail/uat"
+    },
+    "gwServices": {
+      "0": {
+        "id": {
+          "old": "PRODAPIC_APIMGMT_GATEWAY",
+          "new": "DEDICATED_APIMGMT_GATEWAY"
+        },
+        "endpointUrl": {
+          "old": "https://test.api.royalmail.net",
+          "new": "noValue"
+        }
+      }
+    },
+    "url": {
+      "old": "https://eu.apiconnect.ibmcloud.com/v1/orgs/55a900b10cf272a4b3015a7a/environments/55e581010cf2b06192d56be3",
+      "new": "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55e581010cf2b06192d56be3"
+    }
+  }
+}

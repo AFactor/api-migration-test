@@ -7,30 +7,22 @@ var express = require("express"),
 	fs = require('fs'),
 	port = process.env.PORT || 3006,
 	basicAuth = require('express-basic-auth'),
-	jsonDiff = require('./index.js'),
+	//jsonDiff = require('./index.js'),
 	clc = require('cli-color');
-	equal = require('deep-equal');
+	//equal = require('deep-equal');
 
 var resultFileName = './results/change%s' + new Date().toISOString() +'.json'
 var fileLocation = "./Results/%s" + new Date().toISOString() + ".json";
 var encodedCredentials = "YXBpbWFuYWdlci9hcGkucHVibGlzaEByb3lhbG1haWwuY29tOlN1cGVyRHVwZXJDbGV2ZXJVc2Vy"
 
-//var publicServer = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55f16d010cf2fae1b6b74fec/products?expand=true" 
-/*var publicServer = "https://eu.apiconnect.ibmcloud.com/v1";
-var dedicatedServer = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/";
 
-var publicOrgId = "55a900b10cf272a4b3015a7a";
-var dedicatedOrgId = "55a900b10cf272a4b3015a7a";
-
-var publicLiveId = "55f16d010cf2fae1b6b74fec";
-var dedicatedLiveId = "55f16d010cf2fae1b6b74fec";*/
 
 var getHeaders = {
         'Content-Type' : 'application/json',
         'authorization' : util.format('Basic %s', encodedCredentials)//'Basic YXBpbWFuYWdlci9hdmlrLnNlbmd1cHRhQHJveWFsbWFpbC5jb206VzFlbGNvbWUx'
     };
 
-  // https://apicmgmt.royalmail01.eu-gb.bluemix.net/apim/proxy/orgs/55a900b10cf272a4b3015a7a/environments/55f16d010cf2fae1b6b74fec/products?expand=false
+  
   // 1. Live consumer apps
   var publicConsumerUrl = "https://eu.apiconnect.ibmcloud.com/v1/orgs/55a900b10cf272a4b3015a7a/environments/55f16d010cf2fae1b6b74fec/consumerApps";
   var dedicatedConsumerUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55f16d010cf2fae1b6b74fec/consumerApps";
@@ -45,8 +37,9 @@ var getHeaders = {
     }, (err, res, body) => {
 
     	if(body){
+
 			publicConsumerApps = JSON.parse(body);
-			writeDataToFile(body, util.format(fileLocation, "publicLiveConsumers"),
+			writeDataToFile(publicConsumerApps, util.format(fileLocation, "publicLiveConsumers"),
 			 "Public Live consumer orgs extracted at " + new Date().toString() + " and saved in Results subfolder");
 			request.get({
 		        url: dedicatedConsumerUrl,
@@ -55,10 +48,9 @@ var getHeaders = {
 		    }, (err, res, body1) => {
 		    	if(body1){
 		    		dedicatedConsumerApps = JSON.parse(body1);
-		    		//dedicatedConsumerApps = {"different": true};	
-		    		//console.log(dedicatedConsumerApps.length);
-		    		//dedicatedConsumerApps.splice(dedicatedConsumerApps.length-1, 1);
-   					 var change = jsonDiff.diff(publicConsumerApps, dedicatedConsumerApps);
+		    		writeDataToFile(dedicatedConsumerApps, util.format(fileLocation, "dedicatedLiveConsumers"),
+			 "Dedicated Live consumer orgs extracted at " + new Date().toString() + " and saved in Results subfolder");
+   					 var change = filter(publicConsumerApps, dedicatedConsumerApps);
    					 writeChangeToFile(JSON.stringify(change), "Live: No change in consumer apps", "Live: change in consumer apps", util.format(resultFileName, "Prdconsumer"));
 		    	}
 		    });
@@ -81,7 +73,7 @@ var getHeaders = {
 
     	if(body){
 			publicRegistry=  JSON.parse(body);
-			writeDataToFile(body, util.format(fileLocation, "publicLiveRegistry"),
+			writeDataToFile(publicRegistry, util.format(fileLocation, "publicLiveRegistry"),
 			"Public Live Registry extracted at " + new Date().toString() + " and saved in Results subfolder");
 			request.get({
 		        url: dedicatedregistryUrl,
@@ -90,8 +82,9 @@ var getHeaders = {
 		    }, (err, res, body1) => {
 		    	if(body1){
 		    		dedicatedRegistry = JSON.parse(body1)
-		    		//dedicatedRegistry.name = "DingDong";
-		    		 var change = jsonDiff.diff(publicRegistry, dedicatedRegistry);
+		    		writeDataToFile(dedicatedRegistry, util.format(fileLocation, "dedicatedRegistry"),
+			 "Dedicated registry extracted at " + new Date().toString() + " and saved in Results subfolder");
+		    		 var change = filter(publicRegistry, dedicatedRegistry);
    					 writeChangeToFile(JSON.stringify(change), "Live: No change in registry", "Live: change in registry", util.format(resultFileName,"Prdregistry"))
 		    	}
 		    });
@@ -113,7 +106,7 @@ var getHeaders = {
 
     	if(body){
 			publicSubApps = JSON.parse(body);
-			writeDataToFile(body, util.format(fileLocation, "publicLiveSubscriptions"),
+			writeDataToFile(publicSubApps, util.format(fileLocation, "publicLiveSubscriptions"),
 			 "Public Live Subscription extracted at " + new Date().toString() + " and saved in Results subfolder");
 			request.get({
 		        url: dedicatedSubUrl,
@@ -122,8 +115,9 @@ var getHeaders = {
 		    }, (err, res, body1) => {
 		    	if(body1){
 		    		dedicatedSubApps = JSON.parse(body1);
-		    		
-   					 var change = jsonDiff.diff(publicSubApps, dedicatedSubApps);
+		    		writeDataToFile(dedicatedSubApps, util.format(fileLocation, "dedicatedSubApps"),
+			 "Dedicated live subscriptions extracted at " + new Date().toString() + " and saved in Results subfolder");
+   					 var change = filter(publicSubApps, dedicatedSubApps);
    					 writeChangeToFile(JSON.stringify(change), "Live: No change in Subscription", "Live: change in Subscription", util.format(resultFileName,"Prdsubs"))
 		    	}
 		    });
@@ -146,7 +140,7 @@ var getHeaders = {
 
     	if(body){
 			publicPrdApps = JSON.parse(body);
-			writeDataToFile(body, util.format(fileLocation, "publicLiveProducts"),
+			writeDataToFile(publicPrdApps, util.format(fileLocation, "publicLiveProducts"),
 			 "Public Live Products extracted at " + new Date().toString() + " and saved in Results subfolder");
 			request.get({
 		        url: dedicatedPrdUrl,
@@ -155,7 +149,8 @@ var getHeaders = {
 		    }, (err, res, body1) => {
 		    	if(body1){
 		    		dedicatedPrdApps = JSON.parse(body1);
-		    		
+		    		writeDataToFile(dedicatedPrdApps, util.format(fileLocation, "dedicatedPrdApps"),
+			 "Dedicated live Apps extracted at " + new Date().toString() + " and saved in Results subfolder");
    					 var change = filter(publicPrdApps, dedicatedPrdApps);
    					 writeChangeToFile(JSON.stringify(change), "Live: No change in Products", "Live: change in Products", util.format(resultFileName, "PrdProducts"))
 		    	}
@@ -209,6 +204,8 @@ var getHeaders = {
 				    });
  					writeDataToFile(JSON.stringify(publicMemApps), util.format(fileLocation, "publicLiveMembers"),
  					"Public Live members extracted at " + new Date().toString() + " and saved in Results subfolder");
+ 					writeDataToFile(dedicatedMemApps, util.format(fileLocation, "dedicatedMemApps"),
+			 		"Dedicated live members extracted at " + new Date().toString() + " and saved in Results subfolder");
    					 var change = filter(publicMemApps, dedicatedMemApps);
    					 writeChangeToFile(JSON.stringify(change), "Live: No change in Members", "Live: change in Members", util.format(resultFileName,"PrdMembers"))
 		    	}
@@ -260,8 +257,10 @@ var getHeaders = {
 				        return a>b ? -1 : a<b ? 1 : 0;
 				    });
 
-		    		writeDataToFile(publicOrgApps, util.format(fileLocation, "publicLiveConsumerOrgs"),
+		    		writeDataToFile(publicOrgApps, util.format(fileLocation, "publicOrgs"),
 		    			"Public Live consumer Orgs  extracted at " + new Date().toString() + " and saved in Results subfolder");
+		    		writeDataToFile(dedicatedOrgApps, util.format(fileLocation, "dedicatedOrgs"),
+		    			"Dedicated Live consumer Orgs  extracted at " + new Date().toString() + " and saved in Results subfolder");
    					 var change = filter(publicOrgApps, dedicatedOrgApps);
    					 writeChangeToFile(JSON.stringify(change), "Live: No change in consumer Orgs", "Live: change in consumer orgs", util.format(resultFileName,"PrdconsumerOrgs"))
 		    	}
@@ -316,6 +315,8 @@ var getHeaders = {
 
 		    		 writeDataToFile(publicEnvApps, util.format(fileLocation, "publicCommonEnvs"),
 		    		 	"Public Common environments extracted at " + new Date().toString() + " and saved in Results subfolder");
+		    		 writeDataToFile(dedicatedEnvApps, util.format(fileLocation, "dedicatedCommonEnvs"),
+		    		 	"Dedicated Common environments extracted at " + new Date().toString() + " and saved in Results subfolder");
    					 var change = filter(publicEnvApps, dedicatedEnvApps);
    					 writeChangeToFile(JSON.stringify(change), "Common: No change in Enviornments", "Common: change in Enviornments", util.format(resultFileName,"PrdEnvironments"))
 		    	}
@@ -370,6 +371,8 @@ var getHeaders = {
 
 		    		 writeDataToFile(publicDPrdApps, util.format(fileLocation, "publicCommonDraftProducts"),
 		    		 	"Public common draft produts extracted at " + new Date().toString() + " and saved in Results subfolder");
+		    		 writeDataToFile(dedicatedDPrdApps, util.format(fileLocation, "dedicatedCommonDraftProducts"),
+		    		 	"Dedicated common draft produts extracted at " + new Date().toString() + " and saved in Results subfolder");
    					 var change = filter(publicDPrdApps, dedicatedDPrdApps);
    					 writeChangeToFile(JSON.stringify(change), "Common: No change in Draft Products", "Common: change in Draft Products", util.format(resultFileName, "CommonDraft"));
 		    	}
@@ -377,11 +380,11 @@ var getHeaders = {
     	}
     });
 
-//---------------------UAT ---------------------------------------------
+/*//---------------------UAT ---------------------------------------------
 
   // consumer apps
   var publicUATConsumerUrl = "https://eu.apiconnect.ibmcloud.com/v1/orgs/55a900b10cf272a4b3015a7a/environments/55e581010cf2b06192d56be3/consumerApps";
-  var dedicatedUATConsumerUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55f16d010cf2fae1b6b74fec/consumerApps";
+  var dedicatedUATConsumerUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55e581010cf2b06192d56be3/consumerApps";
 
   var publicUATConsumerApps ={};
   var dedicatedUATConsumerApps ={};
@@ -406,7 +409,7 @@ var getHeaders = {
 		    		//dedicatedConsumerApps = {"different": true};	
 		    		//console.log(dedicatedConsumerApps.length);
 		    		//dedicatedConsumerApps.splice(dedicatedConsumerApps.length-1, 1);
-   					 var change = jsonDiff.diff(publicUATConsumerApps, dedicatedUATConsumerApps);
+   					 var change = filter(publicUATConsumerApps, dedicatedUATConsumerApps);
    					 writeChangeToFile(JSON.stringify(change), "UAT: No change in consumer apps", "UAT: change in consumer apps", util.format(resultFileName, "UATConsumerApps"));
 		    	}
 		    });
@@ -416,7 +419,7 @@ var getHeaders = {
   
    // registry
   var publicUATregistryUrl = "https://eu.apiconnect.ibmcloud.com/v1/orgs/55a900b10cf272a4b3015a7a/registries/55e581010cf2b06192d56be3";
-  var dedicatedUATregistryUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/registries/55ed50710cf2554a85f86d41";
+  var dedicatedUATregistryUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/registries/55e581010cf2b06192d56be3";
 
   var publicUATRegistry ={};
   var dedicatedUATRegistry ={};
@@ -439,7 +442,7 @@ var getHeaders = {
 		    	if(body1){
 		    		dedicatedUATRegistry = JSON.parse(body1)
 		    		//dedicatedRegistry.name = "DingDong";
-		    		 var change = jsonDiff.diff(publicUATRegistry, dedicatedUATRegistry);
+		    		 var change = filter(publicUATRegistry, dedicatedUATRegistry);
    					 writeChangeToFile(JSON.stringify(change), "UAT: No change in registry", "UAT: change in registry", util.format(resultFileName, "UATRegistry"));
 		    	}
 		    });
@@ -448,7 +451,7 @@ var getHeaders = {
 
    // Subscription
   var publicUATSubUrl = "https://eu.apiconnect.ibmcloud.com/v1/orgs/55a900b10cf272a4b3015a7a/environments/55e581010cf2b06192d56be3/subscriptions";
-  var dedicatedUATSubUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55f16d010cf2fae1b6b74fec/subscriptions";
+  var dedicatedUATSubUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55e581010cf2b06192d56be3/subscriptions";
 
   var publicUATSubApps ={};
   var dedicatedUATSubApps ={};
@@ -471,7 +474,30 @@ var getHeaders = {
 		    	if(body1){
 		    		dedicatedUATSubApps = JSON.parse(body1);
 		    		
-   					 var change = jsonDiff.diff(publicUATSubApps, dedicatedUATSubApps);
+		    		dedicatedUATSubApps.sort(function(a, b) {
+				        aApp = a.name;
+				        bApp = b.name;
+
+				        if(aApp != bApp)
+				            {
+				                return (aApp < bApp) ? -1 : 1;
+				            }
+
+				        return a>b ? -1 : a<b ? 1 : 0;
+				    });
+		    		publicUATSubApps.sort(function(a, b) {
+				        aApp = a.id;
+				        bApp = b.id;
+
+				        if(aApp != bApp)
+				            {
+				                return (aApp < bApp) ? -1 : 1;
+				            }
+
+				        return a>b ? -1 : a<b ? 1 : 0;
+				    });
+
+   					 var change = filter(publicUATSubApps, dedicatedUATSubApps);
    					 writeChangeToFile(JSON.stringify(change), "UAT: No change in Subscription", "UAT: change in Subscription", util.format(resultFileName, "UATSubscription"));
 		    	}
 		    });
@@ -481,7 +507,7 @@ var getHeaders = {
 
    // Products
   var publicUATPrdUrl =    "https://eu.apiconnect.ibmcloud.com/v1/orgs/55a900b10cf272a4b3015a7a/environments/55e581010cf2b06192d56be3/products?expand=true";
-  var dedicatedUATPrdUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55f16d010cf2fae1b6b74fec/products?expand=true";
+  var dedicatedUATPrdUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55e581010cf2b06192d56be3/products?expand=true";
 
   var publicUATPrdApps ={};
   var dedicatedUATPrdApps ={};
@@ -503,7 +529,28 @@ var getHeaders = {
 		    }, (err, res, body1) => {
 		    	if(body1){
 		    		dedicatedUATPrdApps = JSON.parse(body1);
-		    		
+		    		 dedicatedUATPrdApps.sort(function(a, b) {
+				        aApp = a.id;
+				        bApp = b.id;
+
+				        if(aApp != bApp)
+				            {
+				                return (aApp < bApp) ? -1 : 1;
+				            }
+
+				        return a>b ? -1 : a<b ? 1 : 0;
+				    });
+		    		publicUATPrdApps.sort(function(a, b) {
+				        aApp = a.id;
+				        bApp = b.id;
+
+				        if(aApp != bApp)
+				            {
+				                return (aApp < bApp) ? -1 : 1;
+				            }
+
+				        return a>b ? -1 : a<b ? 1 : 0;
+				    });
    					 var change = filter(publicUATPrdApps, dedicatedUATPrdApps);
    					 writeChangeToFile(JSON.stringify(change), "UAT: No change in Products", "UAT: change in Products", util.format(resultFileName, "UATProducts"));
 		    	}
@@ -513,7 +560,7 @@ var getHeaders = {
 
    // Members
   var publicUATMemUrl =    "https://eu.apiconnect.ibmcloud.com/v1/orgs/55a900b10cf272a4b3015a7a/environments/55e581010cf2b06192d56be3/members";
-  var dedicatedUATMemUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55f16d010cf2fae1b6b74fec/members";
+  var dedicatedUATMemUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55e581010cf2b06192d56be3/members";
 
   var publicUATMemApps ={};
   var dedicatedUATMemApps ={};
@@ -565,7 +612,7 @@ var getHeaders = {
     });
  // ConsumerOrgs
   var publicUATConsumerOrgsUrl =    "https://eu.apiconnect.ibmcloud.com/v1/orgs/55a900b10cf272a4b3015a7a/environments/55e581010cf2b06192d56be3/consumerOrgs";
-  var dedicatedUATConsumerOrgsUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55f16d010cf2fae1b6b74fec/consumerOrgs";
+  var dedicatedUATConsumerOrgsUrl = "https://apicmgmt.royalmail01.eu-gb.bluemix.net/v1/orgs/55a900b10cf272a4b3015a7a/environments/55e581010cf2b06192d56be3/consumerOrgs";
 
   var publicUATOrgApps ={};
   var dedicatedUATOrgApps ={};
@@ -619,7 +666,7 @@ var getHeaders = {
 
   
 
-  //--------------------UAT END -------------------
+  //--------------------UAT END ----------------------------------------
 
 //---------------------DEV ---------------------------------------------
 
@@ -650,7 +697,7 @@ var getHeaders = {
 		    		//dedicatedConsumerApps = {"different": true};	
 		    		//console.log(dedicatedConsumerApps.length);
 		    		//dedicatedConsumerApps.splice(dedicatedConsumerApps.length-1, 1);
-   					 var change = jsonDiff.diff(publicDEVConsumerApps, dedicatedDEVConsumerApps);
+   					 var change = filter(publicDEVConsumerApps, dedicatedDEVConsumerApps);
    					 writeChangeToFile(JSON.stringify(change), "DEV: No change in consumer apps", "DEV: change in consumer apps", resultFileName)
 		    	}
 		    });
@@ -683,7 +730,7 @@ var getHeaders = {
 		    	if(body1){
 		    		dedicatedDEVRegistry = JSON.parse(body1)
 		    		//dedicatedRegistry.name = "DingDong";
-		    		 var change = jsonDiff.diff(publicDEVRegistry, dedicatedDEVRegistry);
+		    		 var change = filter(publicDEVRegistry, dedicatedDEVRegistry);
    					 writeChangeToFile(JSON.stringify(change), "DEV: No change in registry", "DEV: change in registry", util.format(resultFileName, "DevConsumerApps"));
 		    	}
 		    });
@@ -715,7 +762,7 @@ var getHeaders = {
 		    	if(body1){
 		    		dedicatedDEVSubApps = JSON.parse(body1);
 		    		
-   					 var change = jsonDiff.diff(publicDEVSubApps, dedicatedDEVSubApps);
+   					 var change = filter(publicDEVSubApps, dedicatedDEVSubApps);
    					 writeChangeToFile(JSON.stringify(change), "DEV: No change in Subscription", "DEV: change in Subscription", util.format(resultFileName, "UATSubscription"));
 		    	}
 		    });
@@ -859,7 +906,7 @@ var getHeaders = {
 		    	}
 		    });
     	}
-    });
+    });*/
 
   
 
@@ -869,6 +916,7 @@ var getHeaders = {
    var writeChangeToFile = function(change, noChangeText, changeText, path){
    		if(change){
    			//change = util.format('\n-----%s------\n %s', changeText, change);
+   			console.log('writting change');
 			writeDataToFile( change, path,  path + " saved.");
 			console.log(clc.red(changeText));
 			 
@@ -879,7 +927,7 @@ var getHeaders = {
 
    var writeDataToFile = function(data, path, logText){
    		
-			fs.writeFile(path, data, function(err) {
+			fs.writeFile(path, JSON.stringify(data), function(err) {
 			if(err) {
 				return console.log(err);
 			}
@@ -889,18 +937,17 @@ var getHeaders = {
    }
 
    function filter(obj1, obj2) {
+
     var result = {};
     for(var key in obj1) {
-        //console.log('Key: '  + key);
-        //console.log('type: ' + typeof obj1[key] + '----' + typeof obj2[key]);
+         
          if ( obj2[key] === obj1[key] ) {
                 continue;
             }
+        obj1[key] = obj1[key].toString().replace('eu.apiconnect.ibmcloud.com', 'apicmgmt.royalmail01.eu-gb.bluemix.net');
         if(obj2[key] != obj1[key]) {
           if(obj1[key] != 'undefined' || obj2[key] != 'undefined'){
-          	if(obj1[key] != 'eu.apiconnect.ibmcloud.com' && obj2[key] != 'apicmgmt.royalmail01.eu-gb.bluemix.net' ){
             result[key] = {"old" :  obj1[key] || 'noValue', "new" : obj2[key]|| 'noValue'};
-        }
           }
         }
         if(Array.isArray(obj1[key]) && Array.isArray(obj2[key])){
